@@ -27,6 +27,8 @@ sealed interface PromoteAnonymousUserResult {
 
 interface UserRepository {
 
+    fun createAnonymousUser(): String
+
     fun insertUser(userRecord: InsertUserRecord): InsertUserResult
 
     fun createCredentialsForAnonymousUser(userId: String, credentials: InsertUserRecord): PromoteAnonymousUserResult
