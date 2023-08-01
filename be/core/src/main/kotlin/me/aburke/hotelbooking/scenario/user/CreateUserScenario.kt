@@ -25,6 +25,8 @@ sealed interface CreateUserResult : Scenario.Result {
     data object UsernameNotAvailable : CreateUserResult
 
     data object UserIsNotAnonymous : CreateUserResult
+
+    data object AnonymousUserDoesNotExist : CreateUserResult
 }
 
 class CreateUserScenario(
@@ -67,6 +69,8 @@ class CreateUserScenario(
             is PromoteAnonymousUserResult.UserIsNotAnonymous -> CreateUserResult.UserIsNotAnonymous
 
             is PromoteAnonymousUserResult.LoginIdUniquenessViolation -> CreateUserResult.UsernameNotAvailable
+
+            is PromoteAnonymousUserResult.AnonymousUserDoesNotExist -> CreateUserResult.AnonymousUserDoesNotExist
         }
     }
 }

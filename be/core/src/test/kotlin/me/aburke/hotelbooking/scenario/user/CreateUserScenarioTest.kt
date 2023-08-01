@@ -306,6 +306,59 @@ class CreateUserScenarioTest {
         }
     }
 
+    @Test
+    fun `should return AnonymousUserDoesNotExist when user ID does not exist`() {
+        every {
+            passwordHasher.hashPassword(RAW_PASSWORD)
+        } returns HASHED_PASSWORD
+        every {
+            userRepository.createCredentialsForAnonymousUser(
+                USER_ID,
+                InsertUserRecord(
+                    loginId = LOGIN_ID,
+                    passwordHash = HASHED_PASSWORD,
+                    name = NAME,
+                    roles = roles,
+                )
+            )
+        } returns PromoteAnonymousUserResult.AnonymousUserDoesNotExist
+
+        val result = underTest.run(
+            CreateUserDetails(
+                loginId = LOGIN_ID,
+                rawPassword = RAW_PASSWORD,
+                name = NAME,
+                userRoles = roles,
+                anonymousUserId = USER_ID,
+            )
+        )
+
+        assertSoftly { s ->
+            s.assertThat(result).isEqualTo(
+                CreateUserResult.AnonymousUserDoesNotExist
+            )
+            s.check {
+                verify(exactly = 1) {
+                    passwordHasher.hashPassword(RAW_PASSWORD)
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
+                    userRepository.createCredentialsForAnonymousUser(
+                        USER_ID,
+                        InsertUserRecord(
+                            loginId = LOGIN_ID,
+                            passwordHash = HASHED_PASSWORD,
+                            name = NAME,
+                            roles = roles,
+                        )
+                    )
+                }
+            }
+            s.confirmMocks()
+        }
+    }
+
     private fun SoftAssertions.confirmMocks() = check {
         confirmVerified(
             passwordHasher,

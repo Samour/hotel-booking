@@ -22,6 +22,8 @@ sealed interface PromoteAnonymousUserResult {
 
     data object UserIsNotAnonymous : PromoteAnonymousUserResult
 
+    data object AnonymousUserDoesNotExist : PromoteAnonymousUserResult
+
     data object LoginIdUniquenessViolation : PromoteAnonymousUserResult
 }
 
