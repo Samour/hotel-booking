@@ -1,0 +1,118 @@
+@startuml
+
+'User
+
+enum UserRole {
+    CUSTOMER
+    MANAGE_ROOMS
+    MANAGE_USERS
+}
+
+entity user_credential {
+    * user_id : UUID
+    --
+    * login_id : string
+    * password_hash : string
+}
+
+entity user {
+    * user_id : UUID
+    --
+    * user_roles : enum<UserRole>[]
+    * name : string
+}
+
+user --o user_credential
+UserRole }- user::user_roles
+
+'Room
+
+entity hotel {
+    * hotel_id : UUID
+    --
+    * time_zone : string
+}
+
+entity room_type {
+    * room_type_id : UUID
+    --
+    * hotel_id : UUID
+    * stock_level : int
+}
+
+hotel::hotel_id -{ room_type::hotel_id
+
+entity room_type_description {
+    * room_type_description_id : UUID
+    --
+    * room_type_id : UUID
+    * title : string
+    * description : string
+}
+
+room_type::room_type_id -* room_type_description::room_type_id
+
+entity room_type_image {
+    * room_type_image_id : UUID
+    --
+    * room_type_description_id : UUID
+    * image_url : string
+}
+
+room_type_description::room_type_description_id -{ room_type_image::room_type_description_id
+
+entity room_stock {
+    * room_stock_id : UUID
+    --
+    * room_type_id : UUID
+    * date : string
+    * morning_stock : int
+    * afternoon_stock : int
+}
+
+room_type::room_type_id --{ room_stock::room_type_id
+
+'Booking
+
+enum BookingStatus {
+    RESERVED
+    BOOKED
+    CANCELED
+}
+
+entity booking {
+    * booking_id : UUID
+    --
+    * room_type_id : UUID
+    * user_id : UUID
+    * booking_status : enum<BookingStatus>
+    * check_in_date : string
+    * check_out_date : string
+}
+
+booking::booking_status -* BookingStatus
+user::user_id --{ booking::user_id
+room_type::room_type_id --{ booking::room_type_id
+
+'Payment
+
+enum PaymentStatus {
+    PENDING
+    CAPTURED
+    REJECTED
+    REFUNDED
+}
+
+entity payment {
+    * payment_id : UUID
+    --
+    * payment_receipt : string
+    * booking_id : UUID
+    * payment_status : enum<PaymentStatus>
+}
+
+payment::payment_status -* PaymentStatus
+
+room_type_description -[hidden]- payment
+
+@enduml
