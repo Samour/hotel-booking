@@ -85,6 +85,7 @@ entity booking {
     --
     * room_type_id : UUID
     * user_id : UUID
+    * booking_reference : string
     * booking_status : enum<BookingStatus>
     * check_in_date : string
     * check_out_date : string

@@ -1,10 +1,9 @@
 package me.aburke.hotelbooking.scenario
 
-interface ScenarioDetails
+interface Scenario<D : Scenario.Details, R : Scenario.Result> {
 
-interface ScenarioResult
-
-interface Scenario<D : ScenarioDetails, R : ScenarioResult> {
+    interface Details
+    interface Result
 
     fun run(details: D): R
 }
