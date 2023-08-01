@@ -22,6 +22,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
+    implementation("at.favre.lib:bcrypt:${properties["jbcryptVersion"]}")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:${properties["junitVersion"]}")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:${properties["junitVersion"]}")
     testImplementation("org.junit.jupiter:junit-jupiter-params:${properties["junitVersion"]}")
