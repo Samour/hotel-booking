@@ -9,5 +9,5 @@ DB_NAME=postgres_test docker compose up postgresql
 Then run tests
 
 ```bash
-./gradlew mysql-repository:test
+./gradlew postgres-repository:test
 ```
