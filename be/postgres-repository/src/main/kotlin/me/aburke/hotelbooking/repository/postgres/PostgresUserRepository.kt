@@ -89,7 +89,32 @@ class PostgresUserRepository(
     }
 
     override fun findUserByLoginId(loginId: String): NonAnonymousUserRecord? {
-        TODO("Not yet implemented")
+        val query = connection.prepareStatement(
+            """
+                select c.user_id, c.login_id, c.password_hash, u.user_roles, u.name
+                from user_credential c
+                join app_user u on u.user_id = c.user_id
+                where login_id = ?
+            """.trimIndent()
+        )
+        query.setString(1, loginId)
+        val result = query.executeQuery()
+
+        if (!result.next()) {
+            return null
+        }
+
+        return NonAnonymousUserRecord(
+            userId = result.getString("user_id"),
+            userRoles = setOf(*(result.getArray("user_roles").array as Array<String>))
+                .map { UserRole.valueOf(it) }
+                .toSet(),
+            name = result.getString("name"),
+            credential = UserCredentialRecord(
+                loginId = result.getString("login_id"),
+                passwordHash = result.getString("password_hash"),
+            )
+        )
     }
 
     private fun insertUserQuery(userId: String, userRoles: Set<UserRole>, name: String): PreparedStatement {

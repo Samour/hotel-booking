@@ -1,10 +1,7 @@
 package me.aburke.hotelbooking.repository.postgres
 
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.ports.repository.InsertUserResult
-import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
-import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.ports.repository.*
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
@@ -16,18 +13,6 @@ import java.sql.Connection
 private const val LOGIN_ID = "login-id"
 private const val PASSWORD_HASH = "password-hash"
 private const val NAME = "name"
-
-private data class UserRecord(
-    val userId: String,
-    val userRoles: Set<String>,
-    val name: String,
-    val credential: UserCredentialRecord?,
-)
-
-private data class UserCredentialRecord(
-    val loginId: String,
-    val passwordHash: String,
-)
 
 class PostgresUserRepositoryTest {
 
@@ -55,7 +40,7 @@ class PostgresUserRepositoryTest {
         assertThat(users).containsExactly(
             UserRecord(
                 userId = result,
-                userRoles = setOf(UserRole.CUSTOMER.name),
+                userRoles = setOf(UserRole.CUSTOMER),
                 name = "",
                 credential = null,
             )
@@ -81,7 +66,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = userId ?: "",
-                    userRoles = setOf(UserRole.MANAGE_ROOMS.name),
+                    userRoles = setOf(UserRole.MANAGE_ROOMS),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -122,7 +107,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = firstUserId,
-                    userRoles = setOf(UserRole.MANAGE_ROOMS.name),
+                    userRoles = setOf(UserRole.MANAGE_ROOMS),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -156,7 +141,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = userId,
-                    userRoles = setOf(UserRole.MANAGE_USERS.name),
+                    userRoles = setOf(UserRole.MANAGE_USERS),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -198,7 +183,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = userId,
-                    userRoles = setOf(UserRole.MANAGE_ROOMS.name),
+                    userRoles = setOf(UserRole.MANAGE_ROOMS),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -261,13 +246,13 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactlyInAnyOrder(
                 UserRecord(
                     userId = anonymousUserId,
-                    userRoles = setOf(UserRole.CUSTOMER.name),
+                    userRoles = setOf(UserRole.CUSTOMER),
                     name = "",
                     credential = null,
                 ),
                 UserRecord(
                     userId = existingUserId,
-                    userRoles = setOf(UserRole.MANAGE_ROOMS.name),
+                    userRoles = setOf(UserRole.MANAGE_ROOMS),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -276,6 +261,39 @@ class PostgresUserRepositoryTest {
                 )
             )
         }
+    }
+
+    @Test
+    fun `should return user record with matching login ID`() {
+        val userId = (underTest.insertUser(
+            InsertUserRecord(
+                loginId = LOGIN_ID,
+                passwordHash = PASSWORD_HASH,
+                name = NAME,
+                roles = setOf(UserRole.CUSTOMER),
+            )
+        ) as InsertUserResult.UserInserted).userId
+
+        val result = underTest.findUserByLoginId(LOGIN_ID)
+
+        assertThat(result).isEqualTo(
+            NonAnonymousUserRecord(
+                userId = userId,
+                userRoles = setOf(UserRole.CUSTOMER),
+                name = NAME,
+                credential = UserCredentialRecord(
+                    loginId = LOGIN_ID,
+                    passwordHash = PASSWORD_HASH,
+                ),
+            )
+        )
+    }
+
+    @Test
+    fun `should return null when no records match login ID`() {
+        val result = underTest.findUserByLoginId(LOGIN_ID)
+
+        assertThat(result).isNull()
     }
 
     private fun loadAllUsers(): List<UserRecord> {
@@ -298,7 +316,7 @@ class PostgresUserRepositoryTest {
             records.add(
                 UserRecord(
                     userId = userId,
-                    userRoles = setOf(*userRoles),
+                    userRoles = setOf(*userRoles).map { UserRole.valueOf(it) }.toSet(),
                     name = name,
                     credential = if (loginId != null && passwordHash != null) {
                         UserCredentialRecord(
