@@ -1,15 +1,12 @@
 package me.aburke.hotelbooking.stubs.repository
 
-import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.ports.repository.InsertUserResult
-import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
-import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.ports.repository.*
 import java.util.UUID.randomUUID
 
 class UserRepositoryStub : UserRepository {
 
     private val users = mutableMapOf<String, InsertUserRecord>()
-    private val loginIds = mutableSetOf<String>()
+    private val loginIds = mutableMapOf<String, String>()
     private val anonymousUsers = mutableSetOf<String>()
 
     override fun createAnonymousUser(): String {
@@ -22,7 +19,7 @@ class UserRepositoryStub : UserRepository {
         }
 
         val userId = randomUUID().toString()
-        loginIds.add(userRecord.loginId)
+        loginIds[userRecord.loginId] = userId
         users[userId] = userRecord
 
         return InsertUserResult.UserInserted(userId)
@@ -40,11 +37,26 @@ class UserRepositoryStub : UserRepository {
             return PromoteAnonymousUserResult.LoginIdUniquenessViolation
         }
 
-        loginIds.add(credentials.loginId)
+        loginIds[credentials.loginId] = userId
         users[userId] = credentials
 
         return PromoteAnonymousUserResult.UserCredentialsInserted(userId)
     }
+
+    override fun findUserByLoginId(loginId: String): NonAnonymousUserRecord? =
+        loginIds[loginId]?.let { userId ->
+            users[userId]?.let {
+                NonAnonymousUserRecord(
+                    userId = userId,
+                    userRoles = it.roles,
+                    name = it.name,
+                    credential = UserCredentialRecord(
+                        loginId = loginId,
+                        passwordHash = it.passwordHash,
+                    ),
+                )
+            }
+        }
 
     fun getAnonymousUserIds(): Set<String> = anonymousUsers
 

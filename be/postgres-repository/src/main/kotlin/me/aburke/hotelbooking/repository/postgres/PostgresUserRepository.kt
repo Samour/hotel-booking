@@ -1,10 +1,7 @@
 package me.aburke.hotelbooking.repository.postgres
 
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.ports.repository.InsertUserResult
-import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
-import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.ports.repository.*
 import org.postgresql.util.PSQLException
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -89,6 +86,10 @@ class PostgresUserRepository(
         }
 
         return PromoteAnonymousUserResult.UserCredentialsInserted(userId)
+    }
+
+    override fun findUserByLoginId(loginId: String): NonAnonymousUserRecord? {
+        TODO("Not yet implemented")
     }
 
     private fun insertUserQuery(userId: String, userRoles: Set<UserRole>, name: String): PreparedStatement {
