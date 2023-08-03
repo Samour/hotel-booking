@@ -13,13 +13,7 @@ class RedisSessionRepository(
     override fun insertUserSession(session: UserSession) {
         jedisPooled.hset(
             "session:${session.sessionId}",
-            mapOf(
-                "session-id" to session.sessionId,
-                "user-id" to session.userId,
-                "user-roles" to session.userRoles.joinToString("|"),
-                "anonymous-user" to "${session.anonymousUser}",
-                "session-expiry-time" to "${session.sessionExpiryTime}",
-            )
+            session.toRedisMap()
         )
         jedisPooled.expire(
             "session:${session.sessionId}",
@@ -27,7 +21,8 @@ class RedisSessionRepository(
         )
     }
 
-    override fun loadUserSession(sessionId: String): UserSession? {
-        TODO("Not yet implemented")
-    }
+    override fun loadUserSession(sessionId: String): UserSession? =
+        jedisPooled.hgetAll("session:$sessionId")
+            .takeUnless { it.isEmpty() }
+            ?.toUserSession()
 }
