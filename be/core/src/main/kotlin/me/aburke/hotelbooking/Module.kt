@@ -1,10 +1,7 @@
 package me.aburke.hotelbooking
 
 import me.aburke.hotelbooking.password.PasswordHasher
-import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
-import me.aburke.hotelbooking.scenario.user.CreateUserScenario
-import me.aburke.hotelbooking.scenario.user.LogInScenario
-import me.aburke.hotelbooking.scenario.user.SignUpScenario
+import me.aburke.hotelbooking.scenario.user.*
 import me.aburke.hotelbooking.session.SessionFactory
 import org.koin.dsl.module
 import java.time.Duration
@@ -29,4 +26,6 @@ val coreModule = module {
             sessionRepository = get(),
         )
     }
+
+    single { GetAuthStateScenario(get()) }
 }

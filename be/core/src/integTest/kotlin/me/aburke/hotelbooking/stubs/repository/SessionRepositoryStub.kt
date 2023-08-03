@@ -11,6 +11,8 @@ class SessionRepositoryStub : SessionRepository {
         sessions[session.sessionId] = session
     }
 
+    override fun loadUserSession(sessionId: String): UserSession? = sessions[sessionId]
+
     fun getSessions(): Map<String, UserSession> = sessions
 
     fun clearAllSessions() = sessions.clear()

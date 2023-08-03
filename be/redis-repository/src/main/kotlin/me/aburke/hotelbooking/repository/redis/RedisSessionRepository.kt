@@ -26,4 +26,8 @@ class RedisSessionRepository(
             Duration.between(Instant.now(), session.sessionExpiryTime).toSeconds(),
         )
     }
+
+    override fun loadUserSession(sessionId: String): UserSession? {
+        TODO("Not yet implemented")
+    }
 }
