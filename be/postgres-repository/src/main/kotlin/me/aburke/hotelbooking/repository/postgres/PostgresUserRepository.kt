@@ -4,7 +4,6 @@ import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.*
 import org.postgresql.util.PSQLException
 import java.sql.Connection
-import java.sql.PreparedStatement
 import java.util.UUID.randomUUID
 
 private const val CONSTRAINT_UNIQUE_LOGIN_ID = "idx__user_credential__login_id"
@@ -17,7 +16,11 @@ class PostgresUserRepository(
     override fun createAnonymousUser(): String {
         val userId = randomUUID().toString()
 
-        val query = insertUserQuery(userId, setOf(UserRole.CUSTOMER), "")
+        val query = connection.insertUserQuery(
+            userId = userId,
+            userRoles = setOf(UserRole.CUSTOMER),
+            name = "",
+        )
 
         try {
             query.executeUpdate()
@@ -33,9 +36,16 @@ class PostgresUserRepository(
     override fun insertUser(userRecord: InsertUserRecord): InsertUserResult {
         val userId = randomUUID().toString()
 
-        val userQuery = insertUserQuery(userId, userRecord.roles, userRecord.name)
-
-        val credentialQuery = insertCredentialQuery(userId, userRecord.loginId, userRecord.passwordHash)
+        val userQuery = connection.insertUserQuery(
+            userId = userId,
+            userRoles = userRecord.roles,
+            name = userRecord.name,
+        )
+        val credentialQuery = connection.insertCredentialQuery(
+            userId = userId,
+            loginId = userRecord.loginId,
+            passwordHash = userRecord.passwordHash,
+        )
 
         try {
             userQuery.executeUpdate()
@@ -56,18 +66,16 @@ class PostgresUserRepository(
         userId: String,
         credentials: InsertUserRecord
     ): PromoteAnonymousUserResult {
-        val userQuery = connection.prepareStatement(
-            """
-                update app_user
-                set user_roles = ?, name = ?
-                where user_id = ?
-            """.trimIndent()
+        val userQuery = connection.updateUserQuery(
+            userId = userId,
+            roles = credentials.roles,
+            name = credentials.name,
         )
-        userQuery.setArray(1, credentials.roles.toSqlArray())
-        userQuery.setString(2, credentials.name)
-        userQuery.setString(3, userId)
-
-        val credentialQuery = insertCredentialQuery(userId, credentials.loginId, credentials.passwordHash)
+        val credentialQuery = connection.insertCredentialQuery(
+            userId = userId,
+            loginId = credentials.loginId,
+            passwordHash = credentials.passwordHash,
+        )
 
         try {
             userQuery.executeUpdate().takeIf { it == 0 }?.let {
@@ -88,65 +96,9 @@ class PostgresUserRepository(
         return PromoteAnonymousUserResult.UserCredentialsInserted(userId)
     }
 
-    override fun findUserByLoginId(loginId: String): NonAnonymousUserRecord? {
-        val query = connection.prepareStatement(
-            """
-                select c.user_id, c.login_id, c.password_hash, u.user_roles, u.name
-                from user_credential c
-                join app_user u on u.user_id = c.user_id
-                where login_id = ?
-            """.trimIndent()
-        )
-        query.setString(1, loginId)
-        val result = query.executeQuery()
-
-        if (!result.next()) {
-            return null
-        }
-
-        return NonAnonymousUserRecord(
-            userId = result.getString("user_id"),
-            userRoles = setOf(*(result.getArray("user_roles").array as Array<String>))
-                .map { UserRole.valueOf(it) }
-                .toSet(),
-            name = result.getString("name"),
-            credential = UserCredentialRecord(
-                loginId = result.getString("login_id"),
-                passwordHash = result.getString("password_hash"),
-            )
-        )
-    }
-
-    private fun insertUserQuery(userId: String, userRoles: Set<UserRole>, name: String): PreparedStatement {
-        val query = connection.prepareStatement(
-            """
-                insert into app_user(user_id, user_roles, name)
-                values (?, ?, ?)
-            """.trimIndent()
-        )
-        query.setString(1, userId)
-        query.setArray(2, userRoles.toSqlArray())
-        query.setString(3, name)
-
-        return query
-    }
-
-    private fun insertCredentialQuery(userId: String, loginId: String, passwordHash: String): PreparedStatement {
-        val query = connection.prepareStatement(
-            """
-                insert into user_credential(user_id, login_id, password_hash)
-                values (?, ?, ?)
-            """.trimIndent()
-        )
-        query.setString(1, userId)
-        query.setString(2, loginId)
-        query.setString(3, passwordHash)
-
-        return query
-    }
-
-    private fun Set<UserRole>.toSqlArray() = connection.createArrayOf(
-        "varchar",
-        map { it.name }.toTypedArray(),
-    )
+    override fun findUserByLoginId(loginId: String): NonAnonymousUserRecord? =
+        connection.findUserByLoginIdQuery(loginId)
+            .executeQuery()
+            .takeIf { it.next() }
+            ?.toNonAnonymousUserRecord()
 }
