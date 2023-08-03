@@ -12,4 +12,6 @@ class SessionRepositoryStub : SessionRepository {
     }
 
     fun getSessions(): Map<String, UserSession> = sessions
+
+    fun clearAllSessions() = sessions.clear()
 }

@@ -1,16 +1,22 @@
 package me.aburke.hotelbooking.user
 
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.scenario.user.*
+import me.aburke.hotelbooking.scenario.user.SignUpDetails
+import me.aburke.hotelbooking.scenario.user.SignUpResult
+import me.aburke.hotelbooking.scenario.user.SignUpScenario
+import me.aburke.hotelbooking.sessionDuration
 import me.aburke.hotelbooking.stubs.Stubs
 import org.assertj.core.api.Assertions
-import org.assertj.core.api.SoftAssertions
+import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.KoinApplication
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 private const val LOGIN_ID = "login-id"
 private const val RAW_PASSWORD = "raw-password"
@@ -36,6 +42,7 @@ class SignUpTest {
 
     @Test
     fun `should insert new user`() {
+        val now = Instant.now()
         val result = underTest.run(
             SignUpDetails(
                 loginId = LOGIN_ID,
@@ -45,15 +52,31 @@ class SignUpTest {
             )
         )
 
-        val userId = (result as? SignUpResult.Success)?.userId
-        val userRecord = userId?.let { stubs.userRepositoryStub.getUsers()[it] }
+        val session = (result as? SignUpResult.Success)?.session
+        val userRecord = session?.userId?.let { stubs.userRepositoryStub.getUsers()[it] }
         val passwordHashResult = userRecord?.passwordHash?.let {
             passwordHasher.passwordMatches(RAW_PASSWORD, it)
         }
 
-        SoftAssertions.assertSoftly { s ->
-            s.assertThat(result).isInstanceOf(SignUpResult.Success::class.java)
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(userId)
+        assertSoftly { s ->
+            s.assertThat(result).usingRecursiveComparison()
+                .ignoringFields("session.sessionId", "session.userId", "session.sessionExpiryTime")
+                .isEqualTo(
+                    SignUpResult.Success(
+                        UserSession(
+                            sessionId = "",
+                            userId = "",
+                            userRoles = setOf(UserRole.CUSTOMER),
+                            anonymousUser = false,
+                            sessionExpiryTime = Instant.EPOCH,
+                        )
+                    )
+                )
+            s.assertThat(session?.sessionExpiryTime).isCloseTo(
+                now.plus(sessionDuration),
+                Assertions.within(1, ChronoUnit.SECONDS)
+            )
+            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(session?.userId)
             s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).isEmpty()
             s.assertThat(userRecord).usingRecursiveComparison()
                 .ignoringFields("passwordHash")
@@ -66,6 +89,11 @@ class SignUpTest {
                     )
                 )
             s.assertThat(passwordHashResult).isTrue
+            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEqualTo(
+                mapOf(
+                    session?.sessionId to session,
+                )
+            )
         }
     }
 
@@ -80,8 +108,9 @@ class SignUpTest {
             )
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
-            (it as SignUpResult.Success).userId
+            (it as SignUpResult.Success).session.userId
         }
+        stubs.sessionRepositoryStub.clearAllSessions()
 
         val result = underTest.run(
             SignUpDetails(
@@ -92,17 +121,20 @@ class SignUpTest {
             )
         )
 
-        SoftAssertions.assertSoftly { s ->
+        assertSoftly { s ->
             s.assertThat(result).isEqualTo(SignUpResult.UsernameNotAvailable)
             s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(firstUserId)
             s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).isEmpty()
+            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEmpty()
         }
     }
 
     @Test
     fun `should create credentials for anonymous user`() {
         val anonymousUserId = stubs.userRepositoryStub.createAnonymousUser()
+        stubs.sessionRepositoryStub.clearAllSessions()
 
+        val now = Instant.now()
         val result = underTest.run(
             SignUpDetails(
                 loginId = LOGIN_ID,
@@ -112,16 +144,32 @@ class SignUpTest {
             )
         )
 
-        val userId = (result as? SignUpResult.Success)?.userId
-        val userRecord = userId?.let { stubs.userRepositoryStub.getUsers()[it] }
+        val session = (result as? SignUpResult.Success)?.session
+        val userRecord = session?.userId?.let { stubs.userRepositoryStub.getUsers()[it] }
         val passwordHashResult = userRecord?.passwordHash?.let {
             passwordHasher.passwordMatches(RAW_PASSWORD, it)
         }
 
-        SoftAssertions.assertSoftly { s ->
-            s.assertThat(result).isEqualTo(SignUpResult.Success(anonymousUserId))
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(userId)
-            s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).containsExactly(userId)
+        assertSoftly { s ->
+            s.assertThat(result).usingRecursiveComparison()
+                .ignoringFields("session.sessionId", "session.sessionExpiryTime")
+                .isEqualTo(
+                    SignUpResult.Success(
+                        UserSession(
+                            sessionId = "",
+                            userId = anonymousUserId,
+                            userRoles = setOf(UserRole.CUSTOMER),
+                            anonymousUser = false,
+                            sessionExpiryTime = Instant.EPOCH,
+                        )
+                    )
+                )
+            s.assertThat(session?.sessionExpiryTime).isCloseTo(
+                now.plus(sessionDuration),
+                Assertions.within(100, ChronoUnit.MILLIS)
+            )
+            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(session?.userId)
+            s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).containsExactly(session?.userId)
             s.assertThat(userRecord).usingRecursiveComparison()
                 .ignoringFields("passwordHash")
                 .isEqualTo(
@@ -133,6 +181,11 @@ class SignUpTest {
                     )
                 )
             s.assertThat(passwordHashResult).isTrue
+            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEqualTo(
+                mapOf(
+                    session?.sessionId to session,
+                )
+            )
         }
     }
 
@@ -147,8 +200,9 @@ class SignUpTest {
             )
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
-            (it as SignUpResult.Success).userId
+            (it as SignUpResult.Success).session.userId
         }
+        stubs.sessionRepositoryStub.clearAllSessions()
 
         val result = underTest.run(
             SignUpDetails(
@@ -159,9 +213,10 @@ class SignUpTest {
             )
         )
 
-        SoftAssertions.assertSoftly { s ->
+        assertSoftly { s ->
             s.assertThat(result).isEqualTo(SignUpResult.UserIsNotAnonymous)
             s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(firstUserId)
+            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEmpty()
         }
     }
 
@@ -176,9 +231,10 @@ class SignUpTest {
             )
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
-            (it as SignUpResult.Success).userId
+            (it as SignUpResult.Success).session.userId
         }
         val anonymousUserId = stubs.userRepositoryStub.createAnonymousUser()
+        stubs.sessionRepositoryStub.clearAllSessions()
 
         val result = underTest.run(
             SignUpDetails(
@@ -189,9 +245,10 @@ class SignUpTest {
             )
         )
 
-        SoftAssertions.assertSoftly { s ->
+        assertSoftly { s ->
             s.assertThat(result).isEqualTo(SignUpResult.UsernameNotAvailable)
             s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(firstUserId)
+            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEmpty()
         }
     }
 }

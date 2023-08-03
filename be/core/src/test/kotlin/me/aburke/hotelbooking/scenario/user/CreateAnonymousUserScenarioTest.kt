@@ -6,18 +6,37 @@ import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.ports.repository.SessionRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.session.SessionFactory
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.Instant
 
 private const val USER_ID = "user-id"
+
+private val session = UserSession(
+    sessionId = "session-id",
+    userId = USER_ID,
+    userRoles = setOf(UserRole.CUSTOMER),
+    anonymousUser = true,
+    sessionExpiryTime = Instant.now(),
+)
 
 @ExtendWith(MockKExtension::class)
 class CreateAnonymousUserScenarioTest {
 
     @MockK
+    lateinit var sessionFactory: SessionFactory
+
+    @MockK
     lateinit var userRepository: UserRepository
+
+    @MockK
+    lateinit var sessionRepository: SessionRepository
 
     @InjectMockKs
     lateinit var underTest: CreateAnonymousUserScenario
@@ -27,12 +46,22 @@ class CreateAnonymousUserScenarioTest {
         every {
             userRepository.createAnonymousUser()
         } returns USER_ID
+        every {
+            sessionFactory.createForUser(
+                userId = USER_ID,
+                userRoles = setOf(UserRole.CUSTOMER),
+                anonymousUser = true,
+            )
+        } returns session
+        every {
+            sessionRepository.insertUserSession(session)
+        } returns Unit
 
         val result = underTest.run(CreateAnonymousUserScenario.Detail)
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                AnonymousUserCreated(USER_ID)
+                AnonymousUserCreated(session)
             )
             s.check {
                 verify(exactly = 1) {
@@ -40,7 +69,25 @@ class CreateAnonymousUserScenarioTest {
                 }
             }
             s.check {
-                confirmVerified(userRepository)
+                verify(exactly = 1) {
+                    sessionFactory.createForUser(
+                        userId = USER_ID,
+                        userRoles = setOf(UserRole.CUSTOMER),
+                        anonymousUser = true,
+                    )
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
+                    sessionRepository.insertUserSession(session)
+                }
+            }
+            s.check {
+                confirmVerified(
+                    sessionFactory,
+                    userRepository,
+                    sessionRepository,
+                )
             }
         }
     }

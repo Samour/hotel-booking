@@ -1,13 +1,11 @@
 package me.aburke.hotelbooking.scenario.user
 
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
-import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.ports.repository.InsertUserResult
-import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
-import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.ports.repository.*
 import me.aburke.hotelbooking.scenario.Scenario
-
+import me.aburke.hotelbooking.session.SessionFactory
 
 class SignUpDetails(
     val loginId: String,
@@ -19,7 +17,7 @@ class SignUpDetails(
 sealed interface SignUpResult : Scenario.Result {
 
     data class Success(
-        val userId: String,
+        val session: UserSession,
     ) : SignUpResult
 
     data object UsernameNotAvailable : SignUpResult
@@ -31,7 +29,9 @@ sealed interface SignUpResult : Scenario.Result {
 
 class SignUpScenario(
     private val passwordHasher: PasswordHasher,
+    private val sessionFactory: SessionFactory,
     private val userRepository: UserRepository,
+    private val sessionRepository: SessionRepository,
 ) : Scenario<SignUpDetails, SignUpResult> {
 
     override fun run(details: SignUpDetails): SignUpResult {
@@ -53,7 +53,11 @@ class SignUpScenario(
     private fun createNewUser(insertRecord: InsertUserRecord): SignUpResult {
         return when (val result = userRepository.insertUser(insertRecord)) {
             is InsertUserResult.UserInserted -> SignUpResult.Success(
-                userId = result.userId,
+                sessionFactory.createForUser(
+                    userId = result.userId,
+                    userRoles = insertRecord.roles,
+                    anonymousUser = false,
+                ).also { sessionRepository.insertUserSession(it) }
             )
 
             is InsertUserResult.LoginIdUniquenessViolation -> SignUpResult.UsernameNotAvailable
@@ -63,7 +67,11 @@ class SignUpScenario(
     private fun promoteAnonymousUser(userId: String, insertRecord: InsertUserRecord): SignUpResult {
         return when (val result = userRepository.createCredentialsForAnonymousUser(userId, insertRecord)) {
             is PromoteAnonymousUserResult.UserCredentialsInserted -> SignUpResult.Success(
-                userId = result.userId,
+                sessionFactory.createForUser(
+                    userId = result.userId,
+                    userRoles = insertRecord.roles,
+                    anonymousUser = false,
+                ).also { sessionRepository.insertUserSession(it) }
             )
 
             is PromoteAnonymousUserResult.UserIsNotAnonymous -> SignUpResult.UserIsNotAnonymous

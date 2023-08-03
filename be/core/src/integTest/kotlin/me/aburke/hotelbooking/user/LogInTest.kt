@@ -8,6 +8,7 @@ import me.aburke.hotelbooking.ports.repository.InsertUserResult
 import me.aburke.hotelbooking.scenario.user.LogInCredentials
 import me.aburke.hotelbooking.scenario.user.LogInResult
 import me.aburke.hotelbooking.scenario.user.LogInScenario
+import me.aburke.hotelbooking.sessionDuration
 import me.aburke.hotelbooking.stubs.Stubs
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -23,7 +24,6 @@ private const val LOGIN_ID = "login-id"
 private const val PASSWORD = "password"
 private const val NAME = "name"
 
-private val sessionDuration = Duration.parse("PT30M")
 private val userRoles = setOf(UserRole.CUSTOMER)
 
 class LogInTest {

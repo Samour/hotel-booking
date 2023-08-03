@@ -10,18 +10,17 @@ import org.koin.dsl.module
 import java.time.Duration
 
 val coreModule = module {
-    single { CreateAnonymousUserScenario(get()) }
-
     single { PasswordHasher() }
     single { CreateUserScenario(get(), get()) }
-
-    single { SignUpScenario(get(), get()) }
 
     single {
         SessionFactory(
             sessionDuration = Duration.parse(getProperty("auth.session.duration")),
         )
     }
+    single { CreateAnonymousUserScenario(get(), get(), get()) }
+    single { SignUpScenario(get(), get(), get(), get()) }
+
     single {
         LogInScenario(
             passwordHasher = get(),

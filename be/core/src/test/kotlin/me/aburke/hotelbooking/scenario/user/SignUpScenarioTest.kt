@@ -7,20 +7,28 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
-import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.ports.repository.InsertUserResult
-import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
-import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.session.SessionFactory
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.time.Instant
 
 private const val LOGIN_ID = "login-id"
 private const val NAME = "name"
 private const val RAW_PASSWORD = "raw-password"
 private const val HASHED_PASSWORD = "hashed-password"
 private const val USER_ID = "user-id"
+
+private val session = UserSession(
+    sessionId = "session-id",
+    userId = "user-id",
+    userRoles = setOf(UserRole.CUSTOMER),
+    anonymousUser = false,
+    sessionExpiryTime = Instant.now(),
+)
 
 @ExtendWith(MockKExtension::class)
 class SignUpScenarioTest {
@@ -29,7 +37,13 @@ class SignUpScenarioTest {
     lateinit var passwordHasher: PasswordHasher
 
     @MockK
+    lateinit var sessionFactory: SessionFactory
+
+    @MockK
     lateinit var userRepository: UserRepository
+
+    @MockK
+    lateinit var sessionRepository: SessionRepository
 
     @InjectMockKs
     lateinit var underTest: SignUpScenario
@@ -51,6 +65,16 @@ class SignUpScenarioTest {
         } returns InsertUserResult.UserInserted(
             userId = USER_ID,
         )
+        every {
+            sessionFactory.createForUser(
+                userId = USER_ID,
+                userRoles = setOf(UserRole.CUSTOMER),
+                anonymousUser = false,
+            )
+        } returns session
+        every {
+            sessionRepository.insertUserSession(session)
+        } returns Unit
 
         val result = underTest.run(
             SignUpDetails(
@@ -63,9 +87,7 @@ class SignUpScenarioTest {
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.Success(
-                    userId = USER_ID,
-                )
+                SignUpResult.Success(session)
             )
             s.check {
                 verify(exactly = 1) {
@@ -82,6 +104,20 @@ class SignUpScenarioTest {
                             roles = setOf(UserRole.CUSTOMER),
                         )
                     )
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
+                    sessionFactory.createForUser(
+                        userId = USER_ID,
+                        userRoles = setOf(UserRole.CUSTOMER),
+                        anonymousUser = false,
+                    )
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
+                    sessionRepository.insertUserSession(session)
                 }
             }
             s.confirmMocks()
@@ -156,6 +192,16 @@ class SignUpScenarioTest {
         } returns PromoteAnonymousUserResult.UserCredentialsInserted(
             userId = USER_ID,
         )
+        every {
+            sessionFactory.createForUser(
+                userId = USER_ID,
+                userRoles = setOf(UserRole.CUSTOMER),
+                anonymousUser = false,
+            )
+        } returns session
+        every {
+            sessionRepository.insertUserSession(session)
+        } returns Unit
 
         val result = underTest.run(
             SignUpDetails(
@@ -168,9 +214,7 @@ class SignUpScenarioTest {
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.Success(
-                    userId = USER_ID,
-                )
+                SignUpResult.Success(session)
             )
             s.check {
                 verify(exactly = 1) {
@@ -188,6 +232,20 @@ class SignUpScenarioTest {
                             roles = setOf(UserRole.CUSTOMER),
                         )
                     )
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
+                    sessionFactory.createForUser(
+                        userId = USER_ID,
+                        userRoles = setOf(UserRole.CUSTOMER),
+                        anonymousUser = false,
+                    )
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
+                    sessionRepository.insertUserSession(session)
                 }
             }
             s.confirmMocks()
@@ -353,7 +411,9 @@ class SignUpScenarioTest {
     private fun SoftAssertions.confirmMocks() = check {
         confirmVerified(
             passwordHasher,
+            sessionFactory,
             userRepository,
+            sessionRepository,
         )
     }
 }
