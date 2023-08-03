@@ -4,7 +4,6 @@ import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
-import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
 import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.scenario.Scenario
 
@@ -13,7 +12,6 @@ class CreateUserDetails(
     val rawPassword: String,
     val name: String,
     val userRoles: Set<UserRole>,
-    val anonymousUserId: String?,
 ) : Scenario.Details
 
 sealed interface CreateUserResult : Scenario.Result {
@@ -23,10 +21,6 @@ sealed interface CreateUserResult : Scenario.Result {
     ) : CreateUserResult
 
     data object UsernameNotAvailable : CreateUserResult
-
-    data object UserIsNotAnonymous : CreateUserResult
-
-    data object AnonymousUserDoesNotExist : CreateUserResult
 }
 
 class CreateUserScenario(
@@ -43,34 +37,12 @@ class CreateUserScenario(
             roles = details.userRoles,
         )
 
-        return if (details.anonymousUserId == null) {
-            createNewUser(insertRecord)
-        } else {
-            promoteAnonymousUser(details.anonymousUserId, insertRecord)
-        }
-    }
-
-    private fun createNewUser(insertRecord: InsertUserRecord): CreateUserResult {
         return when (val result = userRepository.insertUser(insertRecord)) {
             is InsertUserResult.UserInserted -> CreateUserResult.Success(
                 userId = result.userId,
             )
 
             is InsertUserResult.LoginIdUniquenessViolation -> CreateUserResult.UsernameNotAvailable
-        }
-    }
-
-    private fun promoteAnonymousUser(userId: String, insertRecord: InsertUserRecord): CreateUserResult {
-        return when (val result = userRepository.createCredentialsForAnonymousUser(userId, insertRecord)) {
-            is PromoteAnonymousUserResult.UserCredentialsInserted -> CreateUserResult.Success(
-                userId = result.userId,
-            )
-
-            is PromoteAnonymousUserResult.UserIsNotAnonymous -> CreateUserResult.UserIsNotAnonymous
-
-            is PromoteAnonymousUserResult.LoginIdUniquenessViolation -> CreateUserResult.UsernameNotAvailable
-
-            is PromoteAnonymousUserResult.AnonymousUserDoesNotExist -> CreateUserResult.AnonymousUserDoesNotExist
         }
     }
 }
