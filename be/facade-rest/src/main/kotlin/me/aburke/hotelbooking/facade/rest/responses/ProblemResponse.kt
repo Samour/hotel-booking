@@ -29,3 +29,19 @@ fun Context.notFoundResponse() = ProblemResponse(
     detail = "Resource does not exist",
     instance = path(),
 )
+
+fun Context.unauthorizedResponse() = ProblemResponse(
+    title = "Not Authorized",
+    code = "UNAUTHORIZED",
+    status = 401,
+    detail = "Credentials not provided",
+    instance = path(),
+)
+
+fun Context.forbiddenResponse() = ProblemResponse(
+    title = "Forbidden",
+    code = "FORBIDDEN",
+    status = 403,
+    detail = "Insufficient permissions to access resource",
+    instance = path(),
+)

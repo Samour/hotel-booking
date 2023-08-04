@@ -7,16 +7,27 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
 import io.javalin.json.JavalinJackson
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.GetSessionHandler
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInHandler
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionRoutes
+import me.aburke.hotelbooking.facade.rest.interceptors.AuthenticationInterceptor
 import me.aburke.hotelbooking.facade.rest.interceptors.ExceptionHandler.registerExceptionHandlers
 import org.koin.dsl.module
 
 val restModule = module {
+    single { GetSessionHandler() }
+    single { LogInHandler(get()) }
+    single { SessionRoutes(get(), get()) }
+
+    single { AuthenticationInterceptor(get()) }
     single {
         ApplicationRoutes(
-            listOf()
+            listOf(
+                get<SessionRoutes>(),
+            )
         )
     }
-    single { buildJavalin(get()) }
+    single { buildJavalin(get(), get()) }
 }
 
 fun restObjectMapper() = jacksonObjectMapper().apply {
@@ -27,9 +38,13 @@ fun restObjectMapper() = jacksonObjectMapper().apply {
 
 }
 
-fun buildJavalin(applicationRoutes: ApplicationRoutes): Javalin =
+fun buildJavalin(
+    authenticationInterceptor: AuthenticationInterceptor,
+    applicationRoutes: ApplicationRoutes,
+): Javalin =
     Javalin.create { config ->
         config.jsonMapper(JavalinJackson(restObjectMapper()))
+        config.accessManager(authenticationInterceptor)
     }.apply {
         applicationRoutes.addRoutes(this)
         registerExceptionHandlers(this)
