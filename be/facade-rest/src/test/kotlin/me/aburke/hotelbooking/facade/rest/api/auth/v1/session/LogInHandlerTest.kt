@@ -54,6 +54,7 @@ class LogInHandlerTest {
             UserSession(
                 sessionId = SESSION_ID,
                 userId = USER_ID,
+                loginId = LOGIN_ID,
                 userRoles = userRoles,
                 anonymousUser = false,
                 sessionExpiryTime = sessionExpiryTime,
@@ -82,6 +83,7 @@ class LogInHandlerTest {
                 """
                     {
                         "user_id": "$USER_ID",
+                        "login_id": "$LOGIN_ID",
                         "user_roles": ["${userRoles.first()}"],
                         "anonymous_user": false,
                         "session_expiry_time": "$sessionExpiryTime"

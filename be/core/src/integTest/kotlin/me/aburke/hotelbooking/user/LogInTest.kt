@@ -67,6 +67,7 @@ class LogInTest {
                         UserSession(
                             sessionId = "",
                             userId = userId,
+                            loginId = LOGIN_ID,
                             userRoles = userRoles,
                             anonymousUser = false,
                             sessionExpiryTime = now,

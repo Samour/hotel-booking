@@ -19,6 +19,7 @@ private const val SESSION_ID = "session-id"
 private val session = UserSession(
     sessionId = SESSION_ID,
     userId = "user-id",
+    loginId = "login-id",
     userRoles = setOf(UserRole.MANAGE_USERS),
     anonymousUser = false,
     sessionExpiryTime = Instant.now(),

@@ -66,6 +66,7 @@ class SignUpTest {
                         UserSession(
                             sessionId = "",
                             userId = "",
+                            loginId = LOGIN_ID,
                             userRoles = setOf(UserRole.CUSTOMER),
                             anonymousUser = false,
                             sessionExpiryTime = Instant.EPOCH,
@@ -158,6 +159,7 @@ class SignUpTest {
                         UserSession(
                             sessionId = "",
                             userId = anonymousUserId,
+                            loginId = LOGIN_ID,
                             userRoles = setOf(UserRole.CUSTOMER),
                             anonymousUser = false,
                             sessionExpiryTime = Instant.EPOCH,

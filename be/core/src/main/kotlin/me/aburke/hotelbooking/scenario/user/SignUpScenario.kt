@@ -55,6 +55,7 @@ class SignUpScenario(
             is InsertUserResult.UserInserted -> SignUpResult.Success(
                 sessionFactory.createForUser(
                     userId = result.userId,
+                    loginId = insertRecord.loginId,
                     userRoles = insertRecord.roles,
                     anonymousUser = false,
                 ).also { sessionRepository.insertUserSession(it) }
@@ -69,6 +70,7 @@ class SignUpScenario(
             is PromoteAnonymousUserResult.UserCredentialsInserted -> SignUpResult.Success(
                 sessionFactory.createForUser(
                     userId = result.userId,
+                    loginId = insertRecord.loginId,
                     userRoles = insertRecord.roles,
                     anonymousUser = false,
                 ).also { sessionRepository.insertUserSession(it) }

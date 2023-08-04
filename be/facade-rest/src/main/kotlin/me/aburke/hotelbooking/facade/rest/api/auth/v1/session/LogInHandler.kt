@@ -17,6 +17,7 @@ data class LogInRequest(
 
 data class LogInResponse(
     val userId: String,
+    val loginId: String?,
     val userRoles: List<String>,
     val anonymousUser: Boolean,
     val sessionExpiryTime: Instant,
@@ -56,6 +57,7 @@ private fun Context.sendSessionWithCookie(session: UserSession) {
     json(
         LogInResponse(
             userId = session.userId,
+            loginId = session.loginId,
             userRoles = session.userRoles.map { it.name },
             anonymousUser = session.anonymousUser,
             sessionExpiryTime = session.sessionExpiryTime,

@@ -19,8 +19,9 @@ private val sessionExpiryTime = Instant.now().plusSeconds(3000)
 val session = UserSession(
     sessionId = SESSION_ID,
     userId = USER_ID,
+    loginId = "login-id",
     userRoles = userRoles,
-    anonymousUser = true,
+    anonymousUser = false,
     sessionExpiryTime = sessionExpiryTime,
 )
 
@@ -51,11 +52,7 @@ class RedisSessionRepositoryTest {
 
     @Test
     fun `session should expire after expiry time`() {
-        val session = UserSession(
-            sessionId = SESSION_ID,
-            userId = USER_ID,
-            userRoles = userRoles,
-            anonymousUser = true,
+        val session = session.copy(
             sessionExpiryTime = Instant.now().plusSeconds(3),
         )
 
@@ -71,7 +68,21 @@ class RedisSessionRepositoryTest {
     }
 
     @Test
-    fun `should return session by ID`() {
+    fun `should return anonymous session by ID`() {
+        val session = session.copy(
+            loginId = null,
+            anonymousUser = true,
+        )
+
+        underTest.insertUserSession(session)
+
+        val result = underTest.loadUserSession(SESSION_ID)
+
+        assertThat(result).isEqualTo(session)
+    }
+
+    @Test
+    fun `should return non-anonymous session by ID`() {
         underTest.insertUserSession(session)
 
         val result = underTest.loadUserSession(SESSION_ID)

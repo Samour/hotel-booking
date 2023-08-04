@@ -10,6 +10,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 private const val USER_ID = "user-id"
+private const val LOGIN_ID = "login-id"
 
 private val userRoles = setOf(UserRole.MANAGE_ROOMS)
 private val sessionDuration = Duration.parse("PT30M")
@@ -23,6 +24,7 @@ class SessionFactoryTest {
         val now = Instant.now()
         val result = underTest.createForUser(
             userId = USER_ID,
+            loginId = LOGIN_ID,
             userRoles = userRoles,
             anonymousUser = false,
         )
@@ -34,6 +36,7 @@ class SessionFactoryTest {
                     UserSession(
                         sessionId = "",
                         userId = USER_ID,
+                        loginId = LOGIN_ID,
                         userRoles = userRoles,
                         anonymousUser = false,
                         sessionExpiryTime = now,

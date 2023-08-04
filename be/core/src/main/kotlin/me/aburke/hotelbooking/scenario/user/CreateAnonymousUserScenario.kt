@@ -23,6 +23,7 @@ class CreateAnonymousUserScenario(
         return AnonymousUserCreated(
             sessionFactory.createForUser(
                 userId = userRepository.createAnonymousUser(),
+                loginId = null,
                 userRoles = setOf(UserRole.CUSTOMER),
                 anonymousUser = true,
             ).also { sessionRepository.insertUserSession(it) }

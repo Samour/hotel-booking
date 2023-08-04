@@ -8,6 +8,7 @@ import java.time.Instant
 
 data class SessionResponse(
     val userId: String,
+    val loginId: String?,
     val userRoles: List<String>,
     val anonymousUser: Boolean,
     val sessionExpiryTime: Instant,
@@ -22,6 +23,7 @@ class GetSessionHandler : Handler {
 
 private fun UserSession.toSessionResponse() = SessionResponse(
     userId = userId,
+    loginId = loginId,
     userRoles = userRoles.map { it.name },
     anonymousUser = anonymousUser,
     sessionExpiryTime = sessionExpiryTime,

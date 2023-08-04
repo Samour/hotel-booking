@@ -45,6 +45,7 @@ class LogInScenario(
 
         val session = sessionFactory.createForUser(
             userId = user.userId,
+            loginId = user.credential.loginId,
             userRoles = user.userRoles,
             anonymousUser = false,
         )

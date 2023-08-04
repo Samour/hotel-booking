@@ -42,6 +42,7 @@ class CreateAnonymousUserTest {
                     UserSession(
                         sessionId = "",
                         userId = "",
+                        loginId = null,
                         userRoles = setOf(UserRole.CUSTOMER),
                         anonymousUser = true,
                         sessionExpiryTime = Instant.EPOCH,

@@ -48,6 +48,7 @@ class GetSessionHandlerTest {
             UserSession(
                 sessionId = SESSION_ID,
                 userId = USER_ID,
+                loginId = LOGIN_ID,
                 userRoles = userRoles,
                 anonymousUser = false,
                 sessionExpiryTime = sessionExpiryTime,
@@ -65,8 +66,56 @@ class GetSessionHandlerTest {
                 """
                     {
                         "user_id": "$USER_ID",
+                        "login_id": "$LOGIN_ID",
                         "user_roles": ["${userRoles.first()}"],
                         "anonymous_user": false,
+                        "session_expiry_time": "$sessionExpiryTime"
+                    }
+                """.trimIndent()
+            )
+            s.check {
+                verify(exactly = 1) {
+                    stubs.getAuthStateScenario.run(
+                        GetAuthStateDetails(SESSION_ID)
+                    )
+                }
+            }
+            with(stubs) {
+                s.verifyStubs()
+            }
+        }
+    }
+
+    @Test
+    fun `should return session details when anonymously authenticated`() = test(javalin) { _, client ->
+        every {
+            stubs.getAuthStateScenario.run(
+                GetAuthStateDetails(SESSION_ID)
+            )
+        } returns GetAuthStateResult.SessionExists(
+            UserSession(
+                sessionId = SESSION_ID,
+                userId = USER_ID,
+                loginId = null,
+                userRoles = userRoles,
+                anonymousUser = true,
+                sessionExpiryTime = sessionExpiryTime,
+            )
+        )
+
+        val response = client.get("/api/auth/v1/session") {
+            it.header("Cookie", "$AUTH_COOKIE_KEY=$SESSION_ID")
+        }
+
+        assertSoftly { s ->
+            s.assertThat(response.code).isEqualTo(200)
+            s.assertThat(response.header("Content-Type")).isEqualTo("application/json")
+            s.assertThatJson(response.body?.string()).isEqualTo(
+                """
+                    {
+                        "user_id": "$USER_ID",
+                        "user_roles": ["${userRoles.first()}"],
+                        "anonymous_user": true,
                         "session_expiry_time": "$sessionExpiryTime"
                     }
                 """.trimIndent()

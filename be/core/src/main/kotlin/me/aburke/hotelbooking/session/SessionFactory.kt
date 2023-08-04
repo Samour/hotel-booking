@@ -18,6 +18,7 @@ class SessionFactory(
 
     fun createForUser(
         userId: String,
+        loginId: String?,
         userRoles: Set<UserRole>,
         anonymousUser: Boolean,
     ): UserSession = UserSession(
@@ -25,6 +26,7 @@ class SessionFactory(
             charPool[secureRandom.nextInt(charPool.size)]
         }.joinToString(""),
         userId = userId,
+        loginId = loginId,
         userRoles = userRoles,
         anonymousUser = anonymousUser,
         sessionExpiryTime = Instant.now().plus(sessionDuration),

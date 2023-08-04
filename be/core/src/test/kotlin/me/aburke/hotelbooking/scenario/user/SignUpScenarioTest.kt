@@ -25,6 +25,7 @@ private const val USER_ID = "user-id"
 private val session = UserSession(
     sessionId = "session-id",
     userId = "user-id",
+    loginId = LOGIN_ID,
     userRoles = setOf(UserRole.CUSTOMER),
     anonymousUser = false,
     sessionExpiryTime = Instant.now(),
@@ -68,6 +69,7 @@ class SignUpScenarioTest {
         every {
             sessionFactory.createForUser(
                 userId = USER_ID,
+                loginId = LOGIN_ID,
                 userRoles = setOf(UserRole.CUSTOMER),
                 anonymousUser = false,
             )
@@ -110,6 +112,7 @@ class SignUpScenarioTest {
                 verify(exactly = 1) {
                     sessionFactory.createForUser(
                         userId = USER_ID,
+                        loginId = LOGIN_ID,
                         userRoles = setOf(UserRole.CUSTOMER),
                         anonymousUser = false,
                     )
@@ -195,6 +198,7 @@ class SignUpScenarioTest {
         every {
             sessionFactory.createForUser(
                 userId = USER_ID,
+                loginId = LOGIN_ID,
                 userRoles = setOf(UserRole.CUSTOMER),
                 anonymousUser = false,
             )
@@ -238,6 +242,7 @@ class SignUpScenarioTest {
                 verify(exactly = 1) {
                     sessionFactory.createForUser(
                         userId = USER_ID,
+                        loginId = LOGIN_ID,
                         userRoles = setOf(UserRole.CUSTOMER),
                         anonymousUser = false,
                     )

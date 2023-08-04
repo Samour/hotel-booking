@@ -37,6 +37,7 @@ private val userRecord = NonAnonymousUserRecord(
 private val userSession = UserSession(
     sessionId = SESSION_IDENTIFIER,
     userId = USER_ID,
+    loginId = LOGIN_ID,
     userRoles = userRoles,
     anonymousUser = false,
     sessionExpiryTime = Instant.now().plusSeconds(3600),
@@ -71,6 +72,7 @@ class LogInScenarioTest {
         every {
             sessionFactory.createForUser(
                 userId = USER_ID,
+                loginId = LOGIN_ID,
                 userRoles = userRoles,
                 anonymousUser = false,
             )
@@ -104,6 +106,7 @@ class LogInScenarioTest {
                 verify(exactly = 1) {
                     sessionFactory.createForUser(
                         userId = USER_ID,
+                        loginId = LOGIN_ID,
                         userRoles = userRoles,
                         anonymousUser = false,
                     )
