@@ -3,6 +3,7 @@ package me.aburke.hotelbooking.facade.rest
 import io.javalin.Javalin
 import io.mockk.confirmVerified
 import io.mockk.mockk
+import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
 import me.aburke.hotelbooking.scenario.user.GetAuthStateScenario
 import me.aburke.hotelbooking.scenario.user.LogInScenario
 import org.assertj.core.api.SoftAssertions
@@ -14,6 +15,7 @@ class Stubs {
 
     val logInScenario = mockk<LogInScenario>()
     val getAuthStateScenario = mockk<GetAuthStateScenario>()
+    val createAnonymousUserScenario = mockk<CreateAnonymousUserScenario>()
 
     private lateinit var app: KoinApplication
 
@@ -21,6 +23,7 @@ class Stubs {
         val stubsModule = module {
             single { logInScenario }
             single { getAuthStateScenario }
+            single { createAnonymousUserScenario }
         }
         app = koinApplication {
             modules(stubsModule, restModule)
@@ -35,6 +38,7 @@ class Stubs {
         confirmVerified(
             logInScenario,
             getAuthStateScenario,
+            createAnonymousUserScenario,
         )
     }
 }

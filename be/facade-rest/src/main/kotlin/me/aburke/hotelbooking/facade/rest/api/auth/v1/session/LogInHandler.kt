@@ -1,7 +1,10 @@
 package me.aburke.hotelbooking.facade.rest.api.auth.v1.session
 
-import io.javalin.http.*
-import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
+import io.javalin.http.Context
+import io.javalin.http.Handler
+import io.javalin.http.HttpStatus
+import io.javalin.http.bodyAsClass
+import me.aburke.hotelbooking.facade.rest.authentication.setAuthCookie
 import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserSession
@@ -46,14 +49,7 @@ class LogInHandler(
 
 private fun Context.sendSessionWithCookie(session: UserSession) {
     status(HttpStatus.CREATED)
-    cookie(
-        Cookie(
-            name = AUTH_COOKIE_KEY,
-            value = session.sessionId,
-            sameSite = SameSite.STRICT,
-            isHttpOnly = true,
-        )
-    )
+    setAuthCookie(session)
     json(
         LogInResponse(
             userId = session.userId,
