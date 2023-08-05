@@ -3,6 +3,7 @@ package me.aburke.hotelbooking.client
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.javalin.testtools.HttpClient
+import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpRequest
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
@@ -38,12 +39,23 @@ class AppTestClient(private val client: HttpClient) {
 
     fun signUp(request: SignUpRequest): Response =
         client.request("/api/auth/v1/user") {
-            it.header("Content-Type", "application/json")
+            it.withCredentials()
+                .header("Content-Type", "application/json")
                 .post(
                     objectMapper.writeValueAsString(request)
                         .toRequestBody("application/json".toMediaType())
-                ).withCredentials()
+                )
         }.storeSessionId()
+
+    fun createUser(createUserRequest: CreateUserRequest): Response =
+        client.request("/api/admin/v1/user") {
+            it.withCredentials()
+                .header("Content-Type", "application/json")
+                .post(
+                    objectMapper.writeValueAsString(createUserRequest)
+                        .toRequestBody("application/json".toMediaType())
+                )
+        }
 
     fun clearSession() {
         sessionId = null
@@ -60,7 +72,7 @@ class AppTestClient(private val client: HttpClient) {
 
     private fun Request.Builder.withCredentials() = sessionId?.let {
         header("Cookie", "$AUTH_COOKIE_KEY=$it")
-    }
+    } ?: this
 }
 
 inline fun <reified T> Response.parseBody(): T? =
