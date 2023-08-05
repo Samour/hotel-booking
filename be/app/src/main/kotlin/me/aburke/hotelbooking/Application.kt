@@ -38,6 +38,7 @@ fun main() {
 
     startKoin {
         fileProperties()
+        fileProperties("/endpoints.properties")
         modules(
             appModule,
             *appModules.toTypedArray(),

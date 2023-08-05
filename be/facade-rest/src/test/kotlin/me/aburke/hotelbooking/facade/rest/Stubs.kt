@@ -2,15 +2,18 @@ package me.aburke.hotelbooking.facade.rest
 
 import io.javalin.Javalin
 import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.mockk
-import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
-import me.aburke.hotelbooking.scenario.user.GetAuthStateScenario
-import me.aburke.hotelbooking.scenario.user.LogInScenario
-import me.aburke.hotelbooking.scenario.user.SignUpScenario
+import io.mockk.verify
+import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.scenario.user.*
 import org.assertj.core.api.SoftAssertions
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
+import java.time.Instant
+import java.util.UUID
 
 class Stubs {
 
@@ -18,8 +21,11 @@ class Stubs {
     val getAuthStateScenario = mockk<GetAuthStateScenario>()
     val createAnonymousUserScenario = mockk<CreateAnonymousUserScenario>()
     val signUpScenario = mockk<SignUpScenario>()
+    val createUserScenario = mockk<CreateUserScenario>()
 
     private lateinit var app: KoinApplication
+
+    private val sessions = mutableListOf<UserSession>()
 
     fun make(properties: Map<String, String> = mapOf()): Javalin {
         val stubsModule = module {
@@ -27,6 +33,7 @@ class Stubs {
             single { getAuthStateScenario }
             single { createAnonymousUserScenario }
             single { signUpScenario }
+            single { createUserScenario }
         }
         app = koinApplication {
             properties(properties)
@@ -38,12 +45,42 @@ class Stubs {
 
     fun cleanUp() = app.close()
 
-    fun SoftAssertions.verifyStubs() = check {
-        confirmVerified(
-            logInScenario,
-            getAuthStateScenario,
-            createAnonymousUserScenario,
-            signUpScenario,
+    fun prepareSession(roles: Set<UserRole>): String {
+        val sessionId = UUID.randomUUID().toString()
+        every {
+            getAuthStateScenario.run(
+                GetAuthStateDetails(sessionId)
+            )
+        } returns GetAuthStateResult.SessionExists(
+            UserSession(
+                sessionId = sessionId,
+                userId = UUID.randomUUID().toString(),
+                loginId = "stubbed-login-id",
+                userRoles = roles,
+                anonymousUser = false,
+                sessionExpiryTime = Instant.now().plusSeconds(10)
+            ).also { sessions.add(it) }
         )
+
+        return sessionId
+    }
+
+    fun SoftAssertions.verifyStubs() {
+        sessions.forEach {
+            check {
+                verify {
+                    getAuthStateScenario.run(GetAuthStateDetails(it.sessionId))
+                }
+            }
+        }
+        check {
+            confirmVerified(
+                logInScenario,
+                getAuthStateScenario,
+                createAnonymousUserScenario,
+                signUpScenario,
+                createUserScenario,
+            )
+        }
     }
 }

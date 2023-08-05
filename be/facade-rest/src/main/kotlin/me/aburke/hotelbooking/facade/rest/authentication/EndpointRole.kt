@@ -24,4 +24,11 @@ sealed interface EndpointRole : RouteRole {
         override fun allowedForRoles(userRoles: Set<UserRole>): Boolean =
             userRoles.containsAll(roles)
     }
+
+    companion object {
+
+        fun anyOf(vararg roles: UserRole) = AnyOf(setOf(*roles))
+
+        fun allOf(vararg roles: UserRole) = AllOf(setOf(*roles))
+    }
 }

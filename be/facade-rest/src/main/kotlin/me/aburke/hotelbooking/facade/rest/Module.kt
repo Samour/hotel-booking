@@ -7,15 +7,18 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
 import io.javalin.json.JavalinJackson
+import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.GetSessionHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionRoutes
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpHandler
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.UserRoutes
 import me.aburke.hotelbooking.facade.rest.interceptors.AuthenticationInterceptor
 import me.aburke.hotelbooking.facade.rest.interceptors.ExceptionHandler.registerExceptionHandlers
 import org.koin.dsl.module
+
+import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.UserRoutes as AdminUserRoutes
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.UserRoutes as AuthUserRoutes
 
 val restModule = module {
     single { GetSessionHandler() }
@@ -24,14 +27,18 @@ val restModule = module {
     single { SessionRoutes(get(), get(), get()) }
 
     single { SignUpHandler(get(), get()) }
-    single { UserRoutes(get()) }
+    single { AuthUserRoutes(get()) }
+
+    single { CreateUserHandler(get()) }
+    single { AdminUserRoutes(get()) }
 
     single { AuthenticationInterceptor(get()) }
     single {
         ApplicationRoutes(
             listOf(
                 get<SessionRoutes>(),
-                get<UserRoutes>(),
+                get<AuthUserRoutes>(),
+                get<AdminUserRoutes>(),
             )
         )
     }

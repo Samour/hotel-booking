@@ -7,7 +7,7 @@ import me.aburke.hotelbooking.ports.repository.InsertUserResult
 import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.scenario.Scenario
 
-class CreateUserDetails(
+data class CreateUserDetails(
     val loginId: String,
     val rawPassword: String,
     val name: String,
