@@ -160,4 +160,76 @@ class LogInHandlerTest {
             }
         }
     }
+
+    @Test
+    fun `should return 400 when request body has invalid fields`() = test(javalin) { _, client ->
+        val response = client.request("/api/auth/v1/session") {
+            it.header("Content-Type", "application/json")
+                .post(
+                    """
+                        {
+                            "loginId": "$LOGIN_ID",
+                            "password": "$PASSWORD"
+                        }
+                    """.trimIndent().toRequestBody("application/json".toMediaType())
+                )
+        }
+
+        assertSoftly { s ->
+            s.assertThat(response.code).isEqualTo(400)
+            s.assertThat(response.header("Set-Cookie")).isNull()
+            s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+            s.assertThatJson(response.body?.string()).isEqualTo(
+                """
+                    {
+                        "title": "Invalid Request",
+                        "code": "BAD_REQUEST",
+                        "status": 400,
+                        "detail": "Request body is not valid",
+                        "instance": "/api/auth/v1/session",
+                        "extended_details": []
+                    }
+                """.trimIndent()
+            )
+            with(stubs) {
+                s.verifyStubs()
+            }
+        }
+    }
+
+    @Test
+    fun `should return 400 when request body is malformed`() = test(javalin) { _, client ->
+        val response = client.request("/api/auth/v1/session") {
+            it.header("Content-Type", "application/json")
+                .post(
+                    """
+                        {
+                            "login_id": "$LOGIN_ID",
+                            "password": "$PASSWORD
+                        }
+                    """.trimIndent().toRequestBody("application/json".toMediaType())
+                )
+        }
+
+        assertSoftly { s ->
+            s.assertThat(response.code).isEqualTo(400)
+            s.assertThat(response.header("Set-Cookie")).isNull()
+            s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+            s.assertThatJson(response.body?.string()).isEqualTo(
+                """
+                    {
+                        "title": "Invalid Request",
+                        "code": "BAD_REQUEST",
+                        "status": 400,
+                        "detail": "Request body is not valid",
+                        "instance": "/api/auth/v1/session",
+                        "extended_details": []
+                    }
+                """.trimIndent()
+            )
+            with(stubs) {
+                s.verifyStubs()
+            }
+        }
+    }
 }

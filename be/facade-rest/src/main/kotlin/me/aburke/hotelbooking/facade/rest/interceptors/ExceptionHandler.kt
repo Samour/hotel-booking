@@ -21,7 +21,7 @@ object ExceptionHandler {
             context.problemJson(
                 ProblemResponse(
                     title = "Invalid Request",
-                    code = "INVALID_REQUEST",
+                    code = "BAD_REQUEST",
                     status = 400,
                     detail = "Request body is not valid",
                     instance = context.path(),
