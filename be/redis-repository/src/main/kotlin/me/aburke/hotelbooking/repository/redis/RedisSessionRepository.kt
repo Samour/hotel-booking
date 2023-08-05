@@ -3,11 +3,12 @@ package me.aburke.hotelbooking.repository.redis
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import redis.clients.jedis.JedisPooled
+import java.time.Clock
 import java.time.Duration
-import java.time.Instant
 
 class RedisSessionRepository(
     private val jedisPooled: JedisPooled,
+    private val clock: Clock,
 ) : SessionRepository {
 
     override fun insertUserSession(session: UserSession) {
@@ -17,7 +18,7 @@ class RedisSessionRepository(
         )
         jedisPooled.expire(
             "session:${session.sessionId}",
-            Duration.between(Instant.now(), session.sessionExpiryTime).toSeconds(),
+            Duration.between(clock.instant(), session.sessionExpiryTime).toSeconds(),
         )
     }
 

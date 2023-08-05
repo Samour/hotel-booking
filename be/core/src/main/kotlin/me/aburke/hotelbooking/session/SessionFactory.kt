@@ -3,12 +3,13 @@ package me.aburke.hotelbooking.session
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import java.security.SecureRandom
+import java.time.Clock
 import java.time.Duration
-import java.time.Instant
 
 private const val SESSION_ID_LENGTH = 36
 
 class SessionFactory(
+    private val clock: Clock,
     private val sessionDuration: Duration,
 ) {
 
@@ -29,6 +30,6 @@ class SessionFactory(
         loginId = loginId,
         userRoles = userRoles,
         anonymousUser = anonymousUser,
-        sessionExpiryTime = Instant.now().plus(sessionDuration),
+        sessionExpiryTime = clock.instant().plus(sessionDuration),
     )
 }

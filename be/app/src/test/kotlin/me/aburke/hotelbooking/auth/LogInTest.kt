@@ -4,6 +4,7 @@ import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.TestUser
+import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
@@ -18,10 +19,14 @@ import java.time.Instant
 class LogInTest {
 
     private lateinit var app: KoinApplication
+    private lateinit var instant: Instant
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        createApp().let {
+            app = it.first
+            instant = it.second
+        }
     }
 
     @AfterEach
@@ -39,17 +44,15 @@ class LogInTest {
 
         assertSoftly { s ->
             s.assertThat(logInResponse.code).isEqualTo(201)
-            s.assertThat(logInResponseBody).usingRecursiveComparison()
-                .ignoringFields("sessionExpiryTime")
-                .isEqualTo(
-                    LogInResponse(
-                        userId = TestUser.admin.userId,
-                        loginId = TestUser.admin.loginId,
-                        userRoles = listOf("MANAGE_USERS"),
-                        anonymousUser = false,
-                        sessionExpiryTime = Instant.EPOCH,
-                    )
+            s.assertThat(logInResponseBody).isEqualTo(
+                LogInResponse(
+                    userId = TestUser.admin.userId,
+                    loginId = TestUser.admin.loginId,
+                    userRoles = listOf("MANAGE_USERS"),
+                    anonymousUser = false,
+                    sessionExpiryTime = instant.plus(sessionDuration),
                 )
+            )
         }
 
         val sessionResponse = client.getSession()

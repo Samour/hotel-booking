@@ -55,7 +55,7 @@ class SignUpTest {
         )
 
         val session = (result as? SignUpResult.Success)?.session
-        val userRecord = session?.userId?.let { stubs.userRepositoryStub.getUsers()[it] }
+        val userRecord = session?.userId?.let { stubs.userRepository.getUsers()[it] }
         val passwordHashResult = userRecord?.passwordHash?.let {
             passwordHasher.passwordMatches(RAW_PASSWORD, it)
         }
@@ -79,8 +79,8 @@ class SignUpTest {
                 now.plus(sessionDuration),
                 Assertions.within(1, ChronoUnit.SECONDS)
             )
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(session?.userId)
-            s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).isEmpty()
+            s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(session?.userId)
+            s.assertThat(stubs.userRepository.getAnonymousUserIds()).isEmpty()
             s.assertThat(userRecord).usingRecursiveComparison()
                 .ignoringFields("passwordHash")
                 .isEqualTo(
@@ -92,7 +92,7 @@ class SignUpTest {
                     )
                 )
             s.assertThat(passwordHashResult).isTrue
-            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEqualTo(
+            s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
                     session?.sessionId to session,
                 )
@@ -113,7 +113,7 @@ class SignUpTest {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
             (it as SignUpResult.Success).session.userId
         }
-        stubs.sessionRepositoryStub.clearAllSessions()
+        stubs.sessionRepository.clearAllSessions()
 
         val result = underTest.run(
             SignUpDetails(
@@ -126,15 +126,15 @@ class SignUpTest {
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(SignUpResult.UsernameNotAvailable)
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(firstUserId)
-            s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).isEmpty()
-            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEmpty()
+            s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(firstUserId)
+            s.assertThat(stubs.userRepository.getAnonymousUserIds()).isEmpty()
+            s.assertThat(stubs.sessionRepository.getSessions()).isEmpty()
         }
     }
 
     @Test
     fun `should create credentials for anonymous user`() {
-        val anonymousUserId = stubs.userRepositoryStub.createAnonymousUser()
+        val anonymousUserId = stubs.userRepository.createAnonymousUser()
 
         val now = Instant.now()
         val result = underTest.run(
@@ -150,7 +150,7 @@ class SignUpTest {
         )
 
         val session = (result as? SignUpResult.Success)?.session
-        val userRecord = session?.userId?.let { stubs.userRepositoryStub.getUsers()[it] }
+        val userRecord = session?.userId?.let { stubs.userRepository.getUsers()[it] }
         val passwordHashResult = userRecord?.passwordHash?.let {
             passwordHasher.passwordMatches(RAW_PASSWORD, it)
         }
@@ -174,8 +174,8 @@ class SignUpTest {
                 now.plus(sessionDuration),
                 Assertions.within(100, ChronoUnit.MILLIS)
             )
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(session?.userId)
-            s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).containsExactly(session?.userId)
+            s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(session?.userId)
+            s.assertThat(stubs.userRepository.getAnonymousUserIds()).containsExactly(session?.userId)
             s.assertThat(userRecord).usingRecursiveComparison()
                 .ignoringFields("passwordHash")
                 .isEqualTo(
@@ -187,7 +187,7 @@ class SignUpTest {
                     )
                 )
             s.assertThat(passwordHashResult).isTrue
-            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEqualTo(
+            s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
                     ANONYMOUS_SESSION_ID to session,
                 )
@@ -208,7 +208,7 @@ class SignUpTest {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
             (it as SignUpResult.Success).session.userId
         }
-        stubs.sessionRepositoryStub.clearAllSessions()
+        stubs.sessionRepository.clearAllSessions()
 
         val result = underTest.run(
             SignUpDetails(
@@ -224,8 +224,8 @@ class SignUpTest {
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(SignUpResult.UserIsNotAnonymous)
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(firstUserId)
-            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEmpty()
+            s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(firstUserId)
+            s.assertThat(stubs.sessionRepository.getSessions()).isEmpty()
         }
     }
 
@@ -242,8 +242,8 @@ class SignUpTest {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
             (it as SignUpResult.Success).session.userId
         }
-        val anonymousUserId = stubs.userRepositoryStub.createAnonymousUser()
-        stubs.sessionRepositoryStub.clearAllSessions()
+        val anonymousUserId = stubs.userRepository.createAnonymousUser()
+        stubs.sessionRepository.clearAllSessions()
 
         val result = underTest.run(
             SignUpDetails(
@@ -259,8 +259,8 @@ class SignUpTest {
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(SignUpResult.UsernameNotAvailable)
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(firstUserId)
-            s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEmpty()
+            s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(firstUserId)
+            s.assertThat(stubs.sessionRepository.getSessions()).isEmpty()
         }
     }
 }

@@ -16,7 +16,6 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.KoinApplication
-import java.time.Duration
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
@@ -57,7 +56,7 @@ class LogInTest {
             )
         )
         val session = (result as? LogInResult.UserSessionCreated)?.session
-        val allSessions = stubs.sessionRepositoryStub.getSessions().values
+        val allSessions = stubs.sessionRepository.getSessions().values
 
         assertSoftly { s ->
             s.assertThat(result).usingRecursiveComparison()
@@ -93,7 +92,7 @@ class LogInTest {
                 password = "incorrect-password",
             )
         )
-        val allSessions = stubs.sessionRepositoryStub.getSessions().values
+        val allSessions = stubs.sessionRepository.getSessions().values
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
@@ -111,7 +110,7 @@ class LogInTest {
                 password = PASSWORD,
             )
         )
-        val allSessions = stubs.sessionRepositoryStub.getSessions().values
+        val allSessions = stubs.sessionRepository.getSessions().values
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
@@ -121,7 +120,7 @@ class LogInTest {
         }
     }
 
-    private fun insertUser() = stubs.userRepositoryStub.insertUser(
+    private fun insertUser() = stubs.userRepository.insertUser(
         InsertUserRecord(
             loginId = LOGIN_ID,
             passwordHash = passwordHasher.hashPassword(PASSWORD),

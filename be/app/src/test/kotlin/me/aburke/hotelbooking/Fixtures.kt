@@ -1,6 +1,8 @@
 package me.aburke.hotelbooking
 
 import io.javalin.testtools.JavalinTest.test
+import io.mockk.every
+import io.mockk.mockk
 import me.aburke.hotelbooking.client.AppTestClient
 import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.data.TestUser
@@ -12,23 +14,39 @@ import me.aburke.hotelbooking.model.user.UserRole
 import org.assertj.core.api.Assertions.assertThat
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
+import org.koin.dsl.module
 import org.koin.fileProperties
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.Protocol
 import java.sql.Connection
+import java.time.Clock
+import java.time.Instant
 
-fun createApp(populateTestData: Boolean = true): KoinApplication = koinApplication {
-    fileProperties()
-    modules(*appModules.toTypedArray())
-}.also {
-    it.koin.get<Connection>().apply {
+fun createApp(populateTestData: Boolean = true): Pair<KoinApplication, Instant> {
+    val instant = Instant.now()
+    val clock = mockk<Clock>()
+    every {
+        clock.instant()
+    } returns instant
+
+    val testModule = module {
+        single<Clock> { clock }
+    }
+
+    val app = koinApplication {
+        fileProperties()
+        modules(testModule, *appModules.toTypedArray())
+    }
+    app.koin.get<Connection>().apply {
         executeScript("drop_db.sql")
         executeScript("bootstrap_db.sql")
         if (populateTestData) {
             executeScript("test_data.sql")
         }
     }
-    it.koin.get<JedisPooled>().sendCommand(Protocol.Command.FLUSHDB)
+    app.koin.get<JedisPooled>().sendCommand(Protocol.Command.FLUSHDB)
+
+    return app to instant
 }
 
 fun KoinApplication.restTest(case: (AppTestClient) -> Unit) = test(koin.get()) { _, client ->

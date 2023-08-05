@@ -12,6 +12,7 @@ val coreModule = module {
 
     single {
         SessionFactory(
+            get(),
             sessionDuration = Duration.parse(getProperty("auth.session.duration")),
         )
     }

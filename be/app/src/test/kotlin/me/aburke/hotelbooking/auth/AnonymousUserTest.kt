@@ -3,6 +3,7 @@ package me.aburke.hotelbooking.auth
 import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
 import me.aburke.hotelbooking.model.user.UserRole
@@ -19,11 +20,15 @@ import java.time.Instant
 class AnonymousUserTest {
 
     private lateinit var app: KoinApplication
+    private lateinit var instant: Instant
     private lateinit var connection: Connection
 
     @BeforeEach
     fun init() {
-        app = createApp(populateTestData = false)
+        createApp(populateTestData = false).let {
+            app = it.first
+            instant = it.second
+        }
         connection = app.koin.get()
     }
 
@@ -38,13 +43,13 @@ class AnonymousUserTest {
         assertSoftly { s ->
             s.assertThat(createSessionResponse.code).isEqualTo(201)
             s.assertThat(createSessionResponseBody).usingRecursiveComparison()
-                .ignoringFields("userId", "sessionExpiryTime")
+                .ignoringFields("userId")
                 .isEqualTo(
                     CreateAnonymousSessionResponse(
                         userId = "",
                         userRoles = listOf("CUSTOMER"),
                         anonymousUser = true,
-                        sessionExpiryTime = Instant.EPOCH,
+                        sessionExpiryTime = instant.plus(sessionDuration),
                     )
                 )
         }

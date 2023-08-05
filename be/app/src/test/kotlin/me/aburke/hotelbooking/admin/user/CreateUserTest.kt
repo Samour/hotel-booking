@@ -33,7 +33,7 @@ class CreateUserTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = createApp().first
         passwordHasher = app.koin.get()
         userRepository = app.koin.get()
         connection = app.koin.get()

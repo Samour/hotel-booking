@@ -8,6 +8,7 @@ import org.koin.core.context.startKoin
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import org.koin.fileProperties
+import java.time.Clock
 
 class Application(
     private val javalin: Javalin,
@@ -28,6 +29,7 @@ val appModules = listOf(
 
 fun main() {
     val appModule = module {
+        single<Clock> { Clock.systemUTC() }
         single {
             Application(
                 get(),

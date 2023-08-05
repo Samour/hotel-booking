@@ -50,15 +50,15 @@ class CreateUserTest {
         )
 
         val userId = (result as? CreateUserResult.Success)?.userId
-        val userRecord = userId?.let { stubs.userRepositoryStub.getUsers()[it] }
+        val userRecord = userId?.let { stubs.userRepository.getUsers()[it] }
         val passwordHashResult = userRecord?.passwordHash?.let {
             passwordHasher.passwordMatches(RAW_PASSWORD, it)
         }
 
         assertSoftly { s ->
             s.assertThat(result).isInstanceOf(CreateUserResult.Success::class.java)
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(userId)
-            s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).isEmpty()
+            s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(userId)
+            s.assertThat(stubs.userRepository.getAnonymousUserIds()).isEmpty()
             s.assertThat(userRecord).usingRecursiveComparison()
                 .ignoringFields("passwordHash")
                 .isEqualTo(
@@ -98,8 +98,8 @@ class CreateUserTest {
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(CreateUserResult.UsernameNotAvailable)
-            s.assertThat(stubs.userRepositoryStub.getUsers().keys).containsExactly(firstUserId)
-            s.assertThat(stubs.userRepositoryStub.getAnonymousUserIds()).isEmpty()
+            s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(firstUserId)
+            s.assertThat(stubs.userRepository.getAnonymousUserIds()).isEmpty()
         }
     }
 }

@@ -5,6 +5,7 @@ import me.aburke.hotelbooking.client.AppTestClient
 import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInResponse
@@ -33,12 +34,16 @@ private const val NAME = "name"
 class SignUpTest {
 
     private lateinit var app: KoinApplication
+    private lateinit var instant: Instant
     private lateinit var userRepository: UserRepository
     private lateinit var connection: Connection
 
     @BeforeEach
     fun init() {
-        app = createApp(populateTestData = false)
+        createApp(populateTestData = false).let {
+            app = it.first
+            instant = it.second
+        }
         connection = app.koin.get()
         userRepository = app.koin.get()
     }
@@ -214,14 +219,14 @@ class SignUpTest {
         assertSoftly { s ->
             s.assertThat(response.code).isEqualTo(201)
             s.assertThat(responseBody).usingRecursiveComparison()
-                .ignoringFields("userId", "sessionExpiryTime")
+                .ignoringFields("userId")
                 .isEqualTo(
                     SignUpResponse(
                         userId = "",
                         loginId = LOGIN_ID,
                         userRoles = listOf("CUSTOMER"),
                         anonymousUser = false,
-                        sessionExpiryTime = Instant.EPOCH,
+                        sessionExpiryTime = instant.plus(sessionDuration),
                     )
                 )
             s.assertThat(allUsers).hasSize(1)
@@ -258,15 +263,13 @@ class SignUpTest {
         assertSoftly { s ->
             s.assertThat(response.code).isEqualTo(201)
             s.assertThat(response.header("Set-Cookie")).isNull()
-            s.assertThat(responseBody).usingRecursiveComparison()
-                .ignoringFields("sessionExpiryTime")
-                .isEqualTo(
+            s.assertThat(responseBody).isEqualTo(
                     SignUpResponse(
                         userId = anonymousUserId,
                         loginId = LOGIN_ID,
                         userRoles = listOf("CUSTOMER"),
                         anonymousUser = false,
-                        sessionExpiryTime = Instant.EPOCH,
+                        sessionExpiryTime = instant.plus(sessionDuration),
                     )
                 )
             s.assertThat(allUsers).hasSize(1)
@@ -299,15 +302,13 @@ class SignUpTest {
 
         assertSoftly { s ->
             s.assertThat(response.code).isEqualTo(201)
-            s.assertThat(responseBody).usingRecursiveComparison()
-                .ignoringFields("sessionExpiryTime")
-                .isEqualTo(
+            s.assertThat(responseBody).isEqualTo(
                     LogInResponse(
                         userId = userId,
                         loginId = LOGIN_ID,
                         userRoles = listOf("CUSTOMER"),
                         anonymousUser = false,
-                        sessionExpiryTime = Instant.EPOCH,
+                        sessionExpiryTime = instant.plus(sessionDuration),
                     )
                 )
         }

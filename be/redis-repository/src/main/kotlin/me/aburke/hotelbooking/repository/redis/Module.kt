@@ -13,5 +13,5 @@ val redisModule = module {
         )
     } onClose { it?.close() }
 
-    single<SessionRepository> { RedisSessionRepository(get()) }
+    single<SessionRepository> { RedisSessionRepository(get(), get()) }
 }
