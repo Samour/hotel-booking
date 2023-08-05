@@ -8,15 +8,17 @@ import java.sql.ResultSet
 
 fun ResultSet.toNonAnonymousUserRecord() = NonAnonymousUserRecord(
     userId = getString("user_id"),
-    userRoles = setOf(*(getArray("user_roles").array as Array<String>))
-        .map { UserRole.valueOf(it) }
-        .toSet(),
+    userRoles = getArray("user_roles").toUserRoles(),
     name = getString("name"),
     credential = UserCredentialRecord(
         loginId = getString("login_id"),
         passwordHash = getString("password_hash"),
     )
 )
+
+fun java.sql.Array.toUserRoles() = setOf(*(array as Array<String>))
+    .map { UserRole.valueOf(it) }
+    .toSet()
 
 fun Connection.toSqlArray(roles: Set<UserRole>) = createArrayOf(
     "varchar",

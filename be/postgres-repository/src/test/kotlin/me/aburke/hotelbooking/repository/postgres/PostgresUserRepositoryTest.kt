@@ -308,7 +308,7 @@ class PostgresUserRepositoryTest {
         val records = mutableListOf<UserRecord>()
         while (results.next()) {
             val userId = results.getString("user_id")
-            val userRoles = results.getArray("user_roles").array as Array<String>
+            val userRoles = results.getArray("user_roles").toUserRoles()
             val name = results.getString("name")
             val loginId = results.getString("login_id")
             val passwordHash = results.getString("password_hash")
@@ -316,7 +316,7 @@ class PostgresUserRepositoryTest {
             records.add(
                 UserRecord(
                     userId = userId,
-                    userRoles = setOf(*userRoles).map { UserRole.valueOf(it) }.toSet(),
+                    userRoles = userRoles,
                     name = name,
                     credential = if (loginId != null && passwordHash != null) {
                         UserCredentialRecord(

@@ -1,9 +1,10 @@
 package me.aburke.hotelbooking.auth
 
 import me.aburke.hotelbooking.assertThatJson
-import me.aburke.hotelbooking.client.readBody
+import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.TestUser
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
 import me.aburke.hotelbooking.restTest
@@ -28,8 +29,13 @@ class LogInTest {
 
     @Test
     fun `should log in user & set session cookie on successful authentication`() = app.restTest { client ->
-        val logInResponse = client.logIn(TestUser.admin.loginId, TestUser.admin.password)
-        val logInResponseBody = logInResponse.readBody<LogInResponse>()
+        val logInResponse = client.logIn(
+            LogInRequest(
+                loginId = TestUser.admin.loginId,
+                password = TestUser.admin.password,
+            )
+        )
+        val logInResponseBody = logInResponse.parseBody<LogInResponse>()
 
         assertSoftly { s ->
             s.assertThat(logInResponse.code).isEqualTo(201)
@@ -47,7 +53,7 @@ class LogInTest {
         }
 
         val sessionResponse = client.getSession()
-        val sessionResponseBody = sessionResponse.readBody<SessionResponse>()
+        val sessionResponseBody = sessionResponse.parseBody<SessionResponse>()
 
         assertSoftly { s ->
             s.assertThat(sessionResponse.code).isEqualTo(200)
@@ -65,7 +71,12 @@ class LogInTest {
 
     @Test
     fun `should return 401 when password is incorrect`() = app.restTest { client ->
-        val logInResponse = client.logIn(TestUser.admin.loginId, "wrong-password")
+        val logInResponse = client.logIn(
+            LogInRequest(
+                loginId = TestUser.admin.loginId,
+                password = "wrong-password",
+            )
+        )
 
         assertSoftly { s ->
             s.assertThat(logInResponse.code).isEqualTo(401)
@@ -88,7 +99,12 @@ class LogInTest {
 
     @Test
     fun `should return 401 when user does not exist`() = app.restTest { client ->
-        val logInResponse = client.logIn(TestUser.admin.userId, TestUser.admin.password)
+        val logInResponse = client.logIn(
+            LogInRequest(
+                loginId = TestUser.admin.userId,
+                password = TestUser.admin.password,
+            )
+        )
 
         assertSoftly { s ->
             s.assertThat(logInResponse.code).isEqualTo(401)

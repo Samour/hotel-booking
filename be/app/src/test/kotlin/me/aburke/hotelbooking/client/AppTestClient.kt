@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.javalin.testtools.HttpClient
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpRequest
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.facade.rest.restObjectMapper
 import okhttp3.MediaType.Companion.toMediaType
@@ -17,16 +18,12 @@ class AppTestClient(private val client: HttpClient) {
 
     private var sessionId: String? = null
 
-    fun logIn(loginId: String, password: String): Response =
+    fun logIn(request: LogInRequest): Response =
         client.request("/api/auth/v1/session") {
             it.header("Content-Type", "application/json")
                 .post(
-                    objectMapper.writeValueAsString(
-                        LogInRequest(
-                            loginId = loginId,
-                            password = password,
-                        )
-                    ).toRequestBody("application/json".toMediaType())
+                    objectMapper.writeValueAsString(request)
+                        .toRequestBody("application/json".toMediaType())
                 )
         }.storeSessionId()
 
@@ -38,6 +35,19 @@ class AppTestClient(private val client: HttpClient) {
         client.get("/api/auth/v1/session") {
             it.withCredentials()
         }
+
+    fun signUp(request: SignUpRequest): Response =
+        client.request("/api/auth/v1/user") {
+            it.header("Content-Type", "application/json")
+                .post(
+                    objectMapper.writeValueAsString(request)
+                        .toRequestBody("application/json".toMediaType())
+                ).withCredentials()
+        }.storeSessionId()
+
+    fun clearSession() {
+        sessionId = null
+    }
 
     private fun Response.storeSessionId() = also { response ->
         response.headers("Set-Cookie").firstOrNull {
@@ -53,7 +63,7 @@ class AppTestClient(private val client: HttpClient) {
     }
 }
 
-inline fun <reified T> Response.readBody(): T? =
+inline fun <reified T> Response.parseBody(): T? =
     body?.let {
         try {
             objectMapper.readValue(it.string())

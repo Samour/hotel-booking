@@ -1,6 +1,6 @@
 package me.aburke.hotelbooking.auth
 
-import me.aburke.hotelbooking.client.readBody
+import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
@@ -27,7 +27,7 @@ class AnonymousUserTest {
     @Test
     fun `should create session for anonymous user`() = app.restTest { client ->
         val createSessionResponse = client.createAnonymousSession()
-        val createSessionResponseBody = createSessionResponse.readBody<CreateAnonymousSessionResponse>()
+        val createSessionResponseBody = createSessionResponse.parseBody<CreateAnonymousSessionResponse>()
 
         assertSoftly { s ->
             s.assertThat(createSessionResponse.code).isEqualTo(201)
@@ -44,7 +44,7 @@ class AnonymousUserTest {
         }
 
         val sessionResponse = client.getSession()
-        val sessionResponseBody = sessionResponse.readBody<SessionResponse>()
+        val sessionResponseBody = sessionResponse.parseBody<SessionResponse>()
 
         assertSoftly { s ->
             s.assertThat(sessionResponse.code).isEqualTo(200)

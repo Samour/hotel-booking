@@ -78,7 +78,7 @@ class SignUpHandlerTest {
         }
 
         assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(200)
+            s.assertThat(response.code).isEqualTo(201)
             s.assertThat(response.header("Set-Cookie")).isEqualTo(
                 "$AUTH_COOKIE_KEY=$SESSION_ID; Path=/; HttpOnly; SameSite=Strict"
             )
@@ -156,7 +156,7 @@ class SignUpHandlerTest {
         }
 
         assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(200)
+            s.assertThat(response.code).isEqualTo(201)
             s.assertThat(response.header("Set-Cookie")).isEqualTo(
                 "$AUTH_COOKIE_KEY=$SESSION_ID; Path=/; HttpOnly; SameSite=Strict"
             )
@@ -314,7 +314,7 @@ class SignUpHandlerTest {
         }
 
         assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(200)
+            s.assertThat(response.code).isEqualTo(201)
             s.assertThat(response.header("Set-Cookie")).isNull()
             s.assertThat(response.header("Content-Type")).isEqualTo("application/json")
             s.assertThatJson(response.body?.string()).isEqualTo(

@@ -2,6 +2,7 @@ package me.aburke.hotelbooking.facade.rest.api.auth.v1.user
 
 import io.javalin.http.Context
 import io.javalin.http.Handler
+import io.javalin.http.HttpStatus
 import io.javalin.http.bodyAsClass
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.facade.rest.authentication.setAuthCookie
@@ -64,6 +65,7 @@ class SignUpHandler(
 }
 
 private fun Context.sendUserCreatedResponse(session: UserSession, existingSession: Boolean) {
+    status(HttpStatus.CREATED)
     if (!existingSession) {
         setAuthCookie(session)
     }
