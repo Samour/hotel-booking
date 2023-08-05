@@ -42,19 +42,10 @@ create table room_type_description
     room_type_id             varchar not null,
     title                    varchar not null,
     description              varchar not null,
+    image_urls               varchar[] not null,
 
     constraint fk__room_type_description__room_type_id__room_type
         foreign key (room_type_id) references room_type
-);
-
-create table room_type_image
-(
-    room_type_image_id       varchar not null primary key,
-    room_type_description_id varchar not null,
-    image_url                varchar not null,
-
-    constraint fk__room_type_image__room_type_description_id__room_type_description
-        foreign key (room_type_description_id) references room_type_description (room_type_description_id)
 );
 
 create table room_stock

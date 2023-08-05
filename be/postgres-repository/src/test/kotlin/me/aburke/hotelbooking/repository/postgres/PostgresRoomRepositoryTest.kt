@@ -35,7 +35,7 @@ private data class RoomRecord(
     val stockLevel: Int,
     val title: String,
     val description: String,
-    val imageUrls: Set<String>,
+    val imageUrls: List<String>,
 )
 
 private data class RoomStockRecord(
@@ -86,7 +86,7 @@ class PostgresRoomRepositoryTest {
                     stockLevel = STOCK_LEVEL,
                     title = TITLE,
                     description = DESCRIPTION,
-                    imageUrls = imageUrls.toSet(),
+                    imageUrls = imageUrls,
                 )
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
@@ -125,7 +125,7 @@ class PostgresRoomRepositoryTest {
                     stockLevel = STOCK_LEVEL,
                     title = TITLE,
                     description = DESCRIPTION,
-                    imageUrls = emptySet(),
+                    imageUrls = emptyList(),
                 )
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
@@ -164,7 +164,7 @@ class PostgresRoomRepositoryTest {
                     stockLevel = STOCK_LEVEL,
                     title = TITLE,
                     description = DESCRIPTION,
-                    imageUrls = imageUrls.toSet(),
+                    imageUrls = imageUrls,
                 )
             )
             s.assertThat(allStock).isEmpty()
@@ -174,30 +174,27 @@ class PostgresRoomRepositoryTest {
     private fun loadAllRooms(): List<RoomRecord> {
         val results = connection.prepareStatement(
             """
-                select r.room_type_id, r.hotel_id, r.stock_level, rd.title, rd.description, ri.image_url
+                select r.room_type_id, r.hotel_id, r.stock_level, rd.title, rd.description, rd.image_urls
                 from room_type r
                 join room_type_description rd on rd.room_type_id = r.room_type_id
-                left outer join room_type_image ri on ri.room_type_description_id = rd.room_type_description_id
             """.trimIndent()
         ).executeQuery()
 
-        val rooms = mutableMapOf<String, RoomRecord>()
+        val rooms = mutableListOf<RoomRecord>()
         while (results.next()) {
-            val roomTypeId = results.getString("room_type_id")
-            val imageUrls = setOfNotNull(results.getString("image_url"))
-            rooms[roomTypeId] = rooms[roomTypeId]?.let {
-                it.copy(imageUrls = it.imageUrls + imageUrls)
-            } ?: RoomRecord(
-                roomTypeId = roomTypeId,
-                hotelId = results.getString("hotel_id"),
-                stockLevel = results.getInt("stock_level"),
-                title = results.getString("title"),
-                description = results.getString("description"),
-                imageUrls = imageUrls,
+            rooms.add(
+                RoomRecord(
+                    roomTypeId = results.getString("room_type_id"),
+                    hotelId = results.getString("hotel_id"),
+                    stockLevel = results.getInt("stock_level"),
+                    title = results.getString("title"),
+                    description = results.getString("description"),
+                    imageUrls = listOf(*(results.getArray("image_urls").array as Array<String>)),
+                )
             )
         }
 
-        return rooms.values.toList()
+        return rooms
     }
 
     private fun loadAllRoomStocks(): List<RoomStockRecord> {

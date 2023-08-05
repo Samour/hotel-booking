@@ -48,18 +48,10 @@ entity room_type_description {
     * room_type_id : UUID
     * title : string
     * description : string
+    * image_urls : string[]
 }
 
 room_type::room_type_id -* room_type_description::room_type_id
-
-entity room_type_image {
-    * room_type_image_id : UUID
-    --
-    * room_type_description_id : UUID
-    * image_url : string
-}
-
-room_type_description::room_type_description_id -{ room_type_image::room_type_description_id
 
 entity room_stock {
     * room_stock_id : UUID

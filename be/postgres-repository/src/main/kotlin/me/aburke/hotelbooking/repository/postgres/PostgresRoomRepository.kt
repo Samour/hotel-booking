@@ -31,12 +31,8 @@ class PostgresRoomRepository(
             roomTypeId = roomTypeId,
             title = roomType.title,
             description = roomType.description,
+            roomType.imageUrls,
         )
-        val insertRoomTypeImagesQuery = connection.takeIf { roomType.imageUrls.isNotEmpty() }
-            ?.insertRoomTypeImagesQuery(
-                roomTypeDescriptionId = roomTypeDescriptionId,
-                imageUrls = roomType.imageUrls,
-            )
         val insertRoomStockQuery = connection.takeIf { populateDates.isNotEmpty() }
             ?.insertRoomStockQuery(
                 roomTypeId = roomTypeId,
@@ -47,7 +43,6 @@ class PostgresRoomRepository(
         try {
             insertRoomTypeQuery.executeUpdate()
             insertRoomTypeDescriptionQuery.executeUpdate()
-            insertRoomTypeImagesQuery?.executeBatch()
             insertRoomStockQuery?.executeBatch()
             connection.commit()
         } catch (e: PSQLException) {
