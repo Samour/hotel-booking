@@ -6,6 +6,7 @@ import io.mockk.mockk
 import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
 import me.aburke.hotelbooking.scenario.user.GetAuthStateScenario
 import me.aburke.hotelbooking.scenario.user.LogInScenario
+import me.aburke.hotelbooking.scenario.user.SignUpScenario
 import org.assertj.core.api.SoftAssertions
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
@@ -16,6 +17,7 @@ class Stubs {
     val logInScenario = mockk<LogInScenario>()
     val getAuthStateScenario = mockk<GetAuthStateScenario>()
     val createAnonymousUserScenario = mockk<CreateAnonymousUserScenario>()
+    val signUpScenario = mockk<SignUpScenario>()
 
     private lateinit var app: KoinApplication
 
@@ -24,6 +26,7 @@ class Stubs {
             single { logInScenario }
             single { getAuthStateScenario }
             single { createAnonymousUserScenario }
+            single { signUpScenario }
         }
         app = koinApplication {
             modules(stubsModule, restModule)
@@ -39,6 +42,7 @@ class Stubs {
             logInScenario,
             getAuthStateScenario,
             createAnonymousUserScenario,
+            signUpScenario,
         )
     }
 }

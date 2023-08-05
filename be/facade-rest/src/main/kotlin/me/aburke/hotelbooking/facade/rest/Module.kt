@@ -11,6 +11,8 @@ import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSes
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.GetSessionHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionRoutes
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpHandler
+import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.UserRoutes
 import me.aburke.hotelbooking.facade.rest.interceptors.AuthenticationInterceptor
 import me.aburke.hotelbooking.facade.rest.interceptors.ExceptionHandler.registerExceptionHandlers
 import org.koin.dsl.module
@@ -21,11 +23,15 @@ val restModule = module {
     single { CreateAnonymousSessionHandler(get()) }
     single { SessionRoutes(get(), get(), get()) }
 
+    single { SignUpHandler(get(), get()) }
+    single { UserRoutes(get()) }
+
     single { AuthenticationInterceptor(get()) }
     single {
         ApplicationRoutes(
             listOf(
                 get<SessionRoutes>(),
+                get<UserRoutes>(),
             )
         )
     }
