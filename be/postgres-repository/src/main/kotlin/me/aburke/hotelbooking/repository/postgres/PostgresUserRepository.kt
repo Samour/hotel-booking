@@ -98,7 +98,7 @@ class PostgresUserRepository(
 
     override fun findUserByLoginId(loginId: String): NonAnonymousUserRecord? =
         connection.findUserByLoginIdQuery(loginId)
-            .executeQuery()
+            .executeQueryWithRollback()
             .takeIf { it.next() }
             ?.toNonAnonymousUserRecord()
 }

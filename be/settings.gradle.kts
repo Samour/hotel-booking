@@ -5,6 +5,7 @@ include(
     "postgres-repository",
     "redis-repository",
     "facade-rest",
+    "app",
 
     "postgres-migrations",
 )
