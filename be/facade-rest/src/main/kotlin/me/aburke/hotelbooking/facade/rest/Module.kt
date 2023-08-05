@@ -35,7 +35,7 @@ val restModule = module {
             )
         )
     }
-    single { buildJavalin(get(), get()) }
+    single { buildJavalin(get(), get(), ::getProperty) }
 }
 
 fun restObjectMapper() = jacksonObjectMapper().apply {
@@ -49,11 +49,12 @@ fun restObjectMapper() = jacksonObjectMapper().apply {
 fun buildJavalin(
     authenticationInterceptor: AuthenticationInterceptor,
     applicationRoutes: ApplicationRoutes,
+    propertySource: PropertySource,
 ): Javalin =
     Javalin.create { config ->
         config.jsonMapper(JavalinJackson(restObjectMapper()))
         config.accessManager(authenticationInterceptor)
     }.apply {
-        applicationRoutes.addRoutes(this)
+        applicationRoutes.addRoutes(RouteRegistry(this, propertySource))
         registerExceptionHandlers(this)
     }

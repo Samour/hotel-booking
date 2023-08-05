@@ -21,7 +21,7 @@ class Stubs {
 
     private lateinit var app: KoinApplication
 
-    fun make(): Javalin {
+    fun make(properties: Map<String, String> = mapOf()): Javalin {
         val stubsModule = module {
             single { logInScenario }
             single { getAuthStateScenario }
@@ -29,6 +29,7 @@ class Stubs {
             single { signUpScenario }
         }
         app = koinApplication {
+            properties(properties)
             modules(stubsModule, restModule)
         }
 
