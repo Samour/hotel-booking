@@ -38,7 +38,7 @@ class AddRoomTypeScenario(
                     stockLevel = details.stockLevel,
                 ),
                 datesCalculator.calculateDateRange(
-                    hotelRepository.getTimeZone(),
+                    hotelRepository.loadTimeZone(),
                     clock.instant().minus(backPopulateDays.toLong(), ChronoUnit.DAYS),
                     populateRoomRange,
                 ),

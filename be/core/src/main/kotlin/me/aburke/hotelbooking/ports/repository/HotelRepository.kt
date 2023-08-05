@@ -4,5 +4,5 @@ import java.util.TimeZone
 
 interface HotelRepository {
 
-    fun getTimeZone(): TimeZone
+    fun loadTimeZone(): TimeZone
 }

@@ -1,5 +1,7 @@
 package me.aburke.hotelbooking.repository.postgres
 
+import me.aburke.hotelbooking.ports.repository.HotelRepository
+import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
 import org.koin.dsl.module
 import org.koin.dsl.onClose
@@ -20,4 +22,6 @@ val postgresModule = module {
     }
 
     single<UserRepository> { PostgresUserRepository(get()) }
+    single<HotelRepository> { PostgresHotelRepository(get()) }
+    single<RoomRepository> { PostgresRoomRepository(get()) }
 }

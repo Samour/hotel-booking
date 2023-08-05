@@ -70,7 +70,7 @@ class AddRoomTypeScenarioTest {
 
     @Test
     fun `should insert room type into DB`() {
-        every { hotelRepository.getTimeZone() } returns timezone
+        every { hotelRepository.loadTimeZone() } returns timezone
         every { clock.instant() } returns instant
         every {
             datesCalculator.calculateDateRange(
@@ -104,7 +104,7 @@ class AddRoomTypeScenarioTest {
             s.assertThat(result).isEqualTo(AddRoomTypeResult(ROOM_TYPE_ID))
             s.check {
                 verify(exactly = 1) {
-                    hotelRepository.getTimeZone()
+                    hotelRepository.loadTimeZone()
                 }
             }
             s.check {

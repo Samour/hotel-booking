@@ -7,5 +7,5 @@ val hotelTimeZone = TimeZone.getTimeZone("Australia/Sydney")
 
 class HotelRepositoryStub : HotelRepository {
 
-    override fun getTimeZone(): TimeZone = hotelTimeZone
+    override fun loadTimeZone(): TimeZone = hotelTimeZone
 }
