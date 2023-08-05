@@ -51,17 +51,15 @@ class LogInTest {
 
         assertSoftly { s ->
             s.assertThat(sessionResponse.code).isEqualTo(200)
-            s.assertThat(sessionResponseBody).usingRecursiveComparison()
-                .ignoringFields("sessionExpiryTime")
-                .isEqualTo(
-                    SessionResponse(
-                        userId = TestUser.admin.userId,
-                        loginId = TestUser.admin.loginId,
-                        userRoles = listOf("MANAGE_USERS"),
-                        anonymousUser = false,
-                        sessionExpiryTime = Instant.EPOCH,
-                    )
+            s.assertThat(sessionResponseBody).isEqualTo(
+                SessionResponse(
+                    userId = TestUser.admin.userId,
+                    loginId = TestUser.admin.loginId,
+                    userRoles = listOf("MANAGE_USERS"),
+                    anonymousUser = false,
+                    sessionExpiryTime = logInResponseBody!!.sessionExpiryTime,
                 )
+            )
         }
     }
 

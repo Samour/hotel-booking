@@ -28,19 +28,25 @@ class AppTestClient(private val client: HttpClient) {
                         )
                     ).toRequestBody("application/json".toMediaType())
                 )
-        }.also { response ->
-            response.headers("Set-Cookie").firstOrNull {
-                it.startsWith("$AUTH_COOKIE_KEY=")
-            }?.let {
-                sessionId = "$AUTH_COOKIE_KEY=([^;]*)(;.*)?".toRegex().matchEntire(it)
-                    ?.groupValues?.get(1)
-            }
-        }
+        }.storeSessionId()
+
+    fun createAnonymousSession(): Response =
+        client.post("/api/auth/v1/session/anonymous")
+            .storeSessionId()
 
     fun getSession(): Response =
         client.get("/api/auth/v1/session") {
             it.withCredentials()
         }
+
+    private fun Response.storeSessionId() = also { response ->
+        response.headers("Set-Cookie").firstOrNull {
+            it.startsWith("$AUTH_COOKIE_KEY=")
+        }?.let {
+            sessionId = "$AUTH_COOKIE_KEY=([^;]*)(;.*)?".toRegex().matchEntire(it)
+                ?.groupValues?.get(1)
+        }
+    }
 
     private fun Request.Builder.withCredentials() = sessionId?.let {
         header("Cookie", "$AUTH_COOKIE_KEY=$it")
