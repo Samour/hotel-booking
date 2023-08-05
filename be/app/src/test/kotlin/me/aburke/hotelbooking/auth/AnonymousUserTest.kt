@@ -5,7 +5,6 @@ import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
-import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.UserRecord
 import me.aburke.hotelbooking.restTest
@@ -24,9 +23,8 @@ class AnonymousUserTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = createApp(populateTestData = false)
         connection = app.koin.get()
-        connection.executeScript("clear_db.sql")
     }
 
     @AfterEach

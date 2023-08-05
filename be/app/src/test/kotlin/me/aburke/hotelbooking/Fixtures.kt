@@ -10,14 +10,16 @@ import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.Protocol
 import java.sql.Connection
 
-fun createApp(): KoinApplication = koinApplication {
+fun createApp(populateTestData: Boolean = true): KoinApplication = koinApplication {
     fileProperties()
     modules(*appModules.toTypedArray())
 }.also {
     it.koin.get<Connection>().apply {
         executeScript("drop_db.sql")
         executeScript("bootstrap_db.sql")
-        executeScript("test_data.sql")
+        if (populateTestData) {
+            executeScript("test_data.sql")
+        }
     }
     it.koin.get<JedisPooled>().sendCommand(Protocol.Command.FLUSHDB)
 }

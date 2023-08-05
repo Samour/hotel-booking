@@ -38,10 +38,9 @@ class SignUpTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = createApp(populateTestData = false)
         connection = app.koin.get()
         userRepository = app.koin.get()
-        connection.executeScript("clear_db.sql")
     }
 
     @AfterEach
