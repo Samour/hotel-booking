@@ -113,7 +113,6 @@ entity payment {
 }
 
 payment::payment_status -* PaymentStatus
-
-room_type_description -[hidden]- payment
+booking::booking_id --{ payment::booking_id
 
 @enduml
