@@ -7,12 +7,17 @@ import me.aburke.hotelbooking.ports.repository.*
 import me.aburke.hotelbooking.scenario.Scenario
 import me.aburke.hotelbooking.session.SessionFactory
 
-class SignUpDetails(
+data class SignUpDetails(
     val loginId: String,
     val rawPassword: String,
     val name: String,
-    val anonymousUserId: String?,
+    val anonymousUser: AnonymousSession?,
 ) : Scenario.Details
+
+data class AnonymousSession(
+    val sessionId: String,
+    val userId: String,
+)
 
 sealed interface SignUpResult : Scenario.Result {
 
@@ -43,15 +48,13 @@ class SignUpScenario(
             roles = setOf(UserRole.CUSTOMER),
         )
 
-        return if (details.anonymousUserId == null) {
-            createNewUser(insertRecord)
-        } else {
-            promoteAnonymousUser(details.anonymousUserId, insertRecord)
-        }
+        return details.anonymousUser?.let {
+            promoteAnonymousUser(it, insertRecord)
+        } ?: createNewUser(insertRecord)
     }
 
-    private fun createNewUser(insertRecord: InsertUserRecord): SignUpResult {
-        return when (val result = userRepository.insertUser(insertRecord)) {
+    private fun createNewUser(insertRecord: InsertUserRecord): SignUpResult =
+        when (val result = userRepository.insertUser(insertRecord)) {
             is InsertUserResult.UserInserted -> SignUpResult.Success(
                 sessionFactory.createForUser(
                     userId = result.userId,
@@ -63,17 +66,18 @@ class SignUpScenario(
 
             is InsertUserResult.LoginIdUniquenessViolation -> SignUpResult.UsernameNotAvailable
         }
-    }
 
-    private fun promoteAnonymousUser(userId: String, insertRecord: InsertUserRecord): SignUpResult {
-        return when (val result = userRepository.createCredentialsForAnonymousUser(userId, insertRecord)) {
+    private fun promoteAnonymousUser(anonymousSession: AnonymousSession, insertRecord: InsertUserRecord): SignUpResult =
+        when (val result =
+            userRepository.createCredentialsForAnonymousUser(anonymousSession.userId, insertRecord)) {
             is PromoteAnonymousUserResult.UserCredentialsInserted -> SignUpResult.Success(
                 sessionFactory.createForUser(
                     userId = result.userId,
                     loginId = insertRecord.loginId,
                     userRoles = insertRecord.roles,
                     anonymousUser = false,
-                ).also { sessionRepository.insertUserSession(it) }
+                ).copy(sessionId = anonymousSession.sessionId)
+                    .also { sessionRepository.insertUserSession(it) }
             )
 
             is PromoteAnonymousUserResult.UserIsNotAnonymous -> SignUpResult.UserIsNotAnonymous
@@ -82,5 +86,4 @@ class SignUpScenario(
 
             is PromoteAnonymousUserResult.AnonymousUserDoesNotExist -> SignUpResult.AnonymousUserDoesNotExist
         }
-    }
 }

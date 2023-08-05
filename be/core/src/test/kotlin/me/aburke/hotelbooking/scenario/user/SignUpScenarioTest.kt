@@ -21,6 +21,7 @@ private const val NAME = "name"
 private const val RAW_PASSWORD = "raw-password"
 private const val HASHED_PASSWORD = "hashed-password"
 private const val USER_ID = "user-id"
+private const val ANONYMOUS_SESSION_ID = "anonymous-session-id"
 
 private val session = UserSession(
     sessionId = "session-id",
@@ -83,7 +84,7 @@ class SignUpScenarioTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = null,
+                anonymousUser = null,
             )
         )
 
@@ -148,7 +149,7 @@ class SignUpScenarioTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = null,
+                anonymousUser = null,
             )
         )
 
@@ -204,7 +205,9 @@ class SignUpScenarioTest {
             )
         } returns session
         every {
-            sessionRepository.insertUserSession(session)
+            sessionRepository.insertUserSession(
+                session.copy(sessionId = ANONYMOUS_SESSION_ID)
+            )
         } returns Unit
 
         val result = underTest.run(
@@ -212,13 +215,18 @@ class SignUpScenarioTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = USER_ID,
+                anonymousUser = AnonymousSession(
+                    sessionId = ANONYMOUS_SESSION_ID,
+                    userId = USER_ID,
+                ),
             )
         )
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.Success(session)
+                SignUpResult.Success(
+                    session.copy(sessionId = ANONYMOUS_SESSION_ID)
+                )
             )
             s.check {
                 verify(exactly = 1) {
@@ -250,7 +258,9 @@ class SignUpScenarioTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    sessionRepository.insertUserSession(session)
+                    sessionRepository.insertUserSession(
+                        session.copy(sessionId = ANONYMOUS_SESSION_ID)
+                    )
                 }
             }
             s.confirmMocks()
@@ -279,7 +289,10 @@ class SignUpScenarioTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = USER_ID,
+                anonymousUser = AnonymousSession(
+                    sessionId = ANONYMOUS_SESSION_ID,
+                    userId = USER_ID,
+                ),
             )
         )
 
@@ -331,7 +344,10 @@ class SignUpScenarioTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = USER_ID,
+                anonymousUser = AnonymousSession(
+                    userId = USER_ID,
+                    sessionId = ANONYMOUS_SESSION_ID,
+                ),
             )
         )
 
@@ -383,7 +399,10 @@ class SignUpScenarioTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = USER_ID,
+                anonymousUser = AnonymousSession(
+                    sessionId = ANONYMOUS_SESSION_ID,
+                    userId = USER_ID,
+                ),
             )
         )
 

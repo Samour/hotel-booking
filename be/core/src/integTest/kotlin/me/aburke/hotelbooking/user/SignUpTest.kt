@@ -4,6 +4,7 @@ import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
+import me.aburke.hotelbooking.scenario.user.AnonymousSession
 import me.aburke.hotelbooking.scenario.user.SignUpDetails
 import me.aburke.hotelbooking.scenario.user.SignUpResult
 import me.aburke.hotelbooking.scenario.user.SignUpScenario
@@ -21,6 +22,7 @@ import java.time.temporal.ChronoUnit
 private const val LOGIN_ID = "login-id"
 private const val RAW_PASSWORD = "raw-password"
 private const val NAME = "name"
+private const val ANONYMOUS_SESSION_ID = "anonymous-session-id"
 
 class SignUpTest {
 
@@ -48,7 +50,7 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = null,
+                anonymousUser = null,
             )
         )
 
@@ -105,7 +107,7 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = null,
+                anonymousUser = null,
             )
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
@@ -118,7 +120,7 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = null,
+                anonymousUser = null,
             )
         )
 
@@ -133,7 +135,6 @@ class SignUpTest {
     @Test
     fun `should create credentials for anonymous user`() {
         val anonymousUserId = stubs.userRepositoryStub.createAnonymousUser()
-        stubs.sessionRepositoryStub.clearAllSessions()
 
         val now = Instant.now()
         val result = underTest.run(
@@ -141,7 +142,10 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = anonymousUserId,
+                anonymousUser = AnonymousSession(
+                    sessionId = ANONYMOUS_SESSION_ID,
+                    userId = anonymousUserId,
+                ),
             )
         )
 
@@ -153,11 +157,11 @@ class SignUpTest {
 
         assertSoftly { s ->
             s.assertThat(result).usingRecursiveComparison()
-                .ignoringFields("session.sessionId", "session.sessionExpiryTime")
+                .ignoringFields("session.sessionExpiryTime")
                 .isEqualTo(
                     SignUpResult.Success(
                         UserSession(
-                            sessionId = "",
+                            sessionId = ANONYMOUS_SESSION_ID,
                             userId = anonymousUserId,
                             loginId = LOGIN_ID,
                             userRoles = setOf(UserRole.CUSTOMER),
@@ -185,7 +189,7 @@ class SignUpTest {
             s.assertThat(passwordHashResult).isTrue
             s.assertThat(stubs.sessionRepositoryStub.getSessions()).isEqualTo(
                 mapOf(
-                    session?.sessionId to session,
+                    ANONYMOUS_SESSION_ID to session,
                 )
             )
         }
@@ -198,7 +202,7 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = null,
+                anonymousUser = null,
             )
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
@@ -211,7 +215,10 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = firstUserId,
+                anonymousUser = AnonymousSession(
+                    sessionId = ANONYMOUS_SESSION_ID,
+                    userId = firstUserId,
+                ),
             )
         )
 
@@ -229,7 +236,7 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = null,
+                anonymousUser = null,
             )
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
@@ -243,7 +250,10 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
-                anonymousUserId = anonymousUserId,
+                anonymousUser = AnonymousSession(
+                    sessionId = ANONYMOUS_SESSION_ID,
+                    userId = anonymousUserId,
+                ),
             )
         )
 
