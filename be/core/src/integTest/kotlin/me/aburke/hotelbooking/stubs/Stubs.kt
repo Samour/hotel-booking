@@ -3,8 +3,12 @@ package me.aburke.hotelbooking.stubs
 import io.mockk.every
 import io.mockk.mockk
 import me.aburke.hotelbooking.coreModule
+import me.aburke.hotelbooking.ports.repository.HotelRepository
+import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.stubs.repository.HotelRepositoryStub
+import me.aburke.hotelbooking.stubs.repository.RoomRepositoryStub
 import me.aburke.hotelbooking.stubs.repository.SessionRepositoryStub
 import me.aburke.hotelbooking.stubs.repository.UserRepositoryStub
 import org.koin.core.KoinApplication
@@ -19,6 +23,8 @@ class Stubs {
     val clock = mockk<Clock>()
     val userRepository = UserRepositoryStub()
     val sessionRepository = SessionRepositoryStub()
+    val hotelRepository = HotelRepositoryStub()
+    val roomRepository = RoomRepositoryStub()
 
     val time = Instant.now()
 
@@ -29,6 +35,8 @@ class Stubs {
             single { clock }
             single<UserRepository> { userRepository }
             single<SessionRepository> { sessionRepository }
+            single<HotelRepository> { hotelRepository }
+            single<RoomRepository> { roomRepository }
         }
 
         return koinApplication {

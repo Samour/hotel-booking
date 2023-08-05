@@ -1,8 +1,10 @@
 package me.aburke.hotelbooking
 
 import me.aburke.hotelbooking.password.PasswordHasher
+import me.aburke.hotelbooking.scenario.room.AddRoomTypeScenario
 import me.aburke.hotelbooking.scenario.user.*
 import me.aburke.hotelbooking.session.SessionFactory
+import me.aburke.hotelbooking.stock.DatesCalculator
 import org.koin.dsl.module
 import java.time.Duration
 
@@ -29,4 +31,16 @@ val coreModule = module {
     }
 
     single { GetAuthStateScenario(get()) }
+
+    single { DatesCalculator() }
+    single {
+        AddRoomTypeScenario(
+            get(),
+            get(),
+            get(),
+            get(),
+            populateRoomRange = getProperty<String>("scenario.room-type-add.populate-room-range").toInt(),
+            backPopulateDays = getProperty<String>("scenario.room-type-add.back-populate-days").toInt(),
+        )
+    }
 }
