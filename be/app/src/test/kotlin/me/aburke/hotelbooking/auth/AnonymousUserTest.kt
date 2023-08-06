@@ -4,7 +4,6 @@ import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
 import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.UserRecord
@@ -38,15 +37,16 @@ class AnonymousUserTest {
     @Test
     fun `should create session for anonymous user`() = app.restTest { client ->
         val createSessionResponse = client.createAnonymousSession()
-        val createSessionResponseBody = createSessionResponse.parseBody<CreateAnonymousSessionResponse>()
+        val createSessionResponseBody = createSessionResponse.parseBody<SessionResponse>()
 
         assertSoftly { s ->
             s.assertThat(createSessionResponse.code).isEqualTo(201)
             s.assertThat(createSessionResponseBody).usingRecursiveComparison()
                 .ignoringFields("userId")
                 .isEqualTo(
-                    CreateAnonymousSessionResponse(
+                    SessionResponse(
                         userId = "",
+                        loginId = null,
                         userRoles = listOf("CUSTOMER"),
                         anonymousUser = true,
                         sessionExpiryTime = instant.plus(sessionDuration),

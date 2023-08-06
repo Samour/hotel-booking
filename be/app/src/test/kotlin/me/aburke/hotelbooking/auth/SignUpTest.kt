@@ -6,7 +6,6 @@ import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpResponse
@@ -75,7 +74,7 @@ class SignUpTest {
         val anonymousUserId = client.takeIf { asAnonymousUser }
             ?.let {
                 it.createAnonymousSession()
-                    .parseBody<CreateAnonymousSessionResponse>()!!
+                    .parseBody<SessionResponse>()!!
                     .userId
             }
 
@@ -117,7 +116,7 @@ class SignUpTest {
     @Test
     fun `should create credentials for anonymous user`() = app.restTest { client ->
         val anonymousUserId = client.createAnonymousSession()
-            .parseBody<CreateAnonymousSessionResponse>()!!
+            .parseBody<SessionResponse>()!!
             .userId
 
         val signUpResponse = signUpWithAnonymous(client, anonymousUserId)
