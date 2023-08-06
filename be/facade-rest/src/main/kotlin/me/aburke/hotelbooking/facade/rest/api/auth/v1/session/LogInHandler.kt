@@ -6,24 +6,16 @@ import io.javalin.http.HttpStatus
 import io.javalin.http.bodyAsClass
 import me.aburke.hotelbooking.facade.rest.authentication.setAuthCookie
 import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
+import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.scenario.user.LogInCredentials
 import me.aburke.hotelbooking.scenario.user.LogInResult
 import me.aburke.hotelbooking.scenario.user.LogInScenario
-import java.time.Instant
 
 data class LogInRequest(
     val loginId: String,
     val password: String,
-)
-
-data class LogInResponse(
-    val userId: String,
-    val loginId: String?,
-    val userRoles: List<String>,
-    val anonymousUser: Boolean,
-    val sessionExpiryTime: Instant,
 )
 
 class LogInHandler(
@@ -51,7 +43,7 @@ private fun Context.sendSessionWithCookie(session: UserSession) {
     status(HttpStatus.CREATED)
     setAuthCookie(session)
     json(
-        LogInResponse(
+        SessionResponse(
             userId = session.userId,
             loginId = session.loginId,
             userRoles = session.userRoles.map { it.name },

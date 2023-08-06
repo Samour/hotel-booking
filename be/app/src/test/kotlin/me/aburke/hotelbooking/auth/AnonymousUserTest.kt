@@ -5,7 +5,7 @@ import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
+import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.UserRecord
 import me.aburke.hotelbooking.restTest

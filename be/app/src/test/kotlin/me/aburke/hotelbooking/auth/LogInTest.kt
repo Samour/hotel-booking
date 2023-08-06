@@ -6,8 +6,7 @@ import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInResponse
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
+import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
@@ -40,12 +39,12 @@ class LogInTest {
                 password = TestUser.admin.password,
             )
         )
-        val logInResponseBody = logInResponse.parseBody<LogInResponse>()
+        val logInResponseBody = logInResponse.parseBody<SessionResponse>()
 
         assertSoftly { s ->
             s.assertThat(logInResponse.code).isEqualTo(201)
             s.assertThat(logInResponseBody).isEqualTo(
-                LogInResponse(
+                SessionResponse(
                     userId = TestUser.admin.userId,
                     loginId = TestUser.admin.loginId,
                     userRoles = listOf("MANAGE_USERS"),

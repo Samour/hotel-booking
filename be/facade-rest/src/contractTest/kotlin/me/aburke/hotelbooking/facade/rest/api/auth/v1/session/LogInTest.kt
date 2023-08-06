@@ -6,6 +6,7 @@ import io.mockk.every
 import io.mockk.verify
 import me.aburke.hotelbooking.facade.rest.Stubs
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
+import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.facade.rest.parseResponse
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
@@ -43,10 +44,6 @@ class LogInTest {
     @AfterEach
     fun cleanUp() = stubs.cleanUp()
 
-    fun makeClient() = SessionApi().apply {
-        customBaseUrl = "http://localhost:${javalin.port()}"
-    }
-
     @Test
     fun `should log in user & set session cookie on successful authentication`() = test(javalin) { _, _ ->
         every {
@@ -67,7 +64,7 @@ class LogInTest {
             )
         )
 
-        val response = makeClient().logInWithHttpInfo(
+        val response = javalin.client().logInWithHttpInfo(
             LogInRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -116,7 +113,7 @@ class LogInTest {
         } returns LogInResult.InvalidCredentials
 
         val response = assertThrows<ApiException> {
-            makeClient().logInWithHttpInfo(
+            javalin.client().logIn(
                 LogInRequest().apply {
                     loginId = LOGIN_ID
                     password = PASSWORD

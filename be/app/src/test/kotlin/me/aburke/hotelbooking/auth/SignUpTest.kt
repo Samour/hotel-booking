@@ -8,10 +8,9 @@ import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInResponse
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionResponse
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpResponse
+import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.*
@@ -291,19 +290,19 @@ class SignUpTest {
         return responseBody!!
     }
 
-    private fun logIn(client: AppTestClient, userId: String): LogInResponse {
+    private fun logIn(client: AppTestClient, userId: String): SessionResponse {
         val response = client.logIn(
             LogInRequest(
                 loginId = LOGIN_ID,
                 password = PASSWORD,
             )
         )
-        val responseBody = response.parseBody<LogInResponse>()
+        val responseBody = response.parseBody<SessionResponse>()
 
         assertSoftly { s ->
             s.assertThat(response.code).isEqualTo(201)
             s.assertThat(responseBody).isEqualTo(
-                    LogInResponse(
+                SessionResponse(
                         userId = userId,
                         loginId = LOGIN_ID,
                         userRoles = listOf("CUSTOMER"),

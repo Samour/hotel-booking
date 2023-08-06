@@ -48,7 +48,7 @@ paths:
 
 
     get:
-      operationId: getAuthState
+      operationId: fetchAuthState
       summary: Get current authentication state
       security:
         - session: [ ]
@@ -81,7 +81,6 @@ components:
       type: object
       required:
         - user_id
-        - login_id
         - user_roles
         - anonymous_user
         - session_expiry_time
