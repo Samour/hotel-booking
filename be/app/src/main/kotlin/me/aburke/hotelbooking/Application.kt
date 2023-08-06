@@ -41,6 +41,7 @@ fun main() {
     startKoin {
         fileProperties()
         fileProperties("/endpoints.properties")
+        fileProperties("/features.properties")
         modules(
             appModule,
             *appModules.toTypedArray(),

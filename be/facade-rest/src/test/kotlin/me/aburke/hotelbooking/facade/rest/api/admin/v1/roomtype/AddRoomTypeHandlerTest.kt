@@ -116,7 +116,6 @@ class AddRoomTypeHandlerTest {
                         "instance": "/api/admin/v1/room-type",
                         "extended_details": []
                     }
-                    }
                 """.trimIndent()
             )
             with(stubs) {

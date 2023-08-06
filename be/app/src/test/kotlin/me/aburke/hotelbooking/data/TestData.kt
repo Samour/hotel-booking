@@ -1,8 +1,12 @@
 package me.aburke.hotelbooking.data
 
 import java.time.Duration
+import java.util.*
 
 val sessionDuration = Duration.parse("PT30M")
+
+const val hotelId = "test-hotel"
+val hotelTimeZone = TimeZone.getTimeZone("Australia/Sydney")
 
 data class TestUser(
     val userId: String,
@@ -16,4 +20,9 @@ data class TestUser(
             password = "test-password",
         )
     }
+}
+
+object StockPopulation {
+    const val BACK_POPULATE = 5
+    const val POPULATE_RANGE = 200
 }

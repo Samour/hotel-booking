@@ -35,6 +35,7 @@ fun createApp(populateTestData: Boolean = true): Pair<KoinApplication, Instant> 
 
     val app = koinApplication {
         fileProperties()
+        fileProperties("/features.properties")
         modules(testModule, *appModules.toTypedArray())
     }
     app.koin.get<Connection>().apply {
@@ -83,4 +84,8 @@ fun AppTestClient.authenticateAs(user: TestUser) {
             password = user.password,
         )
     ).also { assertThat(it.code).isEqualTo(201) }
+}
+
+fun AppTestClient.authenticateWith(vararg roles: UserRole) {
+    authenticateAs(createUserWithRoles(*roles))
 }

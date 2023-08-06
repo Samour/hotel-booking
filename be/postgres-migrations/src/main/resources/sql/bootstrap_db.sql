@@ -64,3 +64,7 @@ create unique index idx__room_stock__room_type_id__date
 
 create index idx__room_stock__date
     on room_stock (date);
+
+-- Required data
+insert into hotel(hotel_id, time_zone)
+values ('test-hotel', 'Australia/Sydney');

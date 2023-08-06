@@ -1,6 +1,5 @@
 package me.aburke.hotelbooking.repository.postgres
 
-import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -55,7 +54,6 @@ class PostgresRoomRepositoryTest {
     fun init() {
         app = createApp()
         connection = app.koin.get()
-        app.koin.get<Connection>().executeScript("populate_hotel.sql")
         underTest = app.koin.get()
     }
 

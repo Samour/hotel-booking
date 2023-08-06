@@ -3,6 +3,7 @@ package me.aburke.hotelbooking.client
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.javalin.testtools.HttpClient
+import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.AddRoomTypeRequest
 import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpRequest
@@ -53,6 +54,16 @@ class AppTestClient(private val client: HttpClient) {
                 .header("Content-Type", "application/json")
                 .post(
                     objectMapper.writeValueAsString(createUserRequest)
+                        .toRequestBody("application/json".toMediaType())
+                )
+        }
+
+    fun addRoomType(addRoomTypeRequest: AddRoomTypeRequest): Response =
+        client.request("/api/admin/v1/room-type") {
+            it.withCredentials()
+                .header("Content-Type", "application/json")
+                .post(
+                    objectMapper.writeValueAsString(addRoomTypeRequest)
                         .toRequestBody("application/json".toMediaType())
                 )
         }
