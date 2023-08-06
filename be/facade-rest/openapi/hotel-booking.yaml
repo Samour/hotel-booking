@@ -1,0 +1,133 @@
+openapi: 3.0.3
+info:
+  title: Hotel Booking
+  description: Simple example of hotel booking app
+  version: 1.0.0
+
+paths:
+  /api/auth/v1/session:
+    post:
+      operationId: logIn
+      summary: Log in using credentials
+      description: |
+        Log in with username/password. Successful authentication will result in a "SessionId" cookie being set
+      tags:
+        - session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login_id
+                - password
+              properties:
+                login_id:
+                  type: string
+                password:
+                  description: User password; secret
+                  type: string
+      responses:
+        "201":
+          description: Authentication successful & session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                format: cookie
+        "401":
+          description: Invalid credentials provided
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemResponse'
+
+
+    get:
+      operationId: getAuthState
+      summary: Get current authentication state
+      security:
+        - session: [ ]
+      tags:
+        - session
+      responses:
+        "200":
+          description: Return details of currently authenticated session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemResponse'
+
+
+components:
+  securitySchemes:
+    session:
+      type: apiKey
+      in: cookie
+      name: SessionId
+
+  schemas:
+    SessionResponse:
+      type: object
+      required:
+        - user_id
+        - login_id
+        - user_roles
+        - anonymous_user
+        - session_expiry_time
+      properties:
+        user_id:
+          type: string
+        login_id:
+          type: string
+        user_roles:
+          type: array
+          items:
+            type: string
+        anonymous_user:
+          type: boolean
+        session_expiry_time:
+          type: string
+          format: date-time
+
+    ProblemResponse:
+      type: object
+      required:
+        - title
+        - code
+        - status
+        - detail
+        - instance
+      properties:
+        title:
+          type: string
+        code:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+        extendedDetails:
+          type: array
+          items:
+            type: object
+            required:
+              - code
+              - detail
+            properties:
+              code:
+                type: string
+              detail:
+                type: string
