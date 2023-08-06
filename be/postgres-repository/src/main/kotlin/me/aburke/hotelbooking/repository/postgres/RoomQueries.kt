@@ -38,8 +38,8 @@ fun Connection.insertRoomTypeDescriptionQuery(
 fun Connection.insertRoomStockQuery(roomTypeId: String, stockLevel: Int, dates: List<LocalDate>) =
     prepareStatement(
         """
-            insert into room_stock(room_stock_id, room_type_id, date, morning_stock, afternoon_stock)
-            values (?, ?, ?, ?, ?)
+            insert into room_stock(room_stock_id, room_type_id, date, stock_level)
+            values (?, ?, ?, ?)
         """.trimIndent()
     ).apply {
         dates.forEach {
@@ -47,7 +47,6 @@ fun Connection.insertRoomStockQuery(roomTypeId: String, stockLevel: Int, dates: 
             setString(2, roomTypeId)
             setString(3, it.toString())
             setInt(4, stockLevel)
-            setInt(5, stockLevel)
             addBatch()
         }
     }

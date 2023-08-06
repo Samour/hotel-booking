@@ -58,8 +58,7 @@ entity room_stock {
     --
     * room_type_id : UUID
     * date : string
-    * morning_stock : int
-    * afternoon_stock : int
+    * stock_level : int
 }
 
 room_type::room_type_id --{ room_stock::room_type_id

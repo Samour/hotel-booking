@@ -41,8 +41,7 @@ private data class RoomRecord(
 private data class RoomStockRecord(
     val roomTypeId: String,
     val date: LocalDate,
-    val morningStock: Int,
-    val afternoonStock: Int,
+    val stockLevel: Int,
 )
 
 class PostgresRoomRepositoryTest {
@@ -94,8 +93,7 @@ class PostgresRoomRepositoryTest {
                     RoomStockRecord(
                         roomTypeId = result,
                         date = it,
-                        morningStock = STOCK_LEVEL,
-                        afternoonStock = STOCK_LEVEL,
+                        stockLevel = STOCK_LEVEL,
                     )
                 }.toTypedArray()
             )
@@ -133,8 +131,7 @@ class PostgresRoomRepositoryTest {
                     RoomStockRecord(
                         roomTypeId = result,
                         date = it,
-                        morningStock = STOCK_LEVEL,
-                        afternoonStock = STOCK_LEVEL,
+                        stockLevel = STOCK_LEVEL,
                     )
                 }.toTypedArray()
             )
@@ -200,7 +197,7 @@ class PostgresRoomRepositoryTest {
     private fun loadAllRoomStocks(): List<RoomStockRecord> {
         val results = connection.prepareStatement(
             """
-                select room_type_id, date, morning_stock, afternoon_stock
+                select room_type_id, date, stock_level
                 from room_stock
             """.trimIndent()
         ).executeQuery()
@@ -211,8 +208,7 @@ class PostgresRoomRepositoryTest {
                 RoomStockRecord(
                     roomTypeId = results.getString("room_type_id"),
                     date = LocalDate.parse(results.getString("date")),
-                    morningStock = results.getInt("morning_stock"),
-                    afternoonStock = results.getInt("afternoon_stock"),
+                    stockLevel = results.getInt("stock_level"),
                 )
             )
         }

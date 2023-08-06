@@ -50,11 +50,10 @@ create table room_type_description
 
 create table room_stock
 (
-    room_stock_id   varchar not null primary key,
-    room_type_id    varchar not null,
-    date            varchar not null,
-    morning_stock   int     not null,
-    afternoon_stock int     not null,
+    room_stock_id varchar not null primary key,
+    room_type_id  varchar not null,
+    date          varchar not null,
+    stock_level   int     not null,
 
     constraint fk__room_stock__room_type_id__room_type
         foreign key (room_type_id) references room_type (room_type_id)
