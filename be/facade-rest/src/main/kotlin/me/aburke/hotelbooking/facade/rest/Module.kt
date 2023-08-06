@@ -56,7 +56,6 @@ fun restObjectMapper() = jacksonObjectMapper().apply {
     registerModule(JavaTimeModule())
     disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
     setSerializationInclusion(JsonInclude.Include.NON_NULL)
-
 }
 
 fun buildJavalin(

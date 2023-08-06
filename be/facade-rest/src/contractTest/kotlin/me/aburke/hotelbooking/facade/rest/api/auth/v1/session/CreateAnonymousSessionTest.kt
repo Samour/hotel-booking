@@ -9,6 +9,7 @@ import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.rest.client.api.AuthApi
 import me.aburke.hotelbooking.rest.client.model.SessionResponse
 import me.aburke.hotelbooking.scenario.user.AnonymousUserCreated
 import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
@@ -53,7 +54,7 @@ class CreateAnonymousSessionTest {
             )
         )
 
-        val response = javalin.client().createAnonymousSessionWithHttpInfo()
+        val response = AuthApi(javalin.client()).createAnonymousSessionWithHttpInfo()
 
         assertSoftly { s ->
             s.assertThat(response.statusCode).isEqualTo(201)

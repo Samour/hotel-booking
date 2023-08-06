@@ -139,6 +139,100 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemResponse'
 
+  /api/admin/v1/room-type:
+    post:
+      operationId: addRoomType
+      summary: Add a new room type
+      security:
+        - session:
+            - MANAGE_ROOMS
+      tags:
+        - admin
+        - room
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - description
+                - image_urls
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                image_urls:
+                  type: array
+                  items:
+                    type: string
+                    format: url
+                stock_level:
+                  type: integer
+      responses:
+        "201":
+          description: Room type successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - room_type_id
+                properties:
+                  room_type_id:
+                    type: string
+
+  /api/admin/v1/user:
+    post:
+      operationId: createUser
+      summary: Create a new user with specified roles
+      security:
+        - session:
+            - MANAGE_USERS
+      tags:
+        - admin
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login_id
+                - password
+                - name
+                - roles
+              properties:
+                login_id:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+                roles:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserRole'
+      responses:
+        "201":
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - user_id
+                properties:
+                  user_id:
+                    type: string
+        "409":
+          description: Username is not available
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemResponse'
+
 
 components:
   securitySchemes:
@@ -201,3 +295,10 @@ components:
                 type: string
               detail:
                 type: string
+
+    UserRole:
+      type: string
+      enum:
+        - CUSTOMER
+        - MANAGE_USERS
+        - MANAGE_ROOMS

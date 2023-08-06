@@ -10,6 +10,7 @@ import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.facade.rest.parseResponse
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.rest.client.api.AuthApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.ProblemResponse
 import me.aburke.hotelbooking.rest.client.model.SessionResponse
@@ -69,7 +70,7 @@ class SignUpTest {
             )
         )
 
-        val response = javalin.client().signUpWithHttpInfo(
+        val response = AuthApi(javalin.client()).signUpWithHttpInfo(
             SignUpRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -138,7 +139,7 @@ class SignUpTest {
             )
         )
 
-        val response = javalin.client(SESSION_ID).signUpWithHttpInfo(
+        val response = AuthApi(javalin.client(SESSION_ID)).signUpWithHttpInfo(
             SignUpRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -201,7 +202,7 @@ class SignUpTest {
         } returns SignUpResult.UsernameNotAvailable
 
         val response = assertThrows<ApiException> {
-            javalin.client().signUp(
+            AuthApi(javalin.client()).signUp(
                 SignUpRequest().apply {
                     loginId = LOGIN_ID
                     password = PASSWORD
@@ -284,7 +285,7 @@ class SignUpTest {
             )
         )
 
-        val response = javalin.client(SESSION_ID).signUpWithHttpInfo(
+        val response = AuthApi(javalin.client(SESSION_ID)).signUpWithHttpInfo(
             SignUpRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -367,7 +368,7 @@ class SignUpTest {
         } returns SignUpResult.UsernameNotAvailable
 
         val response = assertThrows<ApiException> {
-            javalin.client(SESSION_ID).signUp(
+            AuthApi(javalin.client(SESSION_ID)).signUp(
                 SignUpRequest().apply {
                     loginId = LOGIN_ID
                     password = PASSWORD
@@ -454,7 +455,7 @@ class SignUpTest {
         } returns SignUpResult.UserIsNotAnonymous
 
         val response = assertThrows<ApiException> {
-            javalin.client(SESSION_ID).signUp(
+            AuthApi(javalin.client(SESSION_ID)).signUp(
                 SignUpRequest().apply {
                     loginId = LOGIN_ID
                     password = PASSWORD
