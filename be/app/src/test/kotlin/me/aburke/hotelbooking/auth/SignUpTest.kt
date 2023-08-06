@@ -8,7 +8,6 @@ import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpRequest
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpResponse
 import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
@@ -135,7 +134,7 @@ class SignUpTest {
                 password = PASSWORD,
                 name = NAME,
             )
-        ).parseBody<SignUpResponse>()!!
+        ).parseBody<SessionResponse>()!!
 
         val secondSignUpResponse = client.signUp(
             SignUpRequest(
@@ -150,7 +149,8 @@ class SignUpTest {
         assertSoftly { s ->
             s.assertThat(secondSignUpResponse.code).isEqualTo(409)
             s.assertThat(secondSignUpResponse.header("Set-Cookie")).isNull()
-            s.assertThat(secondSignUpResponse.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+            s.assertThat(secondSignUpResponse.header("Content-Type"))
+                .isEqualTo("application/problem+json;charset=utf-8")
             s.assertThatJson(secondSignUpResponse.body?.string()).isEqualTo(
                 """
                     {
@@ -185,7 +185,8 @@ class SignUpTest {
         assertSoftly { s ->
             s.assertThat(secondSignUpResponse.code).isEqualTo(400)
             s.assertThat(secondSignUpResponse.header("Set-Cookie")).isNull()
-            s.assertThat(secondSignUpResponse.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+            s.assertThat(secondSignUpResponse.header("Content-Type"))
+                .isEqualTo("application/problem+json;charset=utf-8")
             s.assertThatJson(secondSignUpResponse.body?.string()).isEqualTo(
                 """
                     {
@@ -202,7 +203,7 @@ class SignUpTest {
         }
     }
 
-    private fun signUp(client: AppTestClient): SignUpResponse {
+    private fun signUp(client: AppTestClient): SessionResponse {
         val response = client.signUp(
             SignUpRequest(
                 loginId = LOGIN_ID,
@@ -210,7 +211,7 @@ class SignUpTest {
                 name = NAME,
             )
         )
-        val responseBody = response.parseBody<SignUpResponse>()
+        val responseBody = response.parseBody<SessionResponse>()
 
         val allUsers = connection.readAllUsers()
 
@@ -219,7 +220,7 @@ class SignUpTest {
             s.assertThat(responseBody).usingRecursiveComparison()
                 .ignoringFields("userId")
                 .isEqualTo(
-                    SignUpResponse(
+                    SessionResponse(
                         userId = "",
                         loginId = LOGIN_ID,
                         userRoles = listOf("CUSTOMER"),
@@ -246,7 +247,7 @@ class SignUpTest {
         return responseBody!!
     }
 
-    private fun signUpWithAnonymous(client: AppTestClient, anonymousUserId: String): SignUpResponse {
+    private fun signUpWithAnonymous(client: AppTestClient, anonymousUserId: String): SessionResponse {
         val response = client.signUp(
             SignUpRequest(
                 loginId = LOGIN_ID,
@@ -254,7 +255,7 @@ class SignUpTest {
                 name = NAME,
             )
         )
-        val responseBody = response.parseBody<SignUpResponse>()
+        val responseBody = response.parseBody<SessionResponse>()
 
         val allUsers = connection.readAllUsers()
 
@@ -262,14 +263,14 @@ class SignUpTest {
             s.assertThat(response.code).isEqualTo(201)
             s.assertThat(response.header("Set-Cookie")).isNull()
             s.assertThat(responseBody).isEqualTo(
-                    SignUpResponse(
-                        userId = anonymousUserId,
-                        loginId = LOGIN_ID,
-                        userRoles = listOf("CUSTOMER"),
-                        anonymousUser = false,
-                        sessionExpiryTime = instant.plus(sessionDuration),
-                    )
+                SessionResponse(
+                    userId = anonymousUserId,
+                    loginId = LOGIN_ID,
+                    userRoles = listOf("CUSTOMER"),
+                    anonymousUser = false,
+                    sessionExpiryTime = instant.plus(sessionDuration),
                 )
+            )
             s.assertThat(allUsers).hasSize(1)
             s.assertThat(allUsers.firstOrNull()).usingRecursiveComparison()
                 .ignoringFields("credential.passwordHash")
@@ -302,13 +303,13 @@ class SignUpTest {
             s.assertThat(response.code).isEqualTo(201)
             s.assertThat(responseBody).isEqualTo(
                 SessionResponse(
-                        userId = userId,
-                        loginId = LOGIN_ID,
-                        userRoles = listOf("CUSTOMER"),
-                        anonymousUser = false,
-                        sessionExpiryTime = instant.plus(sessionDuration),
-                    )
+                    userId = userId,
+                    loginId = LOGIN_ID,
+                    userRoles = listOf("CUSTOMER"),
+                    anonymousUser = false,
+                    sessionExpiryTime = instant.plus(sessionDuration),
                 )
+            )
         }
 
         return responseBody!!

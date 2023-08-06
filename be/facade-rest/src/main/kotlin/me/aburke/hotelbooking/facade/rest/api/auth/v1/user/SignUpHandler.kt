@@ -7,23 +7,15 @@ import io.javalin.http.bodyAsClass
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.facade.rest.authentication.setAuthCookie
 import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
+import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.scenario.user.*
-import java.time.Instant
 
 data class SignUpRequest(
     val loginId: String,
     val password: String,
     val name: String,
-)
-
-data class SignUpResponse(
-    val userId: String,
-    val loginId: String,
-    val userRoles: List<String>,
-    val anonymousUser: Boolean,
-    val sessionExpiryTime: Instant,
 )
 
 class SignUpHandler(
@@ -70,7 +62,7 @@ private fun Context.sendUserCreatedResponse(session: UserSession, existingSessio
         setAuthCookie(session)
     }
     json(
-        SignUpResponse(
+        SessionResponse(
             userId = session.userId,
             loginId = session.loginId!!,
             userRoles = session.userRoles.map { it.name },

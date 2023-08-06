@@ -12,6 +12,7 @@ paths:
       description: |
         Log in with username/password. Successful authentication will result in a "SessionId" cookie being set
       tags:
+        - auth
         - session
       requestBody:
         content:
@@ -53,6 +54,7 @@ paths:
       security:
         - session: [ ]
       tags:
+        - auth
         - session
       responses:
         "200":
@@ -73,6 +75,7 @@ paths:
       operationId: createAnonymousSession
       summary: Create anonymous user & a session for the new user
       tags:
+        - auth
         - session
       responses:
         "201":
@@ -86,6 +89,55 @@ paths:
               schema:
                 type: string
                 format: cookie
+
+  /api/auth/v1/user:
+    post:
+      operationId: signUp
+      summary: Sign up as a new customer & create a session for the new user
+      description: |
+        Session credentials are optional for this endpoint. If called with credentials of an anonymous user,
+        the sign-in credentials will be stored against the anonymous user ID & that user will no longer be anonymous.
+      security:
+        - session: [ ]
+      tags:
+        - auth
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - login_id
+                - password
+                - name
+              properties:
+                login_id:
+                  type: string
+                password:
+                  type: string
+                name:
+                  type: string
+      responses:
+        "201":
+          description: User successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                format: cookie
+        "409":
+          description: |
+            Username is not available
+            This code will also be sent if supplied session is associated with a non-anonymous user
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemResponse'
 
 
 components:
