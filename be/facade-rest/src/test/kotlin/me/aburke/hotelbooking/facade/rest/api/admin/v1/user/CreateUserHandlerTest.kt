@@ -53,7 +53,7 @@ class CreateUserHandlerTest {
             userId = USER_ID,
         )
 
-        val sessionId = stubs.prepareSession(setOf(UserRole.MANAGE_USERS))
+        val sessionId = stubs.prepareSession(UserRole.MANAGE_USERS)
         val response = client.request("/api/admin/v1/user") {
             it.header("Cookie", "$AUTH_COOKIE_KEY=$sessionId")
                 .header("Content-Type", "application/json")
@@ -110,7 +110,7 @@ class CreateUserHandlerTest {
             )
         } returns CreateUserResult.UsernameNotAvailable
 
-        val sessionId = stubs.prepareSession(setOf(UserRole.MANAGE_USERS))
+        val sessionId = stubs.prepareSession(UserRole.MANAGE_USERS)
         val response = client.request("/api/admin/v1/user") {
             it.header("Cookie", "$AUTH_COOKIE_KEY=$sessionId")
                 .header("Content-Type", "application/json")
@@ -161,7 +161,7 @@ class CreateUserHandlerTest {
 
     @Test
     fun `should return 403 when user does not have MANAGE_USERS role`() = test(javalin) { _, client ->
-        val sessionId = stubs.prepareSession(setOf(UserRole.MANAGE_ROOMS))
+        val sessionId = stubs.prepareSession(UserRole.MANAGE_ROOMS)
         val response = client.request("/api/admin/v1/user") {
             it.header("Cookie", "$AUTH_COOKIE_KEY=$sessionId")
                 .header("Content-Type", "application/json")

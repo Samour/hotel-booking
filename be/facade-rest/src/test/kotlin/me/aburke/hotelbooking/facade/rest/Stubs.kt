@@ -7,6 +7,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.scenario.room.AddRoomTypeScenario
 import me.aburke.hotelbooking.scenario.user.*
 import org.assertj.core.api.SoftAssertions
 import org.koin.core.KoinApplication
@@ -22,6 +23,7 @@ class Stubs {
     val createAnonymousUserScenario = mockk<CreateAnonymousUserScenario>()
     val signUpScenario = mockk<SignUpScenario>()
     val createUserScenario = mockk<CreateUserScenario>()
+    val addRoomTypeScenario = mockk<AddRoomTypeScenario>()
 
     private lateinit var app: KoinApplication
 
@@ -34,6 +36,7 @@ class Stubs {
             single { createAnonymousUserScenario }
             single { signUpScenario }
             single { createUserScenario }
+            single { addRoomTypeScenario }
         }
         app = koinApplication {
             properties(properties)
@@ -45,7 +48,7 @@ class Stubs {
 
     fun cleanUp() = app.close()
 
-    fun prepareSession(roles: Set<UserRole>): String {
+    fun prepareSession(vararg roles: UserRole): String {
         val sessionId = UUID.randomUUID().toString()
         every {
             getAuthStateScenario.run(
@@ -56,7 +59,7 @@ class Stubs {
                 sessionId = sessionId,
                 userId = UUID.randomUUID().toString(),
                 loginId = "stubbed-login-id",
-                userRoles = roles,
+                userRoles = setOf(*roles),
                 anonymousUser = false,
                 sessionExpiryTime = Instant.now().plusSeconds(10)
             ).also { sessions.add(it) }
@@ -80,6 +83,7 @@ class Stubs {
                 createAnonymousUserScenario,
                 signUpScenario,
                 createUserScenario,
+                addRoomTypeScenario,
             )
         }
     }

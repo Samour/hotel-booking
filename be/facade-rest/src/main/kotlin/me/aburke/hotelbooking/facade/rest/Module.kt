@@ -7,6 +7,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
 import io.javalin.json.JavalinJackson
+import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.AddRoomTypeHandler
+import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.RoomRoutes
 import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.GetSessionHandler
@@ -32,6 +34,9 @@ val restModule = module {
     single { CreateUserHandler(get()) }
     single { AdminUserRoutes(get()) }
 
+    single { AddRoomTypeHandler(get()) }
+    single { RoomRoutes(get()) }
+
     single { AuthenticationInterceptor(get()) }
     single {
         ApplicationRoutes(
@@ -39,6 +44,7 @@ val restModule = module {
                 get<SessionRoutes>(),
                 get<AuthUserRoutes>(),
                 get<AdminUserRoutes>(),
+                get<RoomRoutes>(),
             )
         )
     }
