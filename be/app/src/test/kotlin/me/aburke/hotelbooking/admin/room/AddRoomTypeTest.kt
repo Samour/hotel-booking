@@ -5,13 +5,15 @@ import me.aburke.hotelbooking.client.*
 import me.aburke.hotelbooking.data.StockPopulation
 import me.aburke.hotelbooking.data.hotelId
 import me.aburke.hotelbooking.data.hotelTimeZone
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.AddRoomTypeRequest
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.AddRoomTypeResponse
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.rest.client.api.AdminApi
+import me.aburke.hotelbooking.rest.client.invoker.ApiException
+import me.aburke.hotelbooking.rest.client.model.AddRoomTypeRequest
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.koin.core.KoinApplication
 import java.sql.Connection
 import java.time.Instant
@@ -48,18 +50,17 @@ class AddRoomTypeTest {
     fun cleanUp() = app.close()
 
     @Test
-    fun `should add room type`() = app.restTest { client ->
+    fun `should add room type`() = app.restTest { client, _ ->
         client.authenticateWith(UserRole.MANAGE_ROOMS)
 
-        val response = client.addRoomType(
-            AddRoomTypeRequest(
-                title = TITLE,
-                description = DESCRIPTION,
-                imageUrls = imageUrls,
-                stockLevel = STOCK_LEVEL,
-            )
+        val response = AdminApi(client).addRoomType(
+            AddRoomTypeRequest().also {
+                it.title = TITLE
+                it.description = DESCRIPTION
+                it.imageUrls = imageUrls
+                it.stockLevel = STOCK_LEVEL
+            }
         )
-        val responseBody = response.parseBody<AddRoomTypeResponse>()
 
         val allRooms = connection.loadAllRooms()
         val allStock = connection.loadAllRoomStocks()
@@ -72,17 +73,16 @@ class AddRoomTypeTest {
                 }
             }.map {
                 RoomStockRecord(
-                    roomTypeId = responseBody?.roomTypeId ?: "",
+                    roomTypeId = response.roomTypeId,
                     date = it,
                     stockLevel = STOCK_LEVEL,
                 )
             }
 
         assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(201)
             s.assertThat(allRooms).containsExactly(
                 RoomRecord(
-                    roomTypeId = responseBody?.roomTypeId ?: "",
+                    roomTypeId = response.roomTypeId,
                     hotelId = hotelId,
                     stockLevel = STOCK_LEVEL,
                     title = TITLE,
@@ -95,25 +95,26 @@ class AddRoomTypeTest {
     }
 
     @Test
-    fun `should return 403 when user does not have MANAGE_ROOMS permission`() = app.restTest { client ->
+    fun `should return 403 when user does not have MANAGE_ROOMS permission`() = app.restTest { client, _ ->
         client.authenticateAsAdmin()
 
-        val response = client.addRoomType(
-            AddRoomTypeRequest(
-                title = TITLE,
-                description = DESCRIPTION,
-                imageUrls = imageUrls,
-                stockLevel = STOCK_LEVEL,
+        val response = assertThrows<ApiException> {
+            AdminApi(client).addRoomType(
+                AddRoomTypeRequest().also {
+                    it.title = TITLE
+                    it.description = DESCRIPTION
+                    it.imageUrls = imageUrls
+                    it.stockLevel = STOCK_LEVEL
+                }
             )
-        )
+        }
 
         val allRooms = connection.loadAllRooms()
         val allStock = connection.loadAllRoomStocks()
 
         assertSoftly { s ->
             s.assertThat(response.code).isEqualTo(403)
-            s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
-            s.assertThatJson(response.body?.string()).isEqualTo(
+            s.assertThatJson(response.responseBody).isEqualTo(
                 """
                     {
                         "title": "Forbidden",

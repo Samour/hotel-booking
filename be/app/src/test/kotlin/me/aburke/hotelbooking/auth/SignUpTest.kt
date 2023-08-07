@@ -1,28 +1,31 @@
 package me.aburke.hotelbooking.auth
 
 import me.aburke.hotelbooking.assertThatJson
-import me.aburke.hotelbooking.client.AppTestClient
-import me.aburke.hotelbooking.client.parseBody
 import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpRequest
-import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.rest.client.api.AuthApi
+import me.aburke.hotelbooking.rest.client.invoker.ApiClient
+import me.aburke.hotelbooking.rest.client.invoker.ApiException
+import me.aburke.hotelbooking.rest.client.model.LogInRequest
+import me.aburke.hotelbooking.rest.client.model.SessionResponse
+import me.aburke.hotelbooking.rest.client.model.SignUpRequest
 import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 import org.koin.core.KoinApplication
 import java.sql.Connection
 import java.time.Instant
+import java.time.ZoneOffset
 
 private const val LOGIN_ID = "login-id"
 private const val PASSWORD = "password"
@@ -49,18 +52,18 @@ class SignUpTest {
     fun cleanUp() = app.close()
 
     @Test
-    fun `should create user and set session cookie`() = app.restTest { client ->
+    fun `should create user and set session cookie`() = app.restTest { client, cookieJar ->
         val signUpResponse = signUp(client)
-        client.verifySession(signUpResponse.userId, signUpResponse.sessionExpiryTime)
+        client.verifySession(signUpResponse.userId, signUpResponse.sessionExpiryTime.toInstant())
 
-        client.clearSession()
+        cookieJar.clearAllCookies()
         val logInResponse = logIn(client, signUpResponse.userId)
-        client.verifySession(signUpResponse.userId, logInResponse.sessionExpiryTime)
+        client.verifySession(signUpResponse.userId, logInResponse.sessionExpiryTime.toInstant())
     }
 
     @ParameterizedTest
     @ValueSource(booleans = [false, true])
-    fun `should return 409 when username is not available`(asAnonymousUser: Boolean) = app.restTest { client ->
+    fun `should return 409 when username is not available`(asAnonymousUser: Boolean) = app.restTest { client, _ ->
         val (existingUserId) = userRepository.insertUser(
             InsertUserRecord(
                 loginId = LOGIN_ID,
@@ -72,26 +75,26 @@ class SignUpTest {
 
         val anonymousUserId = client.takeIf { asAnonymousUser }
             ?.let {
-                it.createAnonymousSession()
-                    .parseBody<SessionResponse>()!!
+                AuthApi(it).createAnonymousSession()
                     .userId
             }
 
-        val response = client.signUp(
-            SignUpRequest(
-                loginId = LOGIN_ID,
-                password = PASSWORD,
-                name = NAME,
+        val response = assertThrows<ApiException> {
+            AuthApi(client).signUp(
+                SignUpRequest().apply {
+                    loginId = LOGIN_ID
+                    password = PASSWORD
+                    name = NAME
+                }
             )
-        )
+        }
 
         val allUsers = connection.readAllUsers()
 
         assertSoftly { s ->
             s.assertThat(response.code).isEqualTo(409)
-            s.assertThat(response.header("Set-Cookie")).isNull()
-            s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
-            s.assertThatJson(response.body?.string()).isEqualTo(
+            s.assertThat(response.responseHeaders["Set-Cookie"]).isNull()
+            s.assertThatJson(response.responseBody).isEqualTo(
                 """
                     {
                         "title": "Username Conflict",
@@ -113,45 +116,44 @@ class SignUpTest {
     }
 
     @Test
-    fun `should create credentials for anonymous user`() = app.restTest { client ->
-        val anonymousUserId = client.createAnonymousSession()
-            .parseBody<SessionResponse>()!!
+    fun `should create credentials for anonymous user`() = app.restTest { client, cookieJar ->
+        val anonymousUserId = AuthApi(client).createAnonymousSession()
             .userId
 
         val signUpResponse = signUpWithAnonymous(client, anonymousUserId)
-        client.verifySession(anonymousUserId, signUpResponse.sessionExpiryTime)
+        client.verifySession(anonymousUserId, signUpResponse.sessionExpiryTime.toInstant())
 
-        client.clearSession()
+        cookieJar.clearAllCookies()
         val logInResponse = logIn(client, signUpResponse.userId)
-        client.verifySession(anonymousUserId, logInResponse.sessionExpiryTime)
+        client.verifySession(anonymousUserId, logInResponse.sessionExpiryTime.toInstant())
     }
 
     @Test
-    fun `should return 409 when current user is not anonymous`() = app.restTest { client ->
-        val firstSignUpResponse = client.signUp(
-            SignUpRequest(
-                loginId = LOGIN_ID,
-                password = PASSWORD,
-                name = NAME,
-            )
-        ).parseBody<SessionResponse>()!!
-
-        val secondSignUpResponse = client.signUp(
-            SignUpRequest(
-                loginId = LOGIN_ID,
-                password = PASSWORD,
-                name = NAME,
-            )
+    fun `should return 409 when current user is not anonymous`() = app.restTest { client, _ ->
+        val firstSignUpResponse = AuthApi(client).signUp(
+            SignUpRequest().apply {
+                loginId = LOGIN_ID
+                password = PASSWORD
+                name = NAME
+            }
         )
+
+        val secondSignUpResponse = assertThrows<ApiException> {
+            AuthApi(client).signUp(
+                SignUpRequest().apply {
+                    loginId = LOGIN_ID
+                    password = PASSWORD
+                    name = NAME
+                }
+            )
+        }
 
         val allUsers = connection.readAllUsers()
 
         assertSoftly { s ->
             s.assertThat(secondSignUpResponse.code).isEqualTo(409)
-            s.assertThat(secondSignUpResponse.header("Set-Cookie")).isNull()
-            s.assertThat(secondSignUpResponse.header("Content-Type"))
-                .isEqualTo("application/problem+json;charset=utf-8")
-            s.assertThatJson(secondSignUpResponse.body?.string()).isEqualTo(
+            s.assertThat(secondSignUpResponse.responseHeaders["Set-Cookie"]).isNull()
+            s.assertThatJson(secondSignUpResponse.responseBody).isEqualTo(
                 """
                     {
                         "title": "User is not anonymous",
@@ -168,26 +170,26 @@ class SignUpTest {
     }
 
     @Test
-    fun `should return 400 when current user does not exist`() = app.restTest { client ->
-        client.createAnonymousSession()
+    fun `should return 400 when current user does not exist`() = app.restTest { client, _ ->
+        AuthApi(client).createAnonymousSession()
         connection.executeScript("clear_db.sql")
 
-        val secondSignUpResponse = client.signUp(
-            SignUpRequest(
-                loginId = LOGIN_ID,
-                password = PASSWORD,
-                name = NAME,
+        val secondSignUpResponse = assertThrows<ApiException> {
+            AuthApi(client).signUp(
+                SignUpRequest().apply {
+                    loginId = LOGIN_ID
+                    password = PASSWORD
+                    name = NAME
+                }
             )
-        )
+        }
 
         val allUsers = connection.readAllUsers()
 
         assertSoftly { s ->
             s.assertThat(secondSignUpResponse.code).isEqualTo(400)
-            s.assertThat(secondSignUpResponse.header("Set-Cookie")).isNull()
-            s.assertThat(secondSignUpResponse.header("Content-Type"))
-                .isEqualTo("application/problem+json;charset=utf-8")
-            s.assertThatJson(secondSignUpResponse.body?.string()).isEqualTo(
+            s.assertThat(secondSignUpResponse.responseHeaders["Set-Cookie"]).isNull()
+            s.assertThatJson(secondSignUpResponse.responseBody).isEqualTo(
                 """
                     {
                         "title": "User does not exist",
@@ -203,37 +205,35 @@ class SignUpTest {
         }
     }
 
-    private fun signUp(client: AppTestClient): SessionResponse {
-        val response = client.signUp(
-            SignUpRequest(
-                loginId = LOGIN_ID,
-                password = PASSWORD,
-                name = NAME,
-            )
+    private fun signUp(client: ApiClient): SessionResponse {
+        val response = AuthApi(client).signUp(
+            SignUpRequest().apply {
+                loginId = LOGIN_ID
+                password = PASSWORD
+                name = NAME
+            }
         )
-        val responseBody = response.parseBody<SessionResponse>()
 
         val allUsers = connection.readAllUsers()
 
         assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(201)
-            s.assertThat(responseBody).usingRecursiveComparison()
+            s.assertThat(response).usingRecursiveComparison()
                 .ignoringFields("userId")
                 .isEqualTo(
-                    SessionResponse(
-                        userId = "",
-                        loginId = LOGIN_ID,
-                        userRoles = listOf("CUSTOMER"),
-                        anonymousUser = false,
-                        sessionExpiryTime = instant.plus(sessionDuration),
-                    )
+                    SessionResponse().apply {
+                        userId = ""
+                        loginId = LOGIN_ID
+                        userRoles = listOf("CUSTOMER")
+                        anonymousUser = false
+                        sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
+                    }
                 )
             s.assertThat(allUsers).hasSize(1)
             s.assertThat(allUsers.firstOrNull()).usingRecursiveComparison()
                 .ignoringFields("credential.passwordHash")
                 .isEqualTo(
                     UserRecord(
-                        userId = responseBody?.userId ?: "",
+                        userId = response.userId,
                         userRoles = setOf(UserRole.CUSTOMER),
                         name = NAME,
                         credential = UserCredentialRecord(
@@ -244,32 +244,29 @@ class SignUpTest {
                 )
         }
 
-        return responseBody!!
+        return response
     }
 
-    private fun signUpWithAnonymous(client: AppTestClient, anonymousUserId: String): SessionResponse {
-        val response = client.signUp(
-            SignUpRequest(
-                loginId = LOGIN_ID,
-                password = PASSWORD,
-                name = NAME,
-            )
+    private fun signUpWithAnonymous(client: ApiClient, anonymousUserId: String): SessionResponse {
+        val response = AuthApi(client).signUp(
+            SignUpRequest().apply {
+                loginId = LOGIN_ID
+                password = PASSWORD
+                name = NAME
+            }
         )
-        val responseBody = response.parseBody<SessionResponse>()
 
         val allUsers = connection.readAllUsers()
 
         assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(201)
-            s.assertThat(response.header("Set-Cookie")).isNull()
-            s.assertThat(responseBody).isEqualTo(
-                SessionResponse(
-                    userId = anonymousUserId,
-                    loginId = LOGIN_ID,
-                    userRoles = listOf("CUSTOMER"),
-                    anonymousUser = false,
-                    sessionExpiryTime = instant.plus(sessionDuration),
-                )
+            s.assertThat(response).isEqualTo(
+                SessionResponse().apply {
+                    userId = anonymousUserId
+                    loginId = LOGIN_ID
+                    userRoles = listOf("CUSTOMER")
+                    anonymousUser = false
+                    sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
+                }
             )
             s.assertThat(allUsers).hasSize(1)
             s.assertThat(allUsers.firstOrNull()).usingRecursiveComparison()
@@ -287,44 +284,42 @@ class SignUpTest {
                 )
         }
 
-        return responseBody!!
+        return response
     }
 
-    private fun logIn(client: AppTestClient, userId: String): SessionResponse {
-        val response = client.logIn(
-            LogInRequest(
-                loginId = LOGIN_ID,
-                password = PASSWORD,
-            )
+    private fun logIn(client: ApiClient, userId: String): SessionResponse {
+        val response = AuthApi(client).logIn(
+            LogInRequest().apply {
+                loginId = LOGIN_ID
+                password = PASSWORD
+            }
         )
-        val responseBody = response.parseBody<SessionResponse>()
 
         assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(201)
-            s.assertThat(responseBody).isEqualTo(
-                SessionResponse(
-                    userId = userId,
-                    loginId = LOGIN_ID,
-                    userRoles = listOf("CUSTOMER"),
-                    anonymousUser = false,
-                    sessionExpiryTime = instant.plus(sessionDuration),
-                )
+            s.assertThat(response).isEqualTo(
+                SessionResponse().also {
+                    it.userId = userId
+                    it.loginId = LOGIN_ID
+                    it.userRoles = listOf("CUSTOMER")
+                    it.anonymousUser = false
+                    it.sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
+                }
             )
         }
 
-        return responseBody!!
+        return response
     }
 
-    private fun AppTestClient.verifySession(userId: String, sessionExpiryTime: Instant) {
-        val response = getSession().parseBody<SessionResponse>()
+    private fun ApiClient.verifySession(userId: String, sessionExpiryTime: Instant) {
+        val response = AuthApi(this).fetchAuthState()
         assertThat(response).isEqualTo(
-            SessionResponse(
-                userId = userId,
-                loginId = LOGIN_ID,
-                userRoles = listOf("CUSTOMER"),
-                anonymousUser = false,
-                sessionExpiryTime = sessionExpiryTime,
-            )
+            SessionResponse().also {
+                it.userId = userId
+                it.loginId = LOGIN_ID
+                it.userRoles = listOf("CUSTOMER")
+                it.anonymousUser = false
+                it.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
+            }
         )
     }
 }

@@ -21,6 +21,7 @@ dependencies {
 
     testImplementation(project(":ports"))
     testImplementation(project(":postgres-migrations"))
+    testImplementation(project(":rest-client"))
     testImplementation("redis.clients:jedis:${properties["jedisVersion"]}")
 
     testImplementation("com.fasterxml.jackson.core:jackson-databind:${properties["jacksonVersion"]}")

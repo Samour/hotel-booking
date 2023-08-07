@@ -3,15 +3,16 @@ package me.aburke.hotelbooking
 import io.javalin.testtools.JavalinTest.test
 import io.mockk.every
 import io.mockk.mockk
-import me.aburke.hotelbooking.client.AppTestClient
-import me.aburke.hotelbooking.client.parseBody
+import me.aburke.hotelbooking.client.SimpleCookieJar
 import me.aburke.hotelbooking.data.TestUser
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserRequest
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserResponse
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInRequest
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
-import org.assertj.core.api.Assertions.assertThat
+import me.aburke.hotelbooking.rest.client.api.AdminApi
+import me.aburke.hotelbooking.rest.client.api.AuthApi
+import me.aburke.hotelbooking.rest.client.invoker.ApiClient
+import me.aburke.hotelbooking.rest.client.model.CreateUserRequest
+import me.aburke.hotelbooking.rest.client.model.LogInRequest
+import okhttp3.OkHttpClient
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
@@ -21,6 +22,7 @@ import redis.clients.jedis.Protocol
 import java.sql.Connection
 import java.time.Clock
 import java.time.Instant
+import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 
 fun createApp(populateTestData: Boolean = true): Pair<KoinApplication, Instant> {
     val instant = Instant.now()
@@ -50,25 +52,34 @@ fun createApp(populateTestData: Boolean = true): Pair<KoinApplication, Instant> 
     return app to instant
 }
 
-fun KoinApplication.restTest(case: (AppTestClient) -> Unit) = test(koin.get()) { _, client ->
-    case(AppTestClient(client))
+fun KoinApplication.restTest(case: (ApiClient, SimpleCookieJar) -> Unit) = test(koin.get()) { javalin, _ ->
+    val cookieJar = SimpleCookieJar()
+    case(
+        ApiClient(
+            OkHttpClient.Builder()
+                .cookieJar(cookieJar)
+                .build()
+        ).also {
+            it.basePath = "http://localhost:${javalin.port()}"
+        },
+        cookieJar,
+    )
 }
 
-fun AppTestClient.authenticateAsAdmin() = authenticateAs(TestUser.admin)
+fun ApiClient.authenticateAsAdmin() = authenticateAs(TestUser.admin)
 
-fun AppTestClient.createUserWithRoles(vararg roles: UserRole): TestUser {
+fun ApiClient.createUserWithRoles(vararg roles: UserRole): TestUser {
     val loginId = "test-${RandomString.make()}"
     val password = "test-${RandomString.make()}"
     authenticateAsAdmin()
-    val (userId) = createUser(
-        CreateUserRequest(
-            loginId = loginId,
-            password = password,
-            name = "test-${RandomString.make()}",
-            roles = listOf(*roles),
-        )
-    ).also { assertThat(it.code).isEqualTo(201) }
-        .parseBody<CreateUserResponse>()!!
+    val userId = AdminApi(this).createUser(
+        CreateUserRequest().also { r ->
+            r.loginId = loginId
+            r.password = password
+            r.name = "test-${RandomString.make()}"
+            r.roles = roles.map { UserRoleDto.fromValue(it.name) }
+        }
+    ).userId
 
     return TestUser(
         userId = userId,
@@ -77,15 +88,15 @@ fun AppTestClient.createUserWithRoles(vararg roles: UserRole): TestUser {
     )
 }
 
-fun AppTestClient.authenticateAs(user: TestUser) {
-    logIn(
-        LogInRequest(
-            loginId = user.loginId,
-            password = user.password,
-        )
-    ).also { assertThat(it.code).isEqualTo(201) }
+fun ApiClient.authenticateAs(user: TestUser) {
+    AuthApi(this).logIn(
+        LogInRequest().apply {
+            loginId = user.loginId
+            password = user.password
+        }
+    )
 }
 
-fun AppTestClient.authenticateWith(vararg roles: UserRole) {
+fun ApiClient.authenticateWith(vararg roles: UserRole) {
     authenticateAs(createUserWithRoles(*roles))
 }
