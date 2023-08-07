@@ -1,0 +1,14 @@
+@startuml
+
+() "Rest API" as rest_api
+artifact "Application" as application
+database "PostgreSQL" as postgres
+database "Redis" as redis
+
+rest_api -> application
+application -> postgres : Primary data store
+application -up-> redis : Session storage
+
+redis -[hidden]-> postgres
+
+@enduml
