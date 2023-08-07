@@ -10,12 +10,12 @@ import me.aburke.hotelbooking.facade.rest.authentication.USER_SESSION_ATTRIBUTE
 import me.aburke.hotelbooking.facade.rest.responses.forbiddenResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.facade.rest.responses.unauthorizedResponse
-import me.aburke.hotelbooking.scenario.user.GetAuthStateDetails
-import me.aburke.hotelbooking.scenario.user.GetAuthStateResult
-import me.aburke.hotelbooking.scenario.user.GetAuthStateScenario
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStatePort
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateResult
 
 class AuthenticationInterceptor(
-    private val getAuthStateScenario: GetAuthStateScenario,
+    private val getAuthStatePort: GetAuthStatePort,
 ) : AccessManager {
 
     override fun manage(handler: Handler, ctx: Context, routeRoles: Set<RouteRole>) {
@@ -28,7 +28,7 @@ class AuthenticationInterceptor(
         }
 
         val userSession = ctx.cookie(AUTH_COOKIE_KEY)?.let {
-            getAuthStateScenario.run(GetAuthStateDetails(it)) as? GetAuthStateResult.SessionExists
+            getAuthStatePort.run(GetAuthStateDetails(it)) as? GetAuthStateResult.SessionExists
         }?.session
 
         if (userSession == null) {

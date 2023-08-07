@@ -2,7 +2,7 @@ package me.aburke.hotelbooking.user
 
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
+import me.aburke.hotelbooking.ports.scenario.user.CreateAnonymousUserPort
 import me.aburke.hotelbooking.sessionDuration
 import me.aburke.hotelbooking.stubs.Stubs
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -16,7 +16,7 @@ class CreateAnonymousUserTest {
     private val stubs = Stubs()
 
     private lateinit var app: KoinApplication
-    private lateinit var underTest: CreateAnonymousUserScenario
+    private lateinit var underTest: CreateAnonymousUserPort
 
     @BeforeEach
     fun init() {
@@ -29,7 +29,7 @@ class CreateAnonymousUserTest {
 
     @Test
     fun `should create anonymous user`() {
-        val result = underTest.run(CreateAnonymousUserScenario.Detail)
+        val result = underTest.run(CreateAnonymousUserPort.Details)
 
         assertSoftly { s ->
             s.assertThat(result.session).usingRecursiveComparison()

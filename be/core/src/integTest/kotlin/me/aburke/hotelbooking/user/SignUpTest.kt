@@ -4,10 +4,10 @@ import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.scenario.user.AnonymousSession
-import me.aburke.hotelbooking.scenario.user.SignUpDetails
-import me.aburke.hotelbooking.scenario.user.SignUpResult
-import me.aburke.hotelbooking.scenario.user.SignUpScenario
+import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
+import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
+import me.aburke.hotelbooking.ports.scenario.user.SignUpPort
+import me.aburke.hotelbooking.ports.scenario.user.SignUpResult
 import me.aburke.hotelbooking.sessionDuration
 import me.aburke.hotelbooking.stubs.Stubs
 import org.assertj.core.api.Assertions
@@ -30,7 +30,7 @@ class SignUpTest {
 
     private lateinit var app: KoinApplication
     private lateinit var passwordHasher: PasswordHasher
-    private lateinit var underTest: SignUpScenario
+    private lateinit var underTest: SignUpPort
 
     @BeforeEach
     fun init() {

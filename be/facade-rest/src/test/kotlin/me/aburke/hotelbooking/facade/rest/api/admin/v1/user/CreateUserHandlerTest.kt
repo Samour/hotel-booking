@@ -8,8 +8,8 @@ import me.aburke.hotelbooking.facade.rest.Stubs
 import me.aburke.hotelbooking.facade.rest.assertThatJson
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.scenario.user.CreateUserDetails
-import me.aburke.hotelbooking.scenario.user.CreateUserResult
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserDetails
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserResult
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -41,7 +41,7 @@ class CreateUserHandlerTest {
     @Test
     fun `should create user`() = test(javalin) { _, client ->
         every {
-            stubs.createUserScenario.run(
+            stubs.createUserPort.run(
                 CreateUserDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -81,7 +81,7 @@ class CreateUserHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.createUserScenario.run(
+                    stubs.createUserPort.run(
                         CreateUserDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -100,7 +100,7 @@ class CreateUserHandlerTest {
     @Test
     fun `should return 409 when username not available`() = test(javalin) { _, client ->
         every {
-            stubs.createUserScenario.run(
+            stubs.createUserPort.run(
                 CreateUserDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -143,7 +143,7 @@ class CreateUserHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.createUserScenario.run(
+                    stubs.createUserPort.run(
                         CreateUserDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,

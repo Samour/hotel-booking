@@ -7,8 +7,8 @@ import io.mockk.mockk
 import io.mockk.verify
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.room.AddRoomTypeScenario
-import me.aburke.hotelbooking.scenario.user.*
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypePort
+import me.aburke.hotelbooking.ports.scenario.user.*
 import org.assertj.core.api.SoftAssertions
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
@@ -18,12 +18,12 @@ import java.util.UUID
 
 class Stubs {
 
-    val logInScenario = mockk<LogInScenario>()
-    val getAuthStateScenario = mockk<GetAuthStateScenario>()
-    val createAnonymousUserScenario = mockk<CreateAnonymousUserScenario>()
-    val signUpScenario = mockk<SignUpScenario>()
-    val createUserScenario = mockk<CreateUserScenario>()
-    val addRoomTypeScenario = mockk<AddRoomTypeScenario>()
+    val logInPort = mockk<LogInPort>()
+    val getAuthStatePort = mockk<GetAuthStatePort>()
+    val createAnonymousUserPort = mockk<CreateAnonymousUserPort>()
+    val signUpPort = mockk<SignUpPort>()
+    val createUserPort = mockk<CreateUserPort>()
+    val addRoomTypePort = mockk<AddRoomTypePort>()
 
     private lateinit var app: KoinApplication
 
@@ -31,12 +31,12 @@ class Stubs {
 
     fun make(properties: Map<String, String> = mapOf()): Javalin {
         val stubsModule = module {
-            single { logInScenario }
-            single { getAuthStateScenario }
-            single { createAnonymousUserScenario }
-            single { signUpScenario }
-            single { createUserScenario }
-            single { addRoomTypeScenario }
+            single { logInPort }
+            single { getAuthStatePort }
+            single { createAnonymousUserPort }
+            single { signUpPort }
+            single { createUserPort }
+            single { addRoomTypePort }
         }
         app = koinApplication {
             properties(properties)
@@ -51,7 +51,7 @@ class Stubs {
     fun prepareSession(vararg roles: UserRole): String {
         val sessionId = UUID.randomUUID().toString()
         every {
-            getAuthStateScenario.run(
+            getAuthStatePort.run(
                 GetAuthStateDetails(sessionId)
             )
         } returns GetAuthStateResult.SessionExists(
@@ -72,18 +72,18 @@ class Stubs {
         sessions.forEach {
             check {
                 verify {
-                    getAuthStateScenario.run(GetAuthStateDetails(it.sessionId))
+                    getAuthStatePort.run(GetAuthStateDetails(it.sessionId))
                 }
             }
         }
         check {
             confirmVerified(
-                logInScenario,
-                getAuthStateScenario,
-                createAnonymousUserScenario,
-                signUpScenario,
-                createUserScenario,
-                addRoomTypeScenario,
+                logInPort,
+                getAuthStatePort,
+                createAnonymousUserPort,
+                signUpPort,
+                createUserPort,
+                addRoomTypePort,
             )
         }
     }

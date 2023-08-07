@@ -1,6 +1,8 @@
 package me.aburke.hotelbooking
 
 import me.aburke.hotelbooking.password.PasswordHasher
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypePort
+import me.aburke.hotelbooking.ports.scenario.user.*
 import me.aburke.hotelbooking.scenario.room.AddRoomTypeScenario
 import me.aburke.hotelbooking.scenario.user.*
 import me.aburke.hotelbooking.session.SessionFactory
@@ -10,7 +12,7 @@ import java.time.Duration
 
 val coreModule = module {
     single { PasswordHasher() }
-    single { CreateUserScenario(get(), get()) }
+    single<CreateUserPort> { CreateUserScenario(get(), get()) }
 
     single {
         SessionFactory(
@@ -18,10 +20,10 @@ val coreModule = module {
             sessionDuration = Duration.parse(getProperty("auth.session.duration")),
         )
     }
-    single { CreateAnonymousUserScenario(get(), get(), get()) }
-    single { SignUpScenario(get(), get(), get(), get()) }
+    single<CreateAnonymousUserPort> { CreateAnonymousUserScenario(get(), get(), get()) }
+    single<SignUpPort> { SignUpScenario(get(), get(), get(), get()) }
 
-    single {
+    single<LogInPort> {
         LogInScenario(
             passwordHasher = get(),
             sessionFactory = get(),
@@ -30,10 +32,10 @@ val coreModule = module {
         )
     }
 
-    single { GetAuthStateScenario(get()) }
+    single<GetAuthStatePort> { GetAuthStateScenario(get()) }
 
     single { DatesCalculator() }
-    single {
+    single<AddRoomTypePort> {
         AddRoomTypeScenario(
             get(),
             get(),

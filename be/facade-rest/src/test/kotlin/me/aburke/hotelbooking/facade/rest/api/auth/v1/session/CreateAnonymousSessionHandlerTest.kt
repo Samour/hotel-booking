@@ -9,8 +9,8 @@ import me.aburke.hotelbooking.facade.rest.assertThatJson
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.user.AnonymousUserCreated
-import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
+import me.aburke.hotelbooking.ports.scenario.user.AnonymousUserCreated
+import me.aburke.hotelbooking.ports.scenario.user.CreateAnonymousUserPort
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -39,7 +39,7 @@ class CreateAnonymousSessionHandlerTest {
     @Test
     fun `should create anonymous user and set session cookie`() = test(javalin) { _, client ->
         every {
-            stubs.createAnonymousUserScenario.run(CreateAnonymousUserScenario.Detail)
+            stubs.createAnonymousUserPort.run(CreateAnonymousUserPort.Details)
         } returns AnonymousUserCreated(
             UserSession(
                 sessionId = SESSION_ID,
@@ -71,7 +71,7 @@ class CreateAnonymousSessionHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.createAnonymousUserScenario.run(CreateAnonymousUserScenario.Detail)
+                    stubs.createAnonymousUserPort.run(CreateAnonymousUserPort.Details)
                 }
             }
             with(stubs) {

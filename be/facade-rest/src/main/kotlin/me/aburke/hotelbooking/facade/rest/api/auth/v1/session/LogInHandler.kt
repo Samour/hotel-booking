@@ -9,9 +9,9 @@ import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
 import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.user.LogInCredentials
-import me.aburke.hotelbooking.scenario.user.LogInResult
-import me.aburke.hotelbooking.scenario.user.LogInScenario
+import me.aburke.hotelbooking.ports.scenario.user.LogInCredentials
+import me.aburke.hotelbooking.ports.scenario.user.LogInPort
+import me.aburke.hotelbooking.ports.scenario.user.LogInResult
 
 data class LogInRequest(
     val loginId: String,
@@ -19,13 +19,13 @@ data class LogInRequest(
 )
 
 class LogInHandler(
-    private val logInScenario: LogInScenario,
+    private val logInPort: LogInPort,
 ) : Handler {
 
     override fun handle(ctx: Context) {
         val request = ctx.bodyAsClass<LogInRequest>()
 
-        val logInResult = logInScenario.run(
+        val logInResult = logInPort.run(
             LogInCredentials(
                 loginId = request.loginId,
                 password = request.password,

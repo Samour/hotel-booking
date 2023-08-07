@@ -8,13 +8,13 @@ import me.aburke.hotelbooking.facade.rest.Stubs
 import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.facade.rest.parseResponse
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeDetails
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeResult
 import me.aburke.hotelbooking.rest.client.api.AdminApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.AddRoomType201Response
 import me.aburke.hotelbooking.rest.client.model.AddRoomTypeRequest
 import me.aburke.hotelbooking.rest.client.model.ProblemResponse
-import me.aburke.hotelbooking.scenario.room.AddRoomTypeDetails
-import me.aburke.hotelbooking.scenario.room.AddRoomTypeResult
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -52,7 +52,7 @@ class AddRoomTypeTest {
     @ValueSource(booleans = [true, false])
     fun `should create new room type`(withImages: Boolean) = test(javalin) { _, _ ->
         every {
-            stubs.addRoomTypeScenario.run(
+            stubs.addRoomTypePort.run(
                 AddRoomTypeDetails(
                     title = TITLE,
                     description = DESCRIPTION,
@@ -83,7 +83,7 @@ class AddRoomTypeTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.addRoomTypeScenario.run(
+                    stubs.addRoomTypePort.run(
                         AddRoomTypeDetails(
                             title = TITLE,
                             description = DESCRIPTION,

@@ -9,7 +9,7 @@ import me.aburke.hotelbooking.facade.rest.assertThatJson
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.user.*
+import me.aburke.hotelbooking.ports.scenario.user.*
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -45,7 +45,7 @@ class SignUpHandlerTest {
     @Test
     fun `should create user and set session cookie`() = test(javalin) { _, client ->
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -96,7 +96,7 @@ class SignUpHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -115,14 +115,14 @@ class SignUpHandlerTest {
     @Test
     fun `should create new user when provided session ID is not valid`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
             )
         } returns GetAuthStateResult.SessionDoesNotExist
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -174,7 +174,7 @@ class SignUpHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -183,7 +183,7 @@ class SignUpHandlerTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -202,7 +202,7 @@ class SignUpHandlerTest {
     @Test
     fun `should return 409 when username is not available`() = test(javalin) { _, client ->
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -242,7 +242,7 @@ class SignUpHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -261,7 +261,7 @@ class SignUpHandlerTest {
     @Test
     fun `should create credentials for anonymous user`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
@@ -277,7 +277,7 @@ class SignUpHandlerTest {
             )
         )
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -330,7 +330,7 @@ class SignUpHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -339,7 +339,7 @@ class SignUpHandlerTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -361,7 +361,7 @@ class SignUpHandlerTest {
     @Test
     fun `should return 409 when username is not available for anonymous user`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
@@ -377,7 +377,7 @@ class SignUpHandlerTest {
             )
         )
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -421,7 +421,7 @@ class SignUpHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -430,7 +430,7 @@ class SignUpHandlerTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -452,7 +452,7 @@ class SignUpHandlerTest {
     @Test
     fun `should return 409 when current user is not anonymous`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
@@ -468,7 +468,7 @@ class SignUpHandlerTest {
             )
         )
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -512,7 +512,7 @@ class SignUpHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -521,7 +521,7 @@ class SignUpHandlerTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -543,7 +543,7 @@ class SignUpHandlerTest {
     @Test
     fun `should return 400 when current user does not exist`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
@@ -559,7 +559,7 @@ class SignUpHandlerTest {
             )
         )
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -603,7 +603,7 @@ class SignUpHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -612,7 +612,7 @@ class SignUpHandlerTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,

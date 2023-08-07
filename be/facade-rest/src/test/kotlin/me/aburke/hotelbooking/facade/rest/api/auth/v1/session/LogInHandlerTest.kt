@@ -9,8 +9,8 @@ import me.aburke.hotelbooking.facade.rest.assertThatJson
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.user.LogInCredentials
-import me.aburke.hotelbooking.scenario.user.LogInResult
+import me.aburke.hotelbooking.ports.scenario.user.LogInCredentials
+import me.aburke.hotelbooking.ports.scenario.user.LogInResult
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -44,7 +44,7 @@ class LogInHandlerTest {
     @Test
     fun `should log in user & set session cookie on successful authentication`() = test(javalin) { _, client ->
         every {
-            stubs.logInScenario.run(
+            stubs.logInPort.run(
                 LogInCredentials(
                     loginId = LOGIN_ID,
                     password = PASSWORD,
@@ -92,7 +92,7 @@ class LogInHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.logInScenario.run(
+                    stubs.logInPort.run(
                         LogInCredentials(
                             loginId = LOGIN_ID,
                             password = PASSWORD,
@@ -109,7 +109,7 @@ class LogInHandlerTest {
     @Test
     fun `should return 401 when invalid credentials supplied`() = test(javalin) { _, client ->
         every {
-            stubs.logInScenario.run(
+            stubs.logInPort.run(
                 LogInCredentials(
                     loginId = LOGIN_ID,
                     password = PASSWORD,
@@ -147,7 +147,7 @@ class LogInHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.logInScenario.run(
+                    stubs.logInPort.run(
                         LogInCredentials(
                             loginId = LOGIN_ID,
                             password = PASSWORD,

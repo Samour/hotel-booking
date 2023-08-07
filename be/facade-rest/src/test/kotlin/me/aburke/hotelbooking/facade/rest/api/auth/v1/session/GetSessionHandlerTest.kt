@@ -9,8 +9,8 @@ import me.aburke.hotelbooking.facade.rest.assertThatJson
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.user.GetAuthStateDetails
-import me.aburke.hotelbooking.scenario.user.GetAuthStateResult
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateResult
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -41,7 +41,7 @@ class GetSessionHandlerTest {
     @Test
     fun `should return session details when authenticated`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(SESSION_ID)
             )
         } returns GetAuthStateResult.SessionExists(
@@ -75,7 +75,7 @@ class GetSessionHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(SESSION_ID)
                     )
                 }
@@ -89,7 +89,7 @@ class GetSessionHandlerTest {
     @Test
     fun `should return session details when anonymously authenticated`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(SESSION_ID)
             )
         } returns GetAuthStateResult.SessionExists(
@@ -122,7 +122,7 @@ class GetSessionHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(SESSION_ID)
                     )
                 }
@@ -136,7 +136,7 @@ class GetSessionHandlerTest {
     @Test
     fun `should return 401 when invalid session ID provided`() = test(javalin) { _, client ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(SESSION_ID)
             )
         } returns GetAuthStateResult.SessionDoesNotExist
@@ -162,7 +162,7 @@ class GetSessionHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(SESSION_ID)
                     )
                 }

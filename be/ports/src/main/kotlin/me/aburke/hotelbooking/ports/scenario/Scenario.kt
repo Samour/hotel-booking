@@ -1,4 +1,4 @@
-package me.aburke.hotelbooking.scenario
+package me.aburke.hotelbooking.ports.scenario
 
 interface Scenario<D : Scenario.Details, R : Scenario.Result> {
 

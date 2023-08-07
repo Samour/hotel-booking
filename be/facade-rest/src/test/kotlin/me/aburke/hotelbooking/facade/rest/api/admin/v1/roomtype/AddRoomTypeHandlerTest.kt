@@ -8,8 +8,8 @@ import me.aburke.hotelbooking.facade.rest.Stubs
 import me.aburke.hotelbooking.facade.rest.assertThatJson
 import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.scenario.room.AddRoomTypeDetails
-import me.aburke.hotelbooking.scenario.room.AddRoomTypeResult
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeDetails
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeResult
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -49,7 +49,7 @@ class AddRoomTypeHandlerTest {
     @ValueSource(booleans = [true, false])
     fun `should create new room type`(withImages: Boolean) = test(javalin) { _, client ->
         every {
-            stubs.addRoomTypeScenario.run(
+            stubs.addRoomTypePort.run(
                 AddRoomTypeDetails(
                     title = TITLE,
                     description = DESCRIPTION,
@@ -78,7 +78,7 @@ class AddRoomTypeHandlerTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.addRoomTypeScenario.run(
+                    stubs.addRoomTypePort.run(
                         AddRoomTypeDetails(
                             title = TITLE,
                             description = DESCRIPTION,

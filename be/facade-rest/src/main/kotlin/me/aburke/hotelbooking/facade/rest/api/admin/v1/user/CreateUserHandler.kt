@@ -7,9 +7,9 @@ import io.javalin.http.bodyAsClass
 import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.scenario.user.CreateUserDetails
-import me.aburke.hotelbooking.scenario.user.CreateUserResult
-import me.aburke.hotelbooking.scenario.user.CreateUserScenario
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserDetails
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserPort
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserResult
 
 data class CreateUserRequest(
     val loginId: String,
@@ -23,13 +23,13 @@ data class CreateUserResponse(
 )
 
 class CreateUserHandler(
-    private val createUserScenario: CreateUserScenario,
+    private val createUserPort: CreateUserPort,
 ) : Handler {
 
     override fun handle(ctx: Context) {
         val request = ctx.bodyAsClass<CreateUserRequest>()
 
-        val result = createUserScenario.run(
+        val result = createUserPort.run(
             CreateUserDetails(
                 loginId = request.loginId,
                 rawPassword = request.password,

@@ -10,6 +10,8 @@ import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.ports.scenario.user.AnonymousUserCreated
+import me.aburke.hotelbooking.ports.scenario.user.CreateAnonymousUserPort
 import me.aburke.hotelbooking.session.SessionFactory
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test
@@ -59,7 +61,7 @@ class CreateAnonymousUserScenarioTest {
             sessionRepository.insertUserSession(session)
         } returns Unit
 
-        val result = underTest.run(CreateAnonymousUserScenario.Detail)
+        val result = underTest.run(CreateAnonymousUserPort.Details)
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(

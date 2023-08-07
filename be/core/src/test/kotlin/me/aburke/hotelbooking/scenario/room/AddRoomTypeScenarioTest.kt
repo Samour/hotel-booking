@@ -8,6 +8,8 @@ import io.mockk.verify
 import me.aburke.hotelbooking.ports.repository.HotelRepository
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeDetails
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeResult
 import me.aburke.hotelbooking.stock.DatesCalculator
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.BeforeEach

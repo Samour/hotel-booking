@@ -11,6 +11,8 @@ import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
 import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserDetails
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserResult
 import org.assertj.core.api.SoftAssertions
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test

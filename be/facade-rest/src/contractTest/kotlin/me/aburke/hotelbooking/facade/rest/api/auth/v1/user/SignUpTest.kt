@@ -10,12 +10,12 @@ import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.facade.rest.parseResponse
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.ports.scenario.user.*
 import me.aburke.hotelbooking.rest.client.api.AuthApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.ProblemResponse
 import me.aburke.hotelbooking.rest.client.model.SessionResponse
 import me.aburke.hotelbooking.rest.client.model.SignUpRequest
-import me.aburke.hotelbooking.scenario.user.*
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -51,7 +51,7 @@ class SignUpTest {
     @Test
     fun `should create user and set session cookie`() = test(javalin) { _, _ ->
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -94,7 +94,7 @@ class SignUpTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -113,14 +113,14 @@ class SignUpTest {
     @Test
     fun `should create new user when provided session ID is not valid`() = test(javalin) { _, _ ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
             )
         } returns GetAuthStateResult.SessionDoesNotExist
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -163,7 +163,7 @@ class SignUpTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -172,7 +172,7 @@ class SignUpTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -191,7 +191,7 @@ class SignUpTest {
     @Test
     fun `should return 409 when username is not available`() = test(javalin) { _, _ ->
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -228,7 +228,7 @@ class SignUpTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -247,7 +247,7 @@ class SignUpTest {
     @Test
     fun `should create credentials for anonymous user`() = test(javalin) { _, _ ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
@@ -263,7 +263,7 @@ class SignUpTest {
             )
         )
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -307,7 +307,7 @@ class SignUpTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -316,7 +316,7 @@ class SignUpTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -338,7 +338,7 @@ class SignUpTest {
     @Test
     fun `should return 409 when username is not available for anonymous user`() = test(javalin) { _, _ ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
@@ -354,7 +354,7 @@ class SignUpTest {
             )
         )
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -394,7 +394,7 @@ class SignUpTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -403,7 +403,7 @@ class SignUpTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,
@@ -425,7 +425,7 @@ class SignUpTest {
     @Test
     fun `should return 409 when current user is not anonymous`() = test(javalin) { _, _ ->
         every {
-            stubs.getAuthStateScenario.run(
+            stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = SESSION_ID,
                 )
@@ -441,7 +441,7 @@ class SignUpTest {
             )
         )
         every {
-            stubs.signUpScenario.run(
+            stubs.signUpPort.run(
                 SignUpDetails(
                     loginId = LOGIN_ID,
                     rawPassword = PASSWORD,
@@ -481,7 +481,7 @@ class SignUpTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.getAuthStateScenario.run(
+                    stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = SESSION_ID,
                         )
@@ -490,7 +490,7 @@ class SignUpTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    stubs.signUpScenario.run(
+                    stubs.signUpPort.run(
                         SignUpDetails(
                             loginId = LOGIN_ID,
                             rawPassword = PASSWORD,

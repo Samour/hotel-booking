@@ -1,8 +1,8 @@
 package me.aburke.hotelbooking.room
 
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
-import me.aburke.hotelbooking.scenario.room.AddRoomTypeDetails
-import me.aburke.hotelbooking.scenario.room.AddRoomTypeScenario
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeDetails
+import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypePort
 import me.aburke.hotelbooking.stubs.Stubs
 import me.aburke.hotelbooking.stubs.repository.hotelTimeZone
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -26,7 +26,7 @@ class AddRoomTypeTest {
     private val stubs = Stubs()
 
     private lateinit var app: KoinApplication
-    private lateinit var underTest: AddRoomTypeScenario
+    private lateinit var underTest: AddRoomTypePort
 
     @BeforeEach
     fun init() {

@@ -3,9 +3,9 @@ package me.aburke.hotelbooking.user
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
-import me.aburke.hotelbooking.scenario.user.CreateUserDetails
-import me.aburke.hotelbooking.scenario.user.CreateUserResult
-import me.aburke.hotelbooking.scenario.user.CreateUserScenario
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserDetails
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserPort
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserResult
 import me.aburke.hotelbooking.stubs.Stubs
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -26,7 +26,7 @@ class CreateUserTest {
 
     private lateinit var app: KoinApplication
     private lateinit var passwordHasher: PasswordHasher
-    private lateinit var underTest: CreateUserScenario
+    private lateinit var underTest: CreateUserPort
 
     @BeforeEach
     fun init() {

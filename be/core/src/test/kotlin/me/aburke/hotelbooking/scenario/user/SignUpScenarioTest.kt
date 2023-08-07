@@ -10,6 +10,9 @@ import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
+import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
+import me.aburke.hotelbooking.ports.scenario.user.SignUpResult
 import me.aburke.hotelbooking.session.SessionFactory
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test

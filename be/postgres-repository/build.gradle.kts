@@ -6,7 +6,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation(project(":core"))
+    implementation(project(":ports"))
 
     implementation("io.insert-koin:koin-core:${properties["koinVersion"]}")
     implementation("org.postgresql:postgresql:${properties["postgresqlVersion"]}")

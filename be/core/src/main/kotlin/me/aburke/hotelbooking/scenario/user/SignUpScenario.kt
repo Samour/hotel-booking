@@ -1,43 +1,20 @@
 package me.aburke.hotelbooking.scenario.user
 
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.*
-import me.aburke.hotelbooking.scenario.Scenario
+import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
+import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
+import me.aburke.hotelbooking.ports.scenario.user.SignUpPort
+import me.aburke.hotelbooking.ports.scenario.user.SignUpResult
 import me.aburke.hotelbooking.session.SessionFactory
-
-data class SignUpDetails(
-    val loginId: String,
-    val rawPassword: String,
-    val name: String,
-    val anonymousUser: AnonymousSession?,
-) : Scenario.Details
-
-data class AnonymousSession(
-    val sessionId: String,
-    val userId: String,
-)
-
-sealed interface SignUpResult : Scenario.Result {
-
-    data class Success(
-        val session: UserSession,
-    ) : SignUpResult
-
-    data object UsernameNotAvailable : SignUpResult
-
-    data object UserIsNotAnonymous : SignUpResult
-
-    data object AnonymousUserDoesNotExist : SignUpResult
-}
 
 class SignUpScenario(
     private val passwordHasher: PasswordHasher,
     private val sessionFactory: SessionFactory,
     private val userRepository: UserRepository,
     private val sessionRepository: SessionRepository,
-) : Scenario<SignUpDetails, SignUpResult> {
+) : SignUpPort {
 
     override fun run(details: SignUpDetails): SignUpResult {
         val passwordHash = passwordHasher.hashPassword(details.rawPassword)

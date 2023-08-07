@@ -10,7 +10,7 @@ import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
 import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.scenario.user.*
+import me.aburke.hotelbooking.ports.scenario.user.*
 
 data class SignUpRequest(
     val loginId: String,
@@ -19,18 +19,18 @@ data class SignUpRequest(
 )
 
 class SignUpHandler(
-    private val signUpScenario: SignUpScenario,
-    private val getAuthStateScenario: GetAuthStateScenario,
+    private val signUpPort: SignUpPort,
+    private val getAuthStatePort: GetAuthStatePort,
 ) : Handler {
 
     override fun handle(ctx: Context) {
         val session = ctx.cookie(AUTH_COOKIE_KEY)?.let {
-            getAuthStateScenario.run(GetAuthStateDetails(it)) as? GetAuthStateResult.SessionExists
+            getAuthStatePort.run(GetAuthStateDetails(it)) as? GetAuthStateResult.SessionExists
         }?.session
 
         val request = ctx.bodyAsClass<SignUpRequest>()
 
-        val result = signUpScenario.run(
+        val result = signUpPort.run(
             SignUpDetails(
                 loginId = request.loginId,
                 rawPassword = request.password,
