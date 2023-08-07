@@ -10,4 +10,5 @@ include(
     "app",
 
     "postgres-migrations",
+    "rest-client",
 )
