@@ -63,6 +63,25 @@ entity room_stock {
 
 room_type::room_type_id --{ room_stock::room_type_id
 
+entity room_hold {
+    * room_hold_id : UUID
+    --
+    * user_id : UUID
+    * hold_expiry : string
+}
+
+user::user_id -{ room_hold::user_id
+
+entity room_stock_hold {
+    * room_stock_hold_id : UUID
+    --
+    * room_hold_id : UUID
+    * room_stock_id : UUID
+}
+
+room_hold::room_hold_id -{ room_stock_hold::room_hold_id
+room_stock::room_stock_id -{ room_stock_hold::room_stock_id
+
 'Booking
 
 enum BookingStatus {
