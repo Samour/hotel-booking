@@ -13,7 +13,6 @@ paths:
         Log in with username/password. Successful authentication will result in a "SessionId" cookie being set
       tags:
         - auth
-        - session
       requestBody:
         content:
           application/json:
@@ -55,7 +54,6 @@ paths:
         - session: [ ]
       tags:
         - auth
-        - session
       responses:
         "200":
           description: Return details of currently authenticated session
@@ -76,7 +74,6 @@ paths:
       summary: Create anonymous user & a session for the new user
       tags:
         - auth
-        - session
       responses:
         "201":
           description: Return details of newly created user
@@ -101,7 +98,6 @@ paths:
         - session: [ ]
       tags:
         - auth
-        - user
       requestBody:
         content:
           application/json:
@@ -148,7 +144,6 @@ paths:
             - MANAGE_ROOMS
       tags:
         - admin
-        - room
       requestBody:
         content:
           application/json:
@@ -192,7 +187,6 @@ paths:
             - MANAGE_USERS
       tags:
         - admin
-        - user
       requestBody:
         content:
           application/json:

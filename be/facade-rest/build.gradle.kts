@@ -31,6 +31,12 @@ openApiGenerate {
 
 tasks["compileContractTestKotlin"].dependsOn("openApiGenerate")
 
+task<Test>("contractTest") {
+    testClassesDirs = sourceSets["contractTest"].output.classesDirs
+    classpath = sourceSets["contractTest"].runtimeClasspath
+    group = "verification"
+}
+
 dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
