@@ -21,4 +21,5 @@ values ('room-stock-hold-1', 'test-hold-id-1', 'room-type-1-stock-id-7'),
        ('room-stock-hold-9', 'test-hold-id-3', 'room-type-2-stock-id-13'),
        ('room-stock-hold-10', 'test-hold-id-3', 'room-type-2-stock-id-14'),
        ('room-stock-hold-11', 'test-hold-id-4', 'room-type-2-stock-id-13'),
-       ('room-stock-hold-12', 'test-hold-id-4', 'room-type-2-stock-id-14');
+       ('room-stock-hold-12', 'test-hold-id-4', 'room-type-2-stock-id-14'),
+       ('room-stock-hold-13', 'test-hold-id-4', 'room-type-2-stock-id-16');
