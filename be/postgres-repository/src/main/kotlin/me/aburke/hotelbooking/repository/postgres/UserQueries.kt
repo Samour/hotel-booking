@@ -18,7 +18,7 @@ fun Connection.findUserByLoginIdQuery(loginId: String): PreparedStatement =
         it.setString(1, loginId)
     }
 
-// Update queries
+// Write queries
 
 fun Connection.insertUserQuery(userId: String, userRoles: Set<UserRole>, name: String): PreparedStatement =
     prepareStatement(

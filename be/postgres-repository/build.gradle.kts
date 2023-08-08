@@ -17,4 +17,5 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-engine:${properties["junitVersion"]}")
     testImplementation("org.junit.jupiter:junit-jupiter-params:${properties["junitVersion"]}")
     testImplementation("org.assertj:assertj-core:${properties["assertjVersion"]}")
+    testImplementation("io.mockk:mockk:${properties["mockkVersion"]}")
 }

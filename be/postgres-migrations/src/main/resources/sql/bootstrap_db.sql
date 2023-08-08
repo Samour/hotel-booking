@@ -65,6 +65,31 @@ create unique index idx__room_stock__room_type_id__date
 create index idx__room_stock__date
     on room_stock (date);
 
+-- Room hold
+
+create table room_hold
+(
+    room_hold_id varchar not null primary key,
+    user_id      varchar not null,
+    hold_expiry  varchar not null, -- UTC timestamp
+
+    constraint fk__room_hold__user_id__app_user
+        foreign key (user_id) references app_user
+);
+
+create table room_stock_hold
+(
+    room_stock_hold_id varchar not null primary key,
+    room_hold_id       varchar not null,
+    room_stock_id      varchar not null,
+
+    constraint fk__room_stock_hold__room_hold_id__room_hold
+        foreign key (room_hold_id) references room_hold,
+
+    constraint fk__room_stock_hold__room_stock_id__room_type
+        foreign key (room_stock_id) references room_stock
+);
+
 -- Required data
 insert into hotel(hotel_id, time_zone)
 values ('test-hotel', 'Australia/Sydney');

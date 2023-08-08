@@ -1,7 +1,9 @@
 package me.aburke.hotelbooking.repository.postgres
 
+import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -28,6 +30,16 @@ private val stockDates = listOf(
     LocalDate.parse("2023-08-09"),
 )
 
+private val stockDatesToRemove = setOf(
+    LocalDate.parse("2023-08-16"),
+    LocalDate.parse("2023-08-20"),
+    LocalDate.parse("2023-08-28"),
+)
+private val roomsWithNoStock = setOf(
+    "room-type-id-3",
+    "room-type-id-7",
+)
+
 private data class RoomRecord(
     val roomTypeId: String,
     val hotelId: String,
@@ -37,7 +49,7 @@ private data class RoomRecord(
     val imageUrls: List<String>,
 )
 
-private data class RoomStockRecord(
+private data class TestRoomStockRecord(
     val roomTypeId: String,
     val date: LocalDate,
     val stockLevel: Int,
@@ -88,7 +100,7 @@ class PostgresRoomRepositoryTest {
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
                 *stockDates.map {
-                    RoomStockRecord(
+                    TestRoomStockRecord(
                         roomTypeId = result,
                         date = it,
                         stockLevel = STOCK_LEVEL,
@@ -126,7 +138,7 @@ class PostgresRoomRepositoryTest {
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
                 *stockDates.map {
-                    RoomStockRecord(
+                    TestRoomStockRecord(
                         roomTypeId = result,
                         date = it,
                         stockLevel = STOCK_LEVEL,
@@ -166,6 +178,117 @@ class PostgresRoomRepositoryTest {
         }
     }
 
+    @Test
+    fun `should return rooms, descriptions & stock levels based on date range`() {
+        connection.executeScript("test/room/insert_room_data.sql")
+        val queryStartDate = LocalDate.parse("2023-08-13")
+        val queryEndDate = LocalDate.parse("2023-09-01")
+
+        val result = underTest.queryRoomsAndAvailability(
+            queryStartDate,
+            queryEndDate,
+        )
+
+        assertThat(result).containsExactlyInAnyOrder(
+            *TestRooms.rooms.map { room ->
+                room.copy(
+                    stockLevels = room.stockLevels.filter {
+                        it.date >= queryStartDate && it.date <= queryEndDate
+                    }
+                )
+            }.toTypedArray()
+        )
+    }
+
+    @Test
+    fun `should return empty list when no rooms exist`() {
+        val queryStartDate = LocalDate.parse("2023-08-13")
+        val queryEndDate = LocalDate.parse("2023-09-01")
+
+        val result = underTest.queryRoomsAndAvailability(
+            queryStartDate,
+            queryEndDate,
+        )
+
+        assertThat(result).isEmpty()
+    }
+
+    @Test
+    fun `should return room & stock data when there are gaps in stock records`() {
+        connection.executeScript("test/room/insert_room_data.sql")
+        deleteSomeRoomStock()
+        val queryStartDate = LocalDate.parse("2023-08-13")
+        val queryEndDate = LocalDate.parse("2023-09-01")
+
+        val result = underTest.queryRoomsAndAvailability(
+            queryStartDate,
+            queryEndDate,
+        )
+
+        assertThat(result).containsExactlyInAnyOrder(
+            *TestRooms.rooms.map { room ->
+                room.copy(
+                    stockLevels = room.stockLevels.filter {
+                        it.date >= queryStartDate && it.date <= queryEndDate
+                                && !stockDatesToRemove.contains(it.date)
+                    }
+                )
+            }.toTypedArray()
+        )
+    }
+
+    @Test
+    fun `should omit rooms which have no stock data`() {
+        connection.executeScript("test/room/insert_room_data.sql")
+        deleteStockForRooms()
+        val queryStartDate = LocalDate.parse("2023-08-13")
+        val queryEndDate = LocalDate.parse("2023-09-01")
+
+        val result = underTest.queryRoomsAndAvailability(
+            queryStartDate,
+            queryEndDate,
+        )
+
+        assertThat(result).containsExactlyInAnyOrder(
+            *TestRooms.rooms
+                .filter { !roomsWithNoStock.contains(it.roomTypeId) }
+                .map { room ->
+                    room.copy(
+                        stockLevels = room.stockLevels.filter {
+                            it.date >= queryStartDate && it.date <= queryEndDate
+                        }
+                    )
+                }.toTypedArray()
+        )
+    }
+
+    @Test
+    fun `should return rooms, descriptions & stock levels based on date range & hold data`() {
+        connection.executeScript("test/room/insert_room_data.sql")
+        connection.executeScript("test/room/insert_room_holds.sql")
+        val queryStartDate = LocalDate.parse("2023-08-13")
+        val queryEndDate = LocalDate.parse("2023-09-01")
+
+        val result = underTest.queryRoomsAndAvailability(
+            queryStartDate,
+            queryEndDate,
+        )
+
+        assertThat(result).containsExactlyInAnyOrder(
+            *TestRooms.rooms.map { room ->
+                room.copy(
+                    stockLevels = room.stockLevels.filter {
+                        it.date >= queryStartDate && it.date <= queryEndDate
+                    }.map {
+                        it.copy(
+                            stockLevel = it.stockLevel - TestRooms.getHoldCount(room.roomTypeId, it.date),
+                        )
+                    }
+                )
+            }.toTypedArray()
+        )
+    }
+
     private fun loadAllRooms(): List<RoomRecord> {
         val results = connection.prepareStatement(
             """
@@ -192,7 +315,7 @@ class PostgresRoomRepositoryTest {
         return rooms
     }
 
-    private fun loadAllRoomStocks(): List<RoomStockRecord> {
+    private fun loadAllRoomStocks(): List<TestRoomStockRecord> {
         val results = connection.prepareStatement(
             """
                 select room_type_id, date, stock_level
@@ -200,10 +323,10 @@ class PostgresRoomRepositoryTest {
             """.trimIndent()
         ).executeQuery()
 
-        val records = mutableListOf<RoomStockRecord>()
+        val records = mutableListOf<TestRoomStockRecord>()
         while (results.next()) {
             records.add(
-                RoomStockRecord(
+                TestRoomStockRecord(
                     roomTypeId = results.getString("room_type_id"),
                     date = LocalDate.parse(results.getString("date")),
                     stockLevel = results.getInt("stock_level"),
@@ -212,5 +335,30 @@ class PostgresRoomRepositoryTest {
         }
 
         return records
+    }
+
+    private fun deleteSomeRoomStock() {
+        val query = connection.prepareStatement(
+            """
+                delete from room_stock where date in (?, ?, ?)
+            """.trimIndent()
+        )
+        val dates = stockDatesToRemove.map { it.toString() }
+        query.setString(1, dates[0])
+        query.setString(2, dates[1])
+        query.setString(3, dates[2])
+        query.executeUpdate()
+    }
+
+    private fun deleteStockForRooms() {
+        val query = connection.prepareStatement(
+            """
+                delete from room_stock where room_type_id in (?, ?)
+            """.trimIndent()
+        )
+        val roomIds = roomsWithNoStock.toList()
+        query.setString(1, roomIds[0])
+        query.setString(2, roomIds[1])
+        query.executeUpdate()
     }
 }

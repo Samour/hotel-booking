@@ -1,3 +1,6 @@
+drop table if exists room_stock_hold;
+drop table if exists room_hold;
+
 drop table if exists room_stock;
 drop table if exists room_type_description;
 drop table if exists room_type;

@@ -5,10 +5,12 @@ import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
 import org.postgresql.util.PSQLException
 import java.sql.Connection
+import java.time.Clock
 import java.time.LocalDate
 import java.util.UUID.randomUUID
 
 class PostgresRoomRepository(
+    private val clock: Clock,
     private val connection: Connection,
 ) : RoomRepository {
 
@@ -57,7 +59,10 @@ class PostgresRoomRepository(
     override fun queryRoomsAndAvailability(
         availabilityRangeStart: LocalDate,
         availabilityRangeEnd: LocalDate
-    ): List<RoomTypeRecord> {
-        TODO("Not yet implemented")
-    }
+    ): List<RoomTypeRecord> = connection.findRoomsDescriptionStockQuery(
+        availabilityRangeStart,
+        availabilityRangeEnd,
+        clock.instant(),
+    ).executeQueryWithRollback()
+        .toRoomTypeRecords()
 }
