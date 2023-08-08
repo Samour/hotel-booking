@@ -15,6 +15,10 @@ private val timestamp = Instant.parse("2023-08-05T02:00:00Z")
 private val auFirstDate = LocalDate.parse("2023-08-05")
 private val usFirstDate = LocalDate.parse("2023-08-04")
 
+private val dateRange = (1..20).map {
+    auFirstDate.plusDays(it.toLong())
+}
+
 class DatesCalculatorTest {
 
     private val underTest = DatesCalculator()
@@ -39,5 +43,26 @@ class DatesCalculatorTest {
                 usFirstDate.plusDays(it)
             }
         )
+    }
+
+    @Test
+    fun `should return list of dates within range, inclusive`() {
+        val result = underTest.calculateDatesInRange(dateRange.first(), dateRange.last())
+
+        assertThat(result).isEqualTo(dateRange)
+    }
+
+    @Test
+    fun `should flip start & end when they are out of order`() {
+        val result = underTest.calculateDatesInRange(dateRange.last(), dateRange.first())
+
+        assertThat(result).isEqualTo(dateRange)
+    }
+
+    @Test
+    fun `should return single date when start = end`() {
+        val result = underTest.calculateDatesInRange(dateRange.first(), dateRange.first())
+
+        assertThat(result).containsExactly(dateRange.first())
     }
 }

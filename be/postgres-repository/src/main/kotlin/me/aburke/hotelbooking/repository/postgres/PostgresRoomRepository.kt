@@ -2,6 +2,7 @@ package me.aburke.hotelbooking.repository.postgres
 
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
+import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
 import org.postgresql.util.PSQLException
 import java.sql.Connection
 import java.time.LocalDate
@@ -51,5 +52,12 @@ class PostgresRoomRepository(
         }
 
         return roomTypeId
+    }
+
+    override fun queryRoomsAndAvailability(
+        availabilityRangeStart: LocalDate,
+        availabilityRangeEnd: LocalDate
+    ): List<RoomTypeRecord> {
+        TODO("Not yet implemented")
     }
 }

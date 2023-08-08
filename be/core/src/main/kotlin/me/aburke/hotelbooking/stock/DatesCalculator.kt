@@ -14,4 +14,21 @@ class DatesCalculator {
             firstDate.plusDays(it)
         }
     }
+
+    fun calculateDatesInRange(rangeStart: LocalDate, rangeEnd: LocalDate): List<LocalDate> {
+        val (actualStart, actualEnd) = if (rangeStart <= rangeEnd) {
+            rangeStart to rangeEnd
+        } else {
+            rangeEnd to rangeStart
+        }
+
+        val dates = mutableListOf(actualStart)
+        var offset = 1
+        while (dates.last() < actualEnd) {
+            dates.add(actualStart.plusDays(offset.toLong()))
+            offset++
+        }
+
+        return dates
+    }
 }
