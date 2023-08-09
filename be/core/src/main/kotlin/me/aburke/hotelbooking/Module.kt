@@ -2,8 +2,10 @@ package me.aburke.hotelbooking
 
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypePort
+import me.aburke.hotelbooking.ports.scenario.room.ListRoomsPort
 import me.aburke.hotelbooking.ports.scenario.user.*
 import me.aburke.hotelbooking.scenario.room.AddRoomTypeScenario
+import me.aburke.hotelbooking.scenario.room.ListRoomsScenario
 import me.aburke.hotelbooking.scenario.user.*
 import me.aburke.hotelbooking.session.SessionFactory
 import me.aburke.hotelbooking.stock.DatesCalculator
@@ -45,4 +47,6 @@ val coreModule = module {
             backPopulateDays = getProperty<String>("scenario.room-type-add.back-populate-days").toInt(),
         )
     }
+
+    single<ListRoomsPort> { ListRoomsScenario(get(), get()) }
 }

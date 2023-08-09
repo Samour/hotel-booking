@@ -2,7 +2,10 @@ package me.aburke.hotelbooking.stubs.repository
 
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
+import me.aburke.hotelbooking.ports.repository.RoomStockRecord
+import me.aburke.hotelbooking.ports.repository.RoomTypeDescriptionRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
+import me.aburke.hotelbooking.stock.DatesCalculator
 import java.time.LocalDate
 import java.util.UUID
 
@@ -23,6 +26,28 @@ class RoomRepositoryStub : RoomRepository {
         availabilityRangeStart: LocalDate,
         availabilityRangeEnd: LocalDate
     ): List<RoomTypeRecord> {
-        TODO("Not yet implemented")
+        if (availabilityRangeEnd < availabilityRangeStart) {
+            return emptyList()
+        }
+
+        val dates = DatesCalculator().calculateDatesInRange(availabilityRangeStart, availabilityRangeEnd)
+
+        return rooms.entries.map { (id, room) ->
+            RoomTypeRecord(
+                roomTypeId = id,
+                description = RoomTypeDescriptionRecord(
+                    title = room.title,
+                    description = room.description,
+                    imageUrls = room.imageUrls,
+                ),
+                stockLevels = dates.filter { stock.contains(id to it) }
+                    .map {
+                        RoomStockRecord(
+                            date = it,
+                            stockLevel = room.stockLevel,
+                        )
+                    },
+            )
+        }
     }
 }
