@@ -64,9 +64,11 @@ class AddRoomTypeTest {
                 )
             )
             s.assertThat(stubs.roomRepository.stock).isEqualTo(
-                (0..44).map {
-                    result.roomTypeId to firstDate.plusDays(it.toLong())
-                }.toSet()
+                mapOf(
+                    result.roomTypeId to (0..44).map {
+                        firstDate.plusDays(it.toLong()) to STOCK_LEVEL
+                    }.toMap()
+                )
             )
         }
     }

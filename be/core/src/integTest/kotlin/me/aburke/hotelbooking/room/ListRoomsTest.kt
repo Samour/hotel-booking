@@ -9,7 +9,6 @@ import me.aburke.hotelbooking.ports.scenario.room.ListRoomsResult
 import me.aburke.hotelbooking.ports.scenario.room.RoomAvailability
 import me.aburke.hotelbooking.ports.scenario.room.RoomDescription
 import me.aburke.hotelbooking.ports.scenario.room.RoomTypeInfo
-import me.aburke.hotelbooking.stock.DatesCalculator
 import me.aburke.hotelbooking.stubs.Stubs
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -34,7 +33,7 @@ private val roomRecords = (1..10).map {
         roomAvailability = (1..10).map { i ->
             RoomAvailability(
                 date = LocalDate.parse("2023-08-08").plusDays(i.toLong()),
-                available = true, // TODO Need to add some variance here
+                available = it % 3 != 0,
             )
         },
     )
@@ -52,7 +51,6 @@ class ListRoomsTest {
         app = stubs.make()
         underTest = app.koin.get()
 
-        val dateRange = app.koin.get<DatesCalculator>().calculateDatesInRange(availabilityRangeStart, availabilityRangeEnd)
         stubs.roomRepository.rooms.putAll(
             roomRecords.map {
                 it.roomTypeId to InsertRoomType(
@@ -63,9 +61,11 @@ class ListRoomsTest {
                 )
             }
         )
-        stubs.roomRepository.stock.addAll(
-            roomRecords.flatMap { room ->
-                dateRange.map { room.roomTypeId to it }
+        stubs.roomRepository.stock.putAll(
+            roomRecords.associate { room ->
+                room.roomTypeId to room.roomAvailability.associate { a ->
+                    a.date to ((5).takeIf { a.available } ?: 0)
+                }.toMutableMap()
             }
         )
     }
@@ -89,13 +89,9 @@ class ListRoomsTest {
 
     @Test
     fun `should exclude rooms which do not have fully known availability`() {
-        stubs.roomRepository.stock.removeAll(
-            setOf(
-                roomRecords[2].roomTypeId to LocalDate.parse("2023-08-12"),
-                roomRecords[2].roomTypeId to LocalDate.parse("2023-08-13"),
-                roomRecords[5].roomTypeId to LocalDate.parse("2023-08-12"),
-            )
-        )
+        stubs.roomRepository.stock[roomRecords[2].roomTypeId]?.remove(LocalDate.parse("2023-08-12"))
+        stubs.roomRepository.stock[roomRecords[2].roomTypeId]?.remove(LocalDate.parse("2023-08-13"))
+        stubs.roomRepository.stock[roomRecords[5].roomTypeId]?.remove(LocalDate.parse("2023-08-12"))
 
         val result = underTest.run(
             ListRoomsDetails(

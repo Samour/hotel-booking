@@ -5,19 +5,18 @@ import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.RoomStockRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeDescriptionRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
-import me.aburke.hotelbooking.stock.DatesCalculator
 import java.time.LocalDate
 import java.util.UUID
 
 class RoomRepositoryStub : RoomRepository {
 
     val rooms = mutableMapOf<String, InsertRoomType>()
-    val stock = mutableSetOf<Pair<String, LocalDate>>()
+    val stock = mutableMapOf<String, MutableMap<LocalDate, Int>>()
 
     override fun insertRoomType(roomType: InsertRoomType, populateDates: List<LocalDate>): String {
         val roomId = UUID.randomUUID().toString()
         rooms[roomId] = roomType
-        populateDates.forEach { stock.add(roomId to it) }
+        stock[roomId] = populateDates.associateWith { roomType.stockLevel }.toMutableMap()
 
         return roomId
     }
@@ -30,8 +29,6 @@ class RoomRepositoryStub : RoomRepository {
             return emptyList()
         }
 
-        val dates = DatesCalculator().calculateDatesInRange(availabilityRangeStart, availabilityRangeEnd)
-
         return rooms.entries.map { (id, room) ->
             RoomTypeRecord(
                 roomTypeId = id,
@@ -40,13 +37,13 @@ class RoomRepositoryStub : RoomRepository {
                     description = room.description,
                     imageUrls = room.imageUrls,
                 ),
-                stockLevels = dates.filter { stock.contains(id to it) }
-                    .map {
+                stockLevels = stock[id]?.entries?.filter { (d, _) -> d in availabilityRangeStart..availabilityRangeEnd }
+                    ?.map { (d, s) ->
                         RoomStockRecord(
-                            date = it,
-                            stockLevel = room.stockLevel,
+                            date = d,
+                            stockLevel = s,
                         )
-                    },
+                    } ?: emptyList()
             )
         }
     }
