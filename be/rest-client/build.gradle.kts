@@ -4,7 +4,7 @@ plugins {
 }
 
 val generatedSourcesPath = "$buildDir/generated/openapi"
-val apiDescriptionFile = "$rootDir/facade-rest/openapi/hotel-booking.yaml"
+val apiDescriptionFile = "$rootDir/openapi/hotel-booking.yaml"
 val apiRootName = "me.aburke.hotelbooking.rest.client"
 
 openApiGenerate {
