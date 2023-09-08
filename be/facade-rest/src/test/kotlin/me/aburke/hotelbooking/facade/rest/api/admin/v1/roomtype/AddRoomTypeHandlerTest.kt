@@ -79,6 +79,7 @@ class AddRoomTypeHandlerTest : AbstractAddRoomTypeTest() {
                     "title": "$title",
                     "description": "$description",
                     "image_urls": [${imageUrls.joinToString(",") { "\"$it\"" }}],
+                    "price_per_night": $pricePerNight,
                     "stock_level": $stockLevel
                 }
             """.trimIndent().toRequestBody("application/json".toMediaType())
@@ -87,6 +88,7 @@ class AddRoomTypeHandlerTest : AbstractAddRoomTypeTest() {
                 {
                     "title": "$title",
                     "description": "$description",
+                    "price_per_night": $pricePerNight,
                     "stock_level": $stockLevel
                 }
             """.trimIndent().toRequestBody("application/json".toMediaType())

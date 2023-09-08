@@ -49,6 +49,7 @@ entity room_type_description {
     * title : string
     * description : string
     * image_urls : string[]
+    * price_per_night : int
 }
 
 room_type::room_type_id -* room_type_description::room_type_id
@@ -117,6 +118,8 @@ enum PaymentStatus {
 entity payment {
     * payment_id : UUID
     --
+    * amount : int
+    * currency : string
     * payment_receipt : string
     * booking_id : UUID
     * payment_status : enum<PaymentStatus>

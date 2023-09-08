@@ -16,6 +16,7 @@ abstract class AbstractAddRoomTypeTest {
 
     protected val title = "title"
     protected val description = "description"
+    protected val pricePerNight = 150_00
     protected val stockLevel = 35
     protected val roomTypeId = "room-type-id"
 
@@ -46,6 +47,7 @@ abstract class AbstractAddRoomTypeTest {
                     title = title,
                     description = description,
                     imageUrls = imageUrls.takeIf { withImages } ?: emptyList(),
+                    pricePerNight = pricePerNight,
                     stockLevel = stockLevel,
                 )
             )
@@ -63,6 +65,7 @@ abstract class AbstractAddRoomTypeTest {
                             title = title,
                             description = description,
                             imageUrls = imageUrls.takeIf { withImages } ?: emptyList(),
+                            pricePerNight = pricePerNight,
                             stockLevel = stockLevel,
                         )
                     )

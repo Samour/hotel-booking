@@ -29,6 +29,7 @@ class AddRoomTypeTest : AbstractAddRoomTypeTest() {
                         AddRoomTypeRequest().also {
                             it.title = title
                             it.description = description
+                            it.pricePerNight = pricePerNight
                             it.stockLevel = stockLevel
                             if (withImages) {
                                 it.imageUrls = imageUrls
@@ -57,6 +58,7 @@ class AddRoomTypeTest : AbstractAddRoomTypeTest() {
                         AddRoomTypeRequest().also {
                             it.title = title
                             it.description = description
+                            it.pricePerNight = pricePerNight
                             it.stockLevel = stockLevel
                             it.imageUrls = imageUrls
                         }

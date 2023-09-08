@@ -11,6 +11,7 @@ data class AddRoomTypeRequest(
     val title: String,
     val description: String,
     val imageUrls: List<String> = emptyList(),
+    val pricePerNight: Int,
     val stockLevel: Int,
 )
 
@@ -30,6 +31,7 @@ class AddRoomTypeHandler(
                 title = request.title,
                 description = request.description,
                 imageUrls = request.imageUrls,
+                pricePerNight = request.pricePerNight,
                 stockLevel = request.stockLevel,
             )
         )

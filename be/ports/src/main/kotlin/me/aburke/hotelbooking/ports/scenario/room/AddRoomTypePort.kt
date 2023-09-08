@@ -6,6 +6,7 @@ data class AddRoomTypeDetails(
     val title: String,
     val description: String,
     val imageUrls: List<String>,
+    val pricePerNight: Int,
     val stockLevel: Int,
 ) : Scenario.Details
 

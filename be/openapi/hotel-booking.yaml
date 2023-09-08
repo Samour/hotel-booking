@@ -152,7 +152,8 @@ paths:
               required:
                 - title
                 - description
-                - image_urls
+                - price_per_night
+                - stock_level
               properties:
                 title:
                   type: string
@@ -163,6 +164,8 @@ paths:
                   items:
                     type: string
                     format: url
+                price_per_night:
+                  type: integer
                 stock_level:
                   type: integer
       responses:
