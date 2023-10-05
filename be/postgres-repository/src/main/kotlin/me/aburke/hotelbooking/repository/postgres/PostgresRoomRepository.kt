@@ -33,8 +33,9 @@ class PostgresRoomRepository(
             roomTypeDescriptionId = roomTypeDescriptionId,
             roomTypeId = roomTypeId,
             title = roomType.title,
+            pricePerNight = roomType.pricePerNight,
             description = roomType.description,
-            roomType.imageUrls,
+            imageUrls = roomType.imageUrls,
         )
         val insertRoomStockQuery = connection.takeIf { populateDates.isNotEmpty() }
             ?.insertRoomStockQuery(

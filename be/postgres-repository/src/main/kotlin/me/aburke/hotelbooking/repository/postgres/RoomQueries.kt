@@ -57,19 +57,22 @@ fun Connection.insertRoomTypeDescriptionQuery(
     roomTypeDescriptionId: String,
     roomTypeId: String,
     title: String,
+    pricePerNight: Int,
     description: String,
     imageUrls: List<String>
 ) = prepareStatement(
     """
-        insert into room_type_description(room_type_description_id, room_type_id, title, description, image_urls)
-        values (?, ?, ?, ?, ?)
+        insert into room_type_description(room_type_description_id, room_type_id, title, price_per_night, description, 
+            image_urls)
+        values (?, ?, ?, ?, ?, ?)
     """.trimIndent()
 ).apply {
     setString(1, roomTypeDescriptionId)
     setString(2, roomTypeId)
     setString(3, title)
-    setString(4, description)
-    setArray(5, connection.createArrayOf("varchar", imageUrls.toTypedArray()))
+    setInt(4, pricePerNight)
+    setString(5, description)
+    setArray(6, connection.createArrayOf("varchar", imageUrls.toTypedArray()))
 }
 
 fun Connection.insertRoomStockQuery(roomTypeId: String, stockLevel: Int, dates: List<LocalDate>) =

@@ -15,6 +15,7 @@ import java.time.LocalDate
 private const val TITLE = "title"
 private const val DESCRIPTION = "description"
 private const val STOCK_LEVEL = 25
+private const val PRICE_PER_NIGHT = 150_00
 
 private val imageUrls = listOf(
     "image-url-1",
@@ -47,6 +48,7 @@ private data class RoomRecord(
     val title: String,
     val description: String,
     val imageUrls: List<String>,
+    val pricePerNight: Int,
 )
 
 private data class TestRoomStockRecord(
@@ -80,6 +82,7 @@ class PostgresRoomRepositoryTest {
                 description = DESCRIPTION,
                 imageUrls = imageUrls,
                 stockLevel = STOCK_LEVEL,
+                pricePerNight = PRICE_PER_NIGHT,
             ),
             stockDates,
         )
@@ -96,6 +99,7 @@ class PostgresRoomRepositoryTest {
                     title = TITLE,
                     description = DESCRIPTION,
                     imageUrls = imageUrls,
+                    pricePerNight = PRICE_PER_NIGHT,
                 )
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
@@ -118,6 +122,7 @@ class PostgresRoomRepositoryTest {
                 description = DESCRIPTION,
                 imageUrls = emptyList(),
                 stockLevel = STOCK_LEVEL,
+                pricePerNight = PRICE_PER_NIGHT,
             ),
             stockDates,
         )
@@ -134,6 +139,7 @@ class PostgresRoomRepositoryTest {
                     title = TITLE,
                     description = DESCRIPTION,
                     imageUrls = emptyList(),
+                    pricePerNight = PRICE_PER_NIGHT,
                 )
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
@@ -156,6 +162,7 @@ class PostgresRoomRepositoryTest {
                 description = DESCRIPTION,
                 imageUrls = imageUrls,
                 stockLevel = STOCK_LEVEL,
+                pricePerNight = PRICE_PER_NIGHT,
             ),
             emptyList(),
         )
@@ -172,6 +179,7 @@ class PostgresRoomRepositoryTest {
                     title = TITLE,
                     description = DESCRIPTION,
                     imageUrls = imageUrls,
+                    pricePerNight = PRICE_PER_NIGHT,
                 )
             )
             s.assertThat(allStock).isEmpty()
@@ -292,7 +300,8 @@ class PostgresRoomRepositoryTest {
     private fun loadAllRooms(): List<RoomRecord> {
         val results = connection.prepareStatement(
             """
-                select r.room_type_id, r.hotel_id, r.stock_level, rd.title, rd.description, rd.image_urls
+                select r.room_type_id, r.hotel_id, r.stock_level, rd.title, rd.description, rd.image_urls,
+                    rd.price_per_night
                 from room_type r
                 join room_type_description rd on rd.room_type_id = r.room_type_id
             """.trimIndent()
@@ -308,6 +317,7 @@ class PostgresRoomRepositoryTest {
                     title = results.getString("title"),
                     description = results.getString("description"),
                     imageUrls = listOf(*(results.getArray("image_urls").array as Array<String>)),
+                    pricePerNight = results.getInt("price_per_night"),
                 )
             )
         }

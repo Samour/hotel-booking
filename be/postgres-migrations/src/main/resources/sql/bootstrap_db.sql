@@ -41,6 +41,7 @@ create table room_type_description
     room_type_description_id varchar not null primary key,
     room_type_id             varchar not null,
     title                    varchar not null,
+    price_per_night          int     not null,
     description              varchar not null,
     image_urls               varchar[] not null,
 
