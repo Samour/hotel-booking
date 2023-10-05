@@ -17,6 +17,13 @@ jobs:
       - run: ./gradlew core:test core:integTest
         working-directory: be
 
+  test-facade-rest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: ./gradlew facade-rest:test facade-rest:contractTest
+        working-directory: be
+
   test-postgres-repository:
     runs-on: ubuntu-latest
     steps:
@@ -24,6 +31,28 @@ jobs:
       - run: DB_NAME=postgres_test docker compose up -d postgresql
         working-directory: be
       - run: ./gradlew postgres-repository:test
+        working-directory: be
+      - run: docker compose down
+        working-directory: be
+
+  test-redis-repository:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: docker compose up -d redis
+        working-directory: be
+      - run: ./gradlew redis-repository:test
+        working-directory: be
+      - run: docker compose down
+        working-directory: be
+
+  test-app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: DB_NAME=postgres_test docker compose up -d
+        working-directory: be
+      - run: ./gradlew app:test
         working-directory: be
       - run: docker compose down
         working-directory: be
