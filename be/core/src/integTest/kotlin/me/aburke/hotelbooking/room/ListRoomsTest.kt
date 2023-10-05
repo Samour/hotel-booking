@@ -57,6 +57,7 @@ class ListRoomsTest {
                     title = it.description.title,
                     description = it.description.description,
                     imageUrls = it.description.imageUrls,
+                    pricePerNight = 150_00,
                     stockLevel = 5,
                 )
             }

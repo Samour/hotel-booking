@@ -26,6 +26,7 @@ class AddRoomTypeScenario(
                     title = details.title,
                     description = details.description,
                     imageUrls = details.imageUrls,
+                    pricePerNight = details.pricePerNight,
                     stockLevel = details.stockLevel,
                 ),
                 datesCalculator.calculateDateRange(

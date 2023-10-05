@@ -25,6 +25,7 @@ private const val RANGE_SIZE = 30
 private const val BACK_POPULATE_DAYS = 3
 private const val TITLE = "title"
 private const val DESCRIPTION = "description"
+private const val PRICE_PER_NIGHT = 150_00
 private const val STOCK_LEVEL = 70
 private const val ROOM_TYPE_ID = "room-type-id"
 
@@ -87,6 +88,7 @@ class AddRoomTypeScenarioTest {
                     title = TITLE,
                     description = DESCRIPTION,
                     imageUrls = imageUrls,
+                    pricePerNight = PRICE_PER_NIGHT,
                     stockLevel = STOCK_LEVEL,
                 ),
                 dates,
@@ -98,6 +100,7 @@ class AddRoomTypeScenarioTest {
                 title = TITLE,
                 description = DESCRIPTION,
                 imageUrls = imageUrls,
+                pricePerNight = PRICE_PER_NIGHT,
                 stockLevel = STOCK_LEVEL,
             )
         )
@@ -130,6 +133,7 @@ class AddRoomTypeScenarioTest {
                             title = TITLE,
                             description = DESCRIPTION,
                             imageUrls = imageUrls,
+                            pricePerNight = PRICE_PER_NIGHT,
                             stockLevel = STOCK_LEVEL,
                         ),
                         dates,

@@ -13,6 +13,7 @@ import org.koin.core.KoinApplication
 
 private const val TITLE = "title"
 private const val DESCRIPTION = "description"
+private const val PRICE_PER_NIGHT = 175_00
 private const val STOCK_LEVEL = 70
 
 private val imageUrls = listOf(
@@ -44,6 +45,7 @@ class AddRoomTypeTest {
                 title = TITLE,
                 description = DESCRIPTION,
                 imageUrls = imageUrls,
+                pricePerNight = PRICE_PER_NIGHT,
                 stockLevel = STOCK_LEVEL,
             )
         )
@@ -59,6 +61,7 @@ class AddRoomTypeTest {
                         title = TITLE,
                         description = DESCRIPTION,
                         imageUrls = imageUrls,
+                        pricePerNight = PRICE_PER_NIGHT,
                         stockLevel = STOCK_LEVEL,
                     )
                 )
