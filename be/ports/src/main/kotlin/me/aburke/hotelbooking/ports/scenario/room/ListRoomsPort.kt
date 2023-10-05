@@ -10,6 +10,7 @@ data class ListRoomsDetails(
 
 data class RoomDescription(
     val title: String,
+    val pricePerNight: Int,
     val description: String,
     val imageUrls: List<String>,
 )

@@ -87,6 +87,7 @@ class ListRoomsScenarioTest {
                             roomTypeId = it.roomTypeId,
                             description = RoomDescription(
                                 title = it.description.title,
+                                pricePerNight = it.description.pricePerNight,
                                 description = it.description.description,
                                 imageUrls = it.description.imageUrls,
                             ),
@@ -167,6 +168,7 @@ class ListRoomsScenarioTest {
                                 roomTypeId = it.roomTypeId,
                                 description = RoomDescription(
                                     title = it.description.title,
+                                    pricePerNight = it.description.pricePerNight,
                                     description = it.description.description,
                                     imageUrls = it.description.imageUrls,
                                 ),

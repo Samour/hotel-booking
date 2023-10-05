@@ -9,7 +9,6 @@ import java.util.UUID.randomUUID
 
 // TODO Add a condition that excludes holds for the current user
 //  (ie the user can see rooms that they have a hold on)
-// TODO Add a room price
 fun Connection.findRoomsDescriptionStockQuery(rangeStart: LocalDate, rangeEnd: LocalDate, now: Instant) =
     prepareStatement(
         """

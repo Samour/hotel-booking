@@ -25,6 +25,7 @@ private val roomRecords = (1..10).map {
         roomTypeId = "room-type-$it",
         description = RoomDescription(
             title = RandomString.make(),
+            pricePerNight = 150_00,
             description = RandomString.make(),
             imageUrls = (1..5).map { _ ->
                 RandomString.make()
