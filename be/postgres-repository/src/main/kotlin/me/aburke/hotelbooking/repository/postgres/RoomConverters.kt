@@ -28,6 +28,7 @@ private fun ResultSet.toRoomTypeRecord() = RoomTypeRecord(
     roomTypeId = getString("room_type_id"),
     description = RoomTypeDescriptionRecord(
         title = getString("title"),
+        pricePerNight = getInt("price_per_night"),
         description = getString("description"),
         imageUrls = (getArray("image_urls").array as Array<String>).toList(),
     ),

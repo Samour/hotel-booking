@@ -34,6 +34,7 @@ class RoomRepositoryStub : RoomRepository {
                 roomTypeId = id,
                 description = RoomTypeDescriptionRecord(
                     title = room.title,
+                    pricePerNight = room.pricePerNight,
                     description = room.description,
                     imageUrls = room.imageUrls,
                 ),

@@ -21,6 +21,7 @@ object TestRooms {
             roomTypeId = "room-type-id-$it",
             description = RoomTypeDescriptionRecord(
                 title = "room-title-$it",
+                pricePerNight = 150_00,
                 description = "room-description-$it",
                 imageUrls = (1..3).map { j ->
                     "room-type-$it-image-$j"

@@ -15,6 +15,7 @@ fun Connection.findRoomsDescriptionStockQuery(rangeStart: LocalDate, rangeEnd: L
         """
             select r.room_type_id,
                rd.title,
+               rd.price_per_night,
                rd.description,
                rd.image_urls,
                rs.date,

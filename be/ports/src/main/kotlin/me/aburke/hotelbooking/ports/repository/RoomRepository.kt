@@ -4,14 +4,15 @@ import java.time.LocalDate
 
 data class InsertRoomType(
     val title: String,
+    val pricePerNight: Int,
     val description: String,
     val imageUrls: List<String>,
-    val pricePerNight: Int,
     val stockLevel: Int,
 )
 
 data class RoomTypeDescriptionRecord(
     val title: String,
+    val pricePerNight: Int,
     val description: String,
     val imageUrls: List<String>,
 )
