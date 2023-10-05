@@ -40,3 +40,19 @@ Docker.
 - `postgres-migrations` contains SQL scripts to populate the DB & gradle tasks to help with executing the script/s
 against a DB instance
 - `rest-client` provides HTTP client interfaces generated from the REST Open API contract
+
+## Linting
+
+Linting performed by ktlint. Rule configs specified in `.editorconfig`
+
+**Check lint**
+
+```sh
+./gradlew ktlintCheck
+```
+
+**Auto-apply lint fixes**
+
+```sh
+./gradlew ktlintFormat
+```
