@@ -23,6 +23,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.LocalDate
 
+private const val CURRENT_USER_ID = "current-user-id"
+
 private val availabilityRangeStart = LocalDate.parse("2023-08-09")
 private val availabilityRangeEnd = LocalDate.parse("2023-08-18")
 
@@ -69,6 +71,7 @@ class ListRoomsScenarioTest {
         } returns expandedDates
         every {
             roomRepository.queryRoomsAndAvailability(
+                CURRENT_USER_ID,
                 availabilityRangeStart,
                 availabilityRangeEnd,
             )
@@ -76,6 +79,7 @@ class ListRoomsScenarioTest {
 
         val result = underTest.run(
             ListRoomsDetails(
+                currentUserId = CURRENT_USER_ID,
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,
@@ -116,6 +120,7 @@ class ListRoomsScenarioTest {
             s.check {
                 verify(exactly = 1) {
                     roomRepository.queryRoomsAndAvailability(
+                        CURRENT_USER_ID,
                         availabilityRangeStart,
                         availabilityRangeEnd,
                     )
@@ -140,6 +145,7 @@ class ListRoomsScenarioTest {
         } returns expandedDates
         every {
             roomRepository.queryRoomsAndAvailability(
+                CURRENT_USER_ID,
                 availabilityRangeStart,
                 availabilityRangeEnd,
             )
@@ -155,6 +161,7 @@ class ListRoomsScenarioTest {
 
         val result = underTest.run(
             ListRoomsDetails(
+                currentUserId = CURRENT_USER_ID,
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,
@@ -197,6 +204,7 @@ class ListRoomsScenarioTest {
             s.check {
                 verify(exactly = 1) {
                     roomRepository.queryRoomsAndAvailability(
+                        CURRENT_USER_ID,
                         availabilityRangeStart,
                         availabilityRangeEnd,
                     )

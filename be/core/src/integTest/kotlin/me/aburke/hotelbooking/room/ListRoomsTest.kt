@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test
 import org.koin.core.KoinApplication
 import java.time.LocalDate
 
+private const val CURRENT_USER_ID = "current-user-id"
+
 private val availabilityRangeStart = LocalDate.parse("2023-08-09")
 private val availabilityRangeEnd = LocalDate.parse("2023-08-18")
 
@@ -79,6 +81,7 @@ class ListRoomsTest {
     fun `should return room availability from repository`() {
         val result = underTest.run(
             ListRoomsDetails(
+                currentUserId = CURRENT_USER_ID,
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,
@@ -97,6 +100,7 @@ class ListRoomsTest {
 
         val result = underTest.run(
             ListRoomsDetails(
+                currentUserId = CURRENT_USER_ID,
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,

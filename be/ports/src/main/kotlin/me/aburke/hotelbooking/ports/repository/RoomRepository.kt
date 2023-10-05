@@ -33,6 +33,7 @@ interface RoomRepository {
     fun insertRoomType(roomType: InsertRoomType, populateDates: List<LocalDate>): String
 
     fun queryRoomsAndAvailability(
+        currentUserId: String,
         availabilityRangeStart: LocalDate,
         availabilityRangeEnd: LocalDate,
     ): List<RoomTypeRecord>

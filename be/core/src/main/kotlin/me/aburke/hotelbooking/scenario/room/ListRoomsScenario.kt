@@ -22,6 +22,7 @@ class ListRoomsScenario(
 
         return ListRoomsResult(
             roomRepository.queryRoomsAndAvailability(
+                details.currentUserId,
                 details.availabilitySearchRange.rangeStart,
                 details.availabilitySearchRange.rangeEnd,
             ).filter { r ->
