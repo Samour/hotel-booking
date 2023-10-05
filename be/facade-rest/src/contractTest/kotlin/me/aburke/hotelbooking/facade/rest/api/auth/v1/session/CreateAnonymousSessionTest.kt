@@ -23,7 +23,7 @@ class CreateAnonymousSessionTest : AbstractCreateAnonymousSessionTest() {
                 override fun makeAssertions(s: SoftAssertions) {
                     s.assertThat(response.statusCode).isEqualTo(201)
                     s.assertThat(response.headers["Set-Cookie"]).containsExactly(
-                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict"
+                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict",
                     )
                     s.assertThat(response.data).isEqualTo(
                         SessionResponse().also {
@@ -31,10 +31,10 @@ class CreateAnonymousSessionTest : AbstractCreateAnonymousSessionTest() {
                             it.userRoles = listOf("CUSTOMER")
                             it.anonymousUser = true
                             it.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

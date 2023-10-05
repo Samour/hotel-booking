@@ -35,7 +35,7 @@ class CreateUserHandler(
                 rawPassword = request.password,
                 name = request.name,
                 userRoles = request.roles.toSet(),
-            )
+            ),
         )
 
         when (result) {
@@ -51,7 +51,7 @@ private fun Context.sendUserCreated(userId: String) {
     json(
         CreateUserResponse(
             userId = userId,
-        )
+        ),
     )
 }
 
@@ -62,5 +62,5 @@ private fun Context.sendUsernameNotAvailable() = problemJson(
         status = 409,
         detail = "Username is not available",
         instance = path(),
-    )
+    ),
 )

@@ -3,11 +3,15 @@ package me.aburke.hotelbooking.facade.rest.api.auth.v1.user
 import io.javalin.Javalin
 import io.mockk.every
 import io.mockk.verify
-import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.Stubs
+import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.ports.scenario.user.*
+import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateResult
+import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
+import me.aburke.hotelbooking.ports.scenario.user.SignUpResult
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -44,7 +48,7 @@ abstract class AbstractSignUpTest {
                     rawPassword = password,
                     name = name,
                     anonymousUser = null,
-                )
+                ),
             )
         } returns SignUpResult.Success(
             UserSession(
@@ -54,7 +58,7 @@ abstract class AbstractSignUpTest {
                 userRoles = roles,
                 anonymousUser = false,
                 sessionExpiryTime = sessionExpiryTime,
-            )
+            ),
         )
 
         testRequest.executeRequest()
@@ -69,7 +73,7 @@ abstract class AbstractSignUpTest {
                             rawPassword = password,
                             name = name,
                             anonymousUser = null,
-                        )
+                        ),
                     )
                 }
             }
@@ -79,12 +83,14 @@ abstract class AbstractSignUpTest {
         }
     }
 
-    protected fun <T : Any> `RUN should create new user when provided session ID is not valid`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should create new user when provided session ID is not valid`(
+        testRequest: TestRequest<T>,
+    ) {
         every {
             stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = sessionId,
-                )
+                ),
             )
         } returns GetAuthStateResult.SessionDoesNotExist
         every {
@@ -94,7 +100,7 @@ abstract class AbstractSignUpTest {
                     rawPassword = password,
                     name = name,
                     anonymousUser = null,
-                )
+                ),
             )
         } returns SignUpResult.Success(
             UserSession(
@@ -104,7 +110,7 @@ abstract class AbstractSignUpTest {
                 userRoles = roles,
                 anonymousUser = false,
                 sessionExpiryTime = sessionExpiryTime,
-            )
+            ),
         )
 
         testRequest.executeRequest()
@@ -116,7 +122,7 @@ abstract class AbstractSignUpTest {
                     stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = sessionId,
-                        )
+                        ),
                     )
                 }
             }
@@ -128,7 +134,7 @@ abstract class AbstractSignUpTest {
                             rawPassword = password,
                             name = name,
                             anonymousUser = null,
-                        )
+                        ),
                     )
                 }
             }
@@ -146,7 +152,7 @@ abstract class AbstractSignUpTest {
                     rawPassword = password,
                     name = name,
                     anonymousUser = null,
-                )
+                ),
             )
         } returns SignUpResult.UsernameNotAvailable
 
@@ -162,7 +168,7 @@ abstract class AbstractSignUpTest {
                             rawPassword = password,
                             name = name,
                             anonymousUser = null,
-                        )
+                        ),
                     )
                 }
             }
@@ -177,7 +183,7 @@ abstract class AbstractSignUpTest {
             stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = sessionId,
-                )
+                ),
             )
         } returns GetAuthStateResult.SessionExists(
             UserSession(
@@ -187,7 +193,7 @@ abstract class AbstractSignUpTest {
                 userRoles = roles,
                 anonymousUser = true,
                 sessionExpiryTime = anonymousSessionExpiryTime,
-            )
+            ),
         )
         every {
             stubs.signUpPort.run(
@@ -199,7 +205,7 @@ abstract class AbstractSignUpTest {
                         sessionId = sessionId,
                         userId = userId,
                     ),
-                )
+                ),
             )
         } returns SignUpResult.Success(
             UserSession(
@@ -209,7 +215,7 @@ abstract class AbstractSignUpTest {
                 userRoles = roles,
                 anonymousUser = false,
                 sessionExpiryTime = sessionExpiryTime,
-            )
+            ),
         )
 
         testRequest.executeRequest()
@@ -221,7 +227,7 @@ abstract class AbstractSignUpTest {
                     stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = sessionId,
-                        )
+                        ),
                     )
                 }
             }
@@ -236,7 +242,7 @@ abstract class AbstractSignUpTest {
                                 sessionId = sessionId,
                                 userId = userId,
                             ),
-                        )
+                        ),
                     )
                 }
             }
@@ -246,12 +252,14 @@ abstract class AbstractSignUpTest {
         }
     }
 
-    protected fun <T : Any> `RUN should return 409 when username is not available for anonymous user`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should return 409 when username is not available for anonymous user`(
+        testRequest: TestRequest<T>,
+    ) {
         every {
             stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = sessionId,
-                )
+                ),
             )
         } returns GetAuthStateResult.SessionExists(
             UserSession(
@@ -261,7 +269,7 @@ abstract class AbstractSignUpTest {
                 userRoles = roles,
                 anonymousUser = true,
                 sessionExpiryTime = anonymousSessionExpiryTime,
-            )
+            ),
         )
         every {
             stubs.signUpPort.run(
@@ -273,7 +281,7 @@ abstract class AbstractSignUpTest {
                         sessionId = sessionId,
                         userId = userId,
                     ),
-                )
+                ),
             )
         } returns SignUpResult.UsernameNotAvailable
 
@@ -286,7 +294,7 @@ abstract class AbstractSignUpTest {
                     stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = sessionId,
-                        )
+                        ),
                     )
                 }
             }
@@ -301,7 +309,7 @@ abstract class AbstractSignUpTest {
                                 sessionId = sessionId,
                                 userId = userId,
                             ),
-                        )
+                        ),
                     )
                 }
             }
@@ -316,7 +324,7 @@ abstract class AbstractSignUpTest {
             stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = sessionId,
-                )
+                ),
             )
         } returns GetAuthStateResult.SessionExists(
             UserSession(
@@ -326,7 +334,7 @@ abstract class AbstractSignUpTest {
                 userRoles = roles,
                 anonymousUser = false,
                 sessionExpiryTime = anonymousSessionExpiryTime,
-            )
+            ),
         )
         every {
             stubs.signUpPort.run(
@@ -338,7 +346,7 @@ abstract class AbstractSignUpTest {
                         sessionId = sessionId,
                         userId = userId,
                     ),
-                )
+                ),
             )
         } returns SignUpResult.UserIsNotAnonymous
 
@@ -351,7 +359,7 @@ abstract class AbstractSignUpTest {
                     stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = sessionId,
-                        )
+                        ),
                     )
                 }
             }
@@ -366,7 +374,7 @@ abstract class AbstractSignUpTest {
                                 sessionId = sessionId,
                                 userId = userId,
                             ),
-                        )
+                        ),
                     )
                 }
             }
@@ -381,7 +389,7 @@ abstract class AbstractSignUpTest {
             stubs.getAuthStatePort.run(
                 GetAuthStateDetails(
                     sessionId = sessionId,
-                )
+                ),
             )
         } returns GetAuthStateResult.SessionExists(
             UserSession(
@@ -391,7 +399,7 @@ abstract class AbstractSignUpTest {
                 userRoles = roles,
                 anonymousUser = true,
                 sessionExpiryTime = anonymousSessionExpiryTime,
-            )
+            ),
         )
         every {
             stubs.signUpPort.run(
@@ -403,7 +411,7 @@ abstract class AbstractSignUpTest {
                         sessionId = sessionId,
                         userId = userId,
                     ),
-                )
+                ),
             )
         } returns SignUpResult.AnonymousUserDoesNotExist
 
@@ -416,7 +424,7 @@ abstract class AbstractSignUpTest {
                     stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = sessionId,
-                        )
+                        ),
                     )
                 }
             }
@@ -431,7 +439,7 @@ abstract class AbstractSignUpTest {
                                 sessionId = sessionId,
                                 userId = userId,
                             ),
-                        )
+                        ),
                     )
                 }
             }

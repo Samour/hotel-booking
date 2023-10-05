@@ -14,7 +14,7 @@ class RedisSessionRepository(
     override fun insertUserSession(session: UserSession) {
         jedisPooled.hset(
             "session:${session.sessionId}",
-            session.toRedisMap()
+            session.toRedisMap(),
         )
         jedisPooled.expire(
             "session:${session.sessionId}",

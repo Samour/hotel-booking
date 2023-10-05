@@ -50,7 +50,7 @@ class CreateUserScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = roles,
-                )
+                ),
             )
         } returns InsertUserResult.UserInserted(
             userId = USER_ID,
@@ -62,14 +62,14 @@ class CreateUserScenarioTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 userRoles = roles,
-            )
+            ),
         )
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
                 CreateUserResult.Success(
                     userId = USER_ID,
-                )
+                ),
             )
             s.check {
                 verify(exactly = 1) {
@@ -84,7 +84,7 @@ class CreateUserScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = roles,
-                        )
+                        ),
                     )
                 }
             }
@@ -104,7 +104,7 @@ class CreateUserScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = roles,
-                )
+                ),
             )
         } returns InsertUserResult.LoginIdUniquenessViolation
 
@@ -114,12 +114,12 @@ class CreateUserScenarioTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 userRoles = roles,
-            )
+            ),
         )
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                CreateUserResult.UsernameNotAvailable
+                CreateUserResult.UsernameNotAvailable,
             )
             s.check {
                 verify(exactly = 1) {
@@ -134,7 +134,7 @@ class CreateUserScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = roles,
-                        )
+                        ),
                     )
                 }
             }

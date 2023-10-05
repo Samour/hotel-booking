@@ -65,7 +65,7 @@ class CreateAnonymousUserScenarioTest {
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                AnonymousUserCreated(session)
+                AnonymousUserCreated(session),
             )
             s.check {
                 verify(exactly = 1) {

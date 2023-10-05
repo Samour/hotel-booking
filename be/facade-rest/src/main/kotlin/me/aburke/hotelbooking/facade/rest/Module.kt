@@ -18,7 +18,6 @@ import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpHandler
 import me.aburke.hotelbooking.facade.rest.interceptors.AuthenticationInterceptor
 import me.aburke.hotelbooking.facade.rest.interceptors.ExceptionHandler.registerExceptionHandlers
 import org.koin.dsl.module
-
 import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.UserRoutes as AdminUserRoutes
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.UserRoutes as AuthUserRoutes
 
@@ -45,7 +44,7 @@ val restModule = module {
                 get<AuthUserRoutes>(),
                 get<AdminUserRoutes>(),
                 get<RoomRoutes>(),
-            )
+            ),
         )
     }
     single { buildJavalin(get(), get(), ::getProperty) }

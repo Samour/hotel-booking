@@ -1,7 +1,11 @@
 package me.aburke.hotelbooking.repository.postgres
 
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.repository.InsertUserRecord
+import me.aburke.hotelbooking.ports.repository.InsertUserResult
+import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
+import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
+import me.aburke.hotelbooking.ports.repository.UserRepository
 import org.postgresql.util.PSQLException
 import java.sql.Connection
 import java.util.UUID.randomUUID
@@ -64,7 +68,7 @@ class PostgresUserRepository(
 
     override fun createCredentialsForAnonymousUser(
         userId: String,
-        credentials: InsertUserRecord
+        credentials: InsertUserRecord,
     ): PromoteAnonymousUserResult {
         val userQuery = connection.updateUserQuery(
             userId = userId,

@@ -61,14 +61,14 @@ class ListRoomsTest {
                     pricePerNight = 150_00,
                     stockLevel = 5,
                 )
-            }
+            },
         )
         stubs.roomRepository.stock.putAll(
             roomRecords.associate { room ->
                 room.roomTypeId to room.roomAvailability.associate { a ->
                     a.date to ((5).takeIf { a.available } ?: 0)
                 }.toMutableMap()
-            }
+            },
         )
     }
 
@@ -82,8 +82,8 @@ class ListRoomsTest {
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,
-                )
-            )
+                ),
+            ),
         )
 
         assertThat(result).isEqualTo(ListRoomsResult(roomRecords))
@@ -100,17 +100,17 @@ class ListRoomsTest {
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,
-                )
-            )
+                ),
+            ),
         )
 
         assertThat(result).isEqualTo(
             ListRoomsResult(
                 roomRecords.filter {
-                    it.roomTypeId != roomRecords[2].roomTypeId
-                        && it.roomTypeId != roomRecords[5].roomTypeId
-                }
-            )
+                    it.roomTypeId != roomRecords[2].roomTypeId &&
+                        it.roomTypeId != roomRecords[5].roomTypeId
+                },
+            ),
         )
     }
 }

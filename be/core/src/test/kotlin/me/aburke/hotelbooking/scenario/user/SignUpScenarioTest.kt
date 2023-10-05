@@ -9,7 +9,11 @@ import io.mockk.verify
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
-import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.repository.InsertUserRecord
+import me.aburke.hotelbooking.ports.repository.InsertUserResult
+import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
+import me.aburke.hotelbooking.ports.repository.SessionRepository
+import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
 import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
 import me.aburke.hotelbooking.ports.scenario.user.SignUpResult
@@ -65,7 +69,7 @@ class SignUpScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = setOf(UserRole.CUSTOMER),
-                )
+                ),
             )
         } returns InsertUserResult.UserInserted(
             userId = USER_ID,
@@ -88,12 +92,12 @@ class SignUpScenarioTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 anonymousUser = null,
-            )
+            ),
         )
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.Success(session)
+                SignUpResult.Success(session),
             )
             s.check {
                 verify(exactly = 1) {
@@ -108,7 +112,7 @@ class SignUpScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = setOf(UserRole.CUSTOMER),
-                        )
+                        ),
                     )
                 }
             }
@@ -143,7 +147,7 @@ class SignUpScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = setOf(UserRole.CUSTOMER),
-                )
+                ),
             )
         } returns InsertUserResult.LoginIdUniquenessViolation
 
@@ -153,12 +157,12 @@ class SignUpScenarioTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 anonymousUser = null,
-            )
+            ),
         )
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.UsernameNotAvailable
+                SignUpResult.UsernameNotAvailable,
             )
             s.check {
                 verify(exactly = 1) {
@@ -173,7 +177,7 @@ class SignUpScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = setOf(UserRole.CUSTOMER),
-                        )
+                        ),
                     )
                 }
             }
@@ -194,7 +198,7 @@ class SignUpScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = setOf(UserRole.CUSTOMER),
-                )
+                ),
             )
         } returns PromoteAnonymousUserResult.UserCredentialsInserted(
             userId = USER_ID,
@@ -209,7 +213,7 @@ class SignUpScenarioTest {
         } returns session
         every {
             sessionRepository.insertUserSession(
-                session.copy(sessionId = ANONYMOUS_SESSION_ID)
+                session.copy(sessionId = ANONYMOUS_SESSION_ID),
             )
         } returns Unit
 
@@ -222,14 +226,14 @@ class SignUpScenarioTest {
                     sessionId = ANONYMOUS_SESSION_ID,
                     userId = USER_ID,
                 ),
-            )
+            ),
         )
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
                 SignUpResult.Success(
-                    session.copy(sessionId = ANONYMOUS_SESSION_ID)
-                )
+                    session.copy(sessionId = ANONYMOUS_SESSION_ID),
+                ),
             )
             s.check {
                 verify(exactly = 1) {
@@ -245,7 +249,7 @@ class SignUpScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = setOf(UserRole.CUSTOMER),
-                        )
+                        ),
                     )
                 }
             }
@@ -262,7 +266,7 @@ class SignUpScenarioTest {
             s.check {
                 verify(exactly = 1) {
                     sessionRepository.insertUserSession(
-                        session.copy(sessionId = ANONYMOUS_SESSION_ID)
+                        session.copy(sessionId = ANONYMOUS_SESSION_ID),
                     )
                 }
             }
@@ -283,7 +287,7 @@ class SignUpScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = setOf(UserRole.CUSTOMER),
-                )
+                ),
             )
         } returns PromoteAnonymousUserResult.UserIsNotAnonymous
 
@@ -296,12 +300,12 @@ class SignUpScenarioTest {
                     sessionId = ANONYMOUS_SESSION_ID,
                     userId = USER_ID,
                 ),
-            )
+            ),
         )
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.UserIsNotAnonymous
+                SignUpResult.UserIsNotAnonymous,
             )
             s.check {
                 verify(exactly = 1) {
@@ -317,7 +321,7 @@ class SignUpScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = setOf(UserRole.CUSTOMER),
-                        )
+                        ),
                     )
                 }
             }
@@ -338,7 +342,7 @@ class SignUpScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = setOf(UserRole.CUSTOMER),
-                )
+                ),
             )
         } returns PromoteAnonymousUserResult.LoginIdUniquenessViolation
 
@@ -351,12 +355,12 @@ class SignUpScenarioTest {
                     userId = USER_ID,
                     sessionId = ANONYMOUS_SESSION_ID,
                 ),
-            )
+            ),
         )
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.UsernameNotAvailable
+                SignUpResult.UsernameNotAvailable,
             )
             s.check {
                 verify(exactly = 1) {
@@ -372,7 +376,7 @@ class SignUpScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = setOf(UserRole.CUSTOMER),
-                        )
+                        ),
                     )
                 }
             }
@@ -393,7 +397,7 @@ class SignUpScenarioTest {
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
                     roles = setOf(UserRole.CUSTOMER),
-                )
+                ),
             )
         } returns PromoteAnonymousUserResult.AnonymousUserDoesNotExist
 
@@ -406,12 +410,12 @@ class SignUpScenarioTest {
                     sessionId = ANONYMOUS_SESSION_ID,
                     userId = USER_ID,
                 ),
-            )
+            ),
         )
 
         SoftAssertions.assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                SignUpResult.AnonymousUserDoesNotExist
+                SignUpResult.AnonymousUserDoesNotExist,
             )
             s.check {
                 verify(exactly = 1) {
@@ -427,7 +431,7 @@ class SignUpScenarioTest {
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
                             roles = setOf(UserRole.CUSTOMER),
-                        )
+                        ),
                     )
                 }
             }

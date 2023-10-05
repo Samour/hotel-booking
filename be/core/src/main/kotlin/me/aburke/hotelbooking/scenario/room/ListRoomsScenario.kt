@@ -1,7 +1,12 @@
 package me.aburke.hotelbooking.scenario.room
 
 import me.aburke.hotelbooking.ports.repository.RoomRepository
-import me.aburke.hotelbooking.ports.scenario.room.*
+import me.aburke.hotelbooking.ports.scenario.room.ListRoomsDetails
+import me.aburke.hotelbooking.ports.scenario.room.ListRoomsPort
+import me.aburke.hotelbooking.ports.scenario.room.ListRoomsResult
+import me.aburke.hotelbooking.ports.scenario.room.RoomAvailability
+import me.aburke.hotelbooking.ports.scenario.room.RoomDescription
+import me.aburke.hotelbooking.ports.scenario.room.RoomTypeInfo
 import me.aburke.hotelbooking.stock.DatesCalculator
 
 class ListRoomsScenario(
@@ -37,7 +42,7 @@ class ListRoomsScenario(
                         )
                     },
                 )
-            }
+            },
         )
     }
 }

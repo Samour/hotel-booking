@@ -34,7 +34,7 @@ class AddRoomTypeTest : AbstractAddRoomTypeTest() {
                             if (withImages) {
                                 it.imageUrls = imageUrls
                             }
-                        }
+                        },
                     )
 
                 override fun makeAssertions(s: SoftAssertions) {
@@ -42,7 +42,7 @@ class AddRoomTypeTest : AbstractAddRoomTypeTest() {
                     s.assertThat(response.data).isEqualTo(
                         AddRoomType201Response().also {
                             it.roomTypeId = roomTypeId
-                        }
+                        },
                     )
                 }
             },
@@ -61,7 +61,7 @@ class AddRoomTypeTest : AbstractAddRoomTypeTest() {
                             it.pricePerNight = pricePerNight
                             it.stockLevel = stockLevel
                             it.imageUrls = imageUrls
-                        }
+                        },
                     )
                 }
 
@@ -78,10 +78,10 @@ class AddRoomTypeTest : AbstractAddRoomTypeTest() {
                             detail = "Insufficient permissions to access resource"
                             instance = "/api/admin/v1/room-type"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

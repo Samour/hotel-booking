@@ -49,7 +49,7 @@ class AnonymousUserTest {
                         userRoles = listOf("CUSTOMER")
                         anonymousUser = true
                         sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
-                    }
+                    },
                 )
         }
 
@@ -65,7 +65,7 @@ class AnonymousUserTest {
                     userRoles = listOf("CUSTOMER")
                     anonymousUser = true
                     sessionExpiryTime = createSessionResponse.sessionExpiryTime
-                }
+                },
             )
             s.assertThat(allUsers).containsExactly(
                 UserRecord(
@@ -73,7 +73,7 @@ class AnonymousUserTest {
                     userRoles = setOf(UserRole.CUSTOMER),
                     name = "",
                     credential = null,
-                )
+                ),
             )
         }
     }

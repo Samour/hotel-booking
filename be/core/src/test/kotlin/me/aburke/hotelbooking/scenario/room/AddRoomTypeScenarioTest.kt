@@ -79,7 +79,7 @@ class AddRoomTypeScenarioTest {
             datesCalculator.calculateDateRange(
                 timezone,
                 instant.minus(BACK_POPULATE_DAYS.toLong(), ChronoUnit.DAYS),
-                RANGE_SIZE
+                RANGE_SIZE,
             )
         } returns dates
         every {
@@ -102,7 +102,7 @@ class AddRoomTypeScenarioTest {
                 imageUrls = imageUrls,
                 pricePerNight = PRICE_PER_NIGHT,
                 stockLevel = STOCK_LEVEL,
-            )
+            ),
         )
 
         assertSoftly { s ->
@@ -122,7 +122,7 @@ class AddRoomTypeScenarioTest {
                     datesCalculator.calculateDateRange(
                         timezone,
                         instant.minus(BACK_POPULATE_DAYS.toLong(), ChronoUnit.DAYS),
-                        RANGE_SIZE
+                        RANGE_SIZE,
                     )
                 }
             }

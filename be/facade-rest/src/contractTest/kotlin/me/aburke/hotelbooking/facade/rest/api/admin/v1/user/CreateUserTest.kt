@@ -30,7 +30,7 @@ class CreateUserTest : AbstractCreateUserTest() {
                             it.roles = roles.map {
                                 UserRoleDto.fromValue(it.name)
                             }
-                        }
+                        },
                     )
 
                 override fun makeAssertions(s: SoftAssertions) {
@@ -38,10 +38,10 @@ class CreateUserTest : AbstractCreateUserTest() {
                     s.assertThat(response.data).isEqualTo(
                         CreateUser201Response().also {
                             it.userId = userId
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -58,7 +58,7 @@ class CreateUserTest : AbstractCreateUserTest() {
                             it.roles = roles.map {
                                 UserRoleDto.fromValue(it.name)
                             }
-                        }
+                        },
                     )
                 }
 
@@ -75,10 +75,10 @@ class CreateUserTest : AbstractCreateUserTest() {
                             detail = "Username is not available"
                             instance = "/api/admin/v1/user"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -95,7 +95,7 @@ class CreateUserTest : AbstractCreateUserTest() {
                             it.roles = roles.map {
                                 UserRoleDto.fromValue(it.name)
                             }
-                        }
+                        },
                     )
                 }
 
@@ -112,10 +112,10 @@ class CreateUserTest : AbstractCreateUserTest() {
                             detail = "Insufficient permissions to access resource"
                             instance = "/api/admin/v1/user"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

@@ -24,14 +24,14 @@ class LogInHandlerTest : AbstractLogInTest() {
                                     "login_id": "$loginId",
                                     "password": "$password"
                                 }
-                            """.trimIndent().toRequestBody("application/json".toMediaType())
+                            """.trimIndent().toRequestBody("application/json".toMediaType()),
                         )
                 }
 
                 override fun makeAssertions(s: SoftAssertions) {
                     s.assertThat(response.code).isEqualTo(201)
                     s.assertThat(response.header("Set-Cookie")).isEqualTo(
-                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict"
+                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict",
                     )
                     s.assertThat(response.header("Content-Type")).isEqualTo("application/json")
                     s.assertThatJson(response.body?.string()).isEqualTo(
@@ -43,10 +43,10 @@ class LogInHandlerTest : AbstractLogInTest() {
                                 "anonymous_user": false,
                                 "session_expiry_time": "$sessionExpiryTime"
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -62,7 +62,7 @@ class LogInHandlerTest : AbstractLogInTest() {
                                     "login_id": "$loginId",
                                     "password": "$password"
                                 }
-                            """.trimIndent().toRequestBody("application/json".toMediaType())
+                            """.trimIndent().toRequestBody("application/json".toMediaType()),
                         )
                 }
 
@@ -80,10 +80,10 @@ class LogInHandlerTest : AbstractLogInTest() {
                                 "instance": "/api/auth/v1/session",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -99,7 +99,7 @@ class LogInHandlerTest : AbstractLogInTest() {
                                     "loginId": "$loginId",
                                     "password": "$password"
                                 }
-                            """.trimIndent().toRequestBody("application/json".toMediaType())
+                            """.trimIndent().toRequestBody("application/json".toMediaType()),
                         )
                 }
 
@@ -117,10 +117,10 @@ class LogInHandlerTest : AbstractLogInTest() {
                                 "instance": "/api/auth/v1/session",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -136,7 +136,7 @@ class LogInHandlerTest : AbstractLogInTest() {
                                     "login_id": "$loginId",
                                     "password": "$password
                                 }
-                            """.trimIndent().toRequestBody("application/json".toMediaType())
+                            """.trimIndent().toRequestBody("application/json".toMediaType()),
                         )
                 }
 
@@ -154,10 +154,10 @@ class LogInHandlerTest : AbstractLogInTest() {
                                 "instance": "/api/auth/v1/session",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 }

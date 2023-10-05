@@ -2,7 +2,11 @@ package me.aburke.hotelbooking.scenario.user
 
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.password.PasswordHasher
-import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.repository.InsertUserRecord
+import me.aburke.hotelbooking.ports.repository.InsertUserResult
+import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
+import me.aburke.hotelbooking.ports.repository.SessionRepository
+import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
 import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
 import me.aburke.hotelbooking.ports.scenario.user.SignUpPort
@@ -38,15 +42,17 @@ class SignUpScenario(
                     loginId = insertRecord.loginId,
                     userRoles = insertRecord.roles,
                     anonymousUser = false,
-                ).also { sessionRepository.insertUserSession(it) }
+                ).also { sessionRepository.insertUserSession(it) },
             )
 
             is InsertUserResult.LoginIdUniquenessViolation -> SignUpResult.UsernameNotAvailable
         }
 
     private fun promoteAnonymousUser(anonymousSession: AnonymousSession, insertRecord: InsertUserRecord): SignUpResult =
-        when (val result =
-            userRepository.createCredentialsForAnonymousUser(anonymousSession.userId, insertRecord)) {
+        when (
+            val result =
+                userRepository.createCredentialsForAnonymousUser(anonymousSession.userId, insertRecord)
+        ) {
             is PromoteAnonymousUserResult.UserCredentialsInserted -> SignUpResult.Success(
                 sessionFactory.createForUser(
                     userId = result.userId,
@@ -54,7 +60,7 @@ class SignUpScenario(
                     userRoles = insertRecord.roles,
                     anonymousUser = false,
                 ).copy(sessionId = anonymousSession.sessionId)
-                    .also { sessionRepository.insertUserSession(it) }
+                    .also { sessionRepository.insertUserSession(it) },
             )
 
             is PromoteAnonymousUserResult.UserIsNotAnonymous -> SignUpResult.UserIsNotAnonymous

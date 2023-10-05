@@ -1,6 +1,11 @@
 package me.aburke.hotelbooking.stubs.repository
 
-import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.repository.InsertUserRecord
+import me.aburke.hotelbooking.ports.repository.InsertUserResult
+import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
+import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
+import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
+import me.aburke.hotelbooking.ports.repository.UserRepository
 import java.util.UUID.randomUUID
 
 class UserRepositoryStub : UserRepository {
@@ -27,7 +32,7 @@ class UserRepositoryStub : UserRepository {
 
     override fun createCredentialsForAnonymousUser(
         userId: String,
-        credentials: InsertUserRecord
+        credentials: InsertUserRecord,
     ): PromoteAnonymousUserResult {
         if (users.containsKey(userId)) {
             return PromoteAnonymousUserResult.UserIsNotAnonymous

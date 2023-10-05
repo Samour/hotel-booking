@@ -39,7 +39,7 @@ class RouteNotFoundTest {
                         "instance": "/not-an-endpoint",
                         "extended_details": []
                     }
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }

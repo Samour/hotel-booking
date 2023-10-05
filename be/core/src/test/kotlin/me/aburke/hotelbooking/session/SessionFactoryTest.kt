@@ -57,7 +57,7 @@ class SessionFactoryTest {
                         userRoles = userRoles,
                         anonymousUser = false,
                         sessionExpiryTime = instant.plus(sessionDuration),
-                    )
+                    ),
                 )
             s.assertThat(result.sessionId).matches("[a-zA-Z0-9]{36}")
         }

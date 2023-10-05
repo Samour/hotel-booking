@@ -1,7 +1,13 @@
 package me.aburke.hotelbooking.repository.postgres
 
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.repository.InsertUserRecord
+import me.aburke.hotelbooking.ports.repository.InsertUserResult
+import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
+import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
+import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
+import me.aburke.hotelbooking.ports.repository.UserRecord
+import me.aburke.hotelbooking.ports.repository.UserRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
@@ -43,7 +49,7 @@ class PostgresUserRepositoryTest {
                 userRoles = setOf(UserRole.CUSTOMER),
                 name = "",
                 credential = null,
-            )
+            ),
         )
     }
 
@@ -55,7 +61,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
                 roles = setOf(UserRole.MANAGE_ROOMS),
-            )
+            ),
         )
 
         val userId = (result as? InsertUserResult.UserInserted)?.userId
@@ -72,7 +78,7 @@ class PostgresUserRepositoryTest {
                         loginId = LOGIN_ID,
                         passwordHash = PASSWORD_HASH,
                     ),
-                )
+                ),
             )
         }
     }
@@ -85,7 +91,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
                 roles = setOf(UserRole.MANAGE_ROOMS),
-            )
+            ),
         ).let {
             assertThat(it).isInstanceOf(InsertUserResult.UserInserted::class.java)
             it as InsertUserResult.UserInserted
@@ -97,7 +103,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = RandomString.make(),
                 name = RandomString.make(),
                 roles = setOf(UserRole.MANAGE_ROOMS),
-            )
+            ),
         )
 
         val users = loadAllUsers()
@@ -113,7 +119,7 @@ class PostgresUserRepositoryTest {
                         loginId = LOGIN_ID,
                         passwordHash = PASSWORD_HASH,
                     ),
-                )
+                ),
             )
         }
     }
@@ -129,14 +135,14 @@ class PostgresUserRepositoryTest {
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
                 roles = setOf(UserRole.MANAGE_USERS),
-            )
+            ),
         )
 
         val users = loadAllUsers()
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                PromoteAnonymousUserResult.UserCredentialsInserted(userId)
+                PromoteAnonymousUserResult.UserCredentialsInserted(userId),
             )
             s.assertThat(users).containsExactly(
                 UserRecord(
@@ -147,7 +153,7 @@ class PostgresUserRepositoryTest {
                         loginId = LOGIN_ID,
                         passwordHash = PASSWORD_HASH,
                     ),
-                )
+                ),
             )
         }
     }
@@ -160,7 +166,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
                 roles = setOf(UserRole.MANAGE_ROOMS),
-            )
+            ),
         ).let {
             assertThat(it).isInstanceOf(InsertUserResult.UserInserted::class.java)
             it as InsertUserResult.UserInserted
@@ -173,7 +179,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = RandomString.make(),
                 name = RandomString.make(),
                 roles = setOf(UserRole.MANAGE_USERS),
-            )
+            ),
         )
 
         val users = loadAllUsers()
@@ -189,7 +195,7 @@ class PostgresUserRepositoryTest {
                         loginId = LOGIN_ID,
                         passwordHash = PASSWORD_HASH,
                     ),
-                )
+                ),
             )
         }
     }
@@ -203,7 +209,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
                 roles = setOf(UserRole.MANAGE_USERS),
-            )
+            ),
         )
 
         val users = loadAllUsers()
@@ -223,7 +229,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
                 roles = setOf(UserRole.MANAGE_ROOMS),
-            )
+            ),
         ).let {
             assertThat(it).isInstanceOf(InsertUserResult.UserInserted::class.java)
             it as InsertUserResult.UserInserted
@@ -236,7 +242,7 @@ class PostgresUserRepositoryTest {
                 passwordHash = RandomString.make(),
                 name = RandomString.make(),
                 roles = setOf(UserRole.MANAGE_USERS),
-            )
+            ),
         )
 
         val users = loadAllUsers()
@@ -258,21 +264,23 @@ class PostgresUserRepositoryTest {
                         loginId = LOGIN_ID,
                         passwordHash = PASSWORD_HASH,
                     ),
-                )
+                ),
             )
         }
     }
 
     @Test
     fun `should return user record with matching login ID`() {
-        val userId = (underTest.insertUser(
-            InsertUserRecord(
-                loginId = LOGIN_ID,
-                passwordHash = PASSWORD_HASH,
-                name = NAME,
-                roles = setOf(UserRole.CUSTOMER),
-            )
-        ) as InsertUserResult.UserInserted).userId
+        val userId = (
+            underTest.insertUser(
+                InsertUserRecord(
+                    loginId = LOGIN_ID,
+                    passwordHash = PASSWORD_HASH,
+                    name = NAME,
+                    roles = setOf(UserRole.CUSTOMER),
+                ),
+            ) as InsertUserResult.UserInserted
+            ).userId
 
         val result = underTest.findUserByLoginId(LOGIN_ID)
 
@@ -285,7 +293,7 @@ class PostgresUserRepositoryTest {
                     loginId = LOGIN_ID,
                     passwordHash = PASSWORD_HASH,
                 ),
-            )
+            ),
         )
     }
 
@@ -302,7 +310,7 @@ class PostgresUserRepositoryTest {
                 select u.user_id, u.user_roles, u.name, c.login_id, c.password_hash
                 from app_user u
                 left outer join user_credential c on c.user_id = u.user_id
-            """.trimIndent()
+            """.trimIndent(),
         ).executeQuery()
 
         val records = mutableListOf<UserRecord>()
@@ -326,7 +334,7 @@ class PostgresUserRepositoryTest {
                     } else {
                         null
                     },
-                )
+                ),
             )
         }
 

@@ -32,7 +32,7 @@ fun Connection.findRoomsDescriptionStockQuery(rangeStart: LocalDate, rangeEnd: L
             where rs.date >= ?
                 and rs.date <= ?
             order by r.room_type_id, rs.date
-        """.trimIndent()
+        """.trimIndent(),
     ).apply {
         setString(1, now.toString())
         setString(2, rangeStart.toString())
@@ -46,7 +46,7 @@ fun Connection.insertRoomTypeQuery(hotelId: String, roomTypeId: String, stockLev
         """
             insert into room_type(room_type_id, hotel_id, stock_level)
             values (?, ?, ?)
-        """.trimIndent()
+        """.trimIndent(),
     ).apply {
         setString(1, roomTypeId)
         setString(2, hotelId)
@@ -59,13 +59,13 @@ fun Connection.insertRoomTypeDescriptionQuery(
     title: String,
     pricePerNight: Int,
     description: String,
-    imageUrls: List<String>
+    imageUrls: List<String>,
 ) = prepareStatement(
     """
         insert into room_type_description(room_type_description_id, room_type_id, title, price_per_night, description, 
             image_urls)
         values (?, ?, ?, ?, ?, ?)
-    """.trimIndent()
+    """.trimIndent(),
 ).apply {
     setString(1, roomTypeDescriptionId)
     setString(2, roomTypeId)
@@ -80,7 +80,7 @@ fun Connection.insertRoomStockQuery(roomTypeId: String, stockLevel: Int, dates: 
         """
             insert into room_stock(room_stock_id, room_type_id, date, stock_level)
             values (?, ?, ?, ?)
-        """.trimIndent()
+        """.trimIndent(),
     ).apply {
         dates.forEach {
             setString(1, randomUUID().toString())

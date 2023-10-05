@@ -1,7 +1,13 @@
 package me.aburke.hotelbooking.admin.room
 
-import me.aburke.hotelbooking.*
-import me.aburke.hotelbooking.client.*
+import me.aburke.hotelbooking.assertThatJson
+import me.aburke.hotelbooking.authenticateAsAdmin
+import me.aburke.hotelbooking.authenticateWith
+import me.aburke.hotelbooking.client.RoomRecord
+import me.aburke.hotelbooking.client.RoomStockRecord
+import me.aburke.hotelbooking.client.loadAllRoomStocks
+import me.aburke.hotelbooking.client.loadAllRooms
+import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.StockPopulation
 import me.aburke.hotelbooking.data.hotelId
 import me.aburke.hotelbooking.data.hotelTimeZone
@@ -9,6 +15,7 @@ import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.rest.client.api.AdminApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.AddRoomTypeRequest
+import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -59,7 +66,7 @@ class AddRoomTypeTest {
                 it.description = DESCRIPTION
                 it.imageUrls = imageUrls
                 it.stockLevel = STOCK_LEVEL
-            }
+            },
         )
 
         val allRooms = connection.loadAllRooms()
@@ -88,7 +95,7 @@ class AddRoomTypeTest {
                     title = TITLE,
                     description = DESCRIPTION,
                     imageUrls = imageUrls,
-                )
+                ),
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(*expectedStock.toTypedArray())
         }
@@ -105,7 +112,7 @@ class AddRoomTypeTest {
                     it.description = DESCRIPTION
                     it.imageUrls = imageUrls
                     it.stockLevel = STOCK_LEVEL
-                }
+                },
             )
         }
 
@@ -124,7 +131,7 @@ class AddRoomTypeTest {
                         "instance": "/api/admin/v1/room-type",
                         "extended_details": []
                     }
-                """.trimIndent()
+                """.trimIndent(),
             )
             s.assertThat(allRooms).isEmpty()
             s.assertThat(allStock).isEmpty()

@@ -44,7 +44,7 @@ class EndpointFeatureFlagTest {
     fun `disabled endpoint should not be accessible`(endpoints: List<Endpoint>) {
         val javalin = stubs.make(
             endpoints.filter { !it.expectEnabled }
-                .associate { it.property to "DISABLED" }
+                .associate { it.property to "DISABLED" },
         )
 
         test(javalin) { _, client ->
@@ -56,11 +56,17 @@ class EndpointFeatureFlagTest {
                 responses.forEach { (endpoint, response) ->
                     if (endpoint.expectEnabled) {
                         s.assertThat(response.code)
-                            .withFailMessage("Expected endpoint to exist, but 404 returned: ${endpoint.method} ${endpoint.path}")
+                            .withFailMessage(
+                                "Expected endpoint to exist, but 404 returned: ${endpoint.method} " +
+                                    endpoint.path,
+                            )
                             .isNotEqualTo(404)
                     } else {
                         s.assertThat(response.code)
-                            .withFailMessage("Expected endpoint to be not found, but ${response.code} returned: ${endpoint.method} ${endpoint.path}")
+                            .withFailMessage(
+                                "Expected endpoint to be not found, but ${response.code} returned: " +
+                                    "${endpoint.method} ${endpoint.path}",
+                            )
                             .isEqualTo(404)
                     }
                 }
@@ -92,7 +98,7 @@ class EndpointsProvider : ArgumentsProvider {
                         method = method,
                         expectEnabled = method != disabledMethod || path != disabledPath,
                     )
-                }
+                },
             )
         }
     }

@@ -1,7 +1,11 @@
 package me.aburke.hotelbooking.admin.user
 
-import me.aburke.hotelbooking.*
+import me.aburke.hotelbooking.assertThatJson
+import me.aburke.hotelbooking.authenticateAs
+import me.aburke.hotelbooking.authenticateAsAdmin
 import me.aburke.hotelbooking.client.readAllUsers
+import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createUserWithRoles
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.password.PasswordHasher
@@ -11,6 +15,7 @@ import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.rest.client.api.AdminApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.CreateUserRequest
+import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -54,7 +59,7 @@ class CreateUserTest {
                 r.password = PASSWORD
                 r.name = NAME
                 r.roles = roles.map { UserRoleDto.valueOf(it.name) }
-            }
+            },
         )
 
         val allUsers = connection.readAllUsers()
@@ -78,8 +83,8 @@ class CreateUserTest {
                         credential = UserCredentialRecord(
                             loginId = LOGIN_ID,
                             passwordHash = "",
-                        )
-                    )
+                        ),
+                    ),
                 )
             s.assertThat(passwordHashResult).isTrue
         }
@@ -96,7 +101,7 @@ class CreateUserTest {
                     r.password = PASSWORD
                     r.name = NAME
                     r.roles = roles.map { UserRoleDto.valueOf(it.name) }
-                }
+                },
             )
         }
 
@@ -114,7 +119,7 @@ class CreateUserTest {
                         "instance": "/api/admin/v1/user",
                         "extended_details": []
                     }
-                """.trimIndent()
+                """.trimIndent(),
             )
             s.assertThat(allUsers.map { it.userId }).containsExactly(
                 TestUser.admin.userId,
@@ -134,7 +139,7 @@ class CreateUserTest {
                     r.password = PASSWORD
                     r.name = NAME
                     r.roles = roles.map { UserRoleDto.valueOf(it.name) }
-                }
+                },
             )
         }
 
@@ -152,7 +157,7 @@ class CreateUserTest {
                         "instance": "/api/admin/v1/user",
                         "extended_details": []
                     }
-                """.trimIndent()
+                """.trimIndent(),
             )
             s.assertThat(allUsers.map { it.userId }).containsExactlyInAnyOrder(
                 TestUser.admin.userId,

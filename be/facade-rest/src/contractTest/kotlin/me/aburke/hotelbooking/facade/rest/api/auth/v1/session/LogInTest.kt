@@ -26,13 +26,13 @@ class LogInTest : AbstractLogInTest() {
                     LogInRequest().also {
                         it.loginId = loginId
                         it.password = password
-                    }
+                    },
                 )
 
                 override fun makeAssertions(s: SoftAssertions) {
                     s.assertThat(response.statusCode).isEqualTo(201)
                     s.assertThat(response.headers["Set-Cookie"]).containsExactly(
-                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict"
+                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict",
                     )
                     s.assertThat(response.data).isEqualTo(
                         SessionResponse().also { r ->
@@ -41,10 +41,10 @@ class LogInTest : AbstractLogInTest() {
                             r.userRoles = userRoles.map { it.name }
                             r.anonymousUser = false
                             r.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -57,7 +57,7 @@ class LogInTest : AbstractLogInTest() {
                         LogInRequest().also {
                             it.loginId = loginId
                             it.password = password
-                        }
+                        },
                     )
                 }
 
@@ -75,10 +75,10 @@ class LogInTest : AbstractLogInTest() {
                             detail = "Supplied credentials are not valid"
                             instance = "/api/auth/v1/session"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

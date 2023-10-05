@@ -27,7 +27,7 @@ class CreateUserHandlerTest : AbstractCreateUserTest() {
                                     "name": "$name",
                                     "roles": ["${roles.first().name}"]
                                 }
-                            """.trimIndent().toRequestBody("application/json".toMediaType())
+                            """.trimIndent().toRequestBody("application/json".toMediaType()),
                         )
                 }
 
@@ -39,10 +39,10 @@ class CreateUserHandlerTest : AbstractCreateUserTest() {
                             {
                                 "user_id": "$userId"
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -61,7 +61,7 @@ class CreateUserHandlerTest : AbstractCreateUserTest() {
                                     "name": "$name",
                                     "roles": ["${roles.first().name}"]
                                 }
-                            """.trimIndent().toRequestBody("application/json".toMediaType())
+                            """.trimIndent().toRequestBody("application/json".toMediaType()),
                         )
                 }
 
@@ -78,10 +78,10 @@ class CreateUserHandlerTest : AbstractCreateUserTest() {
                                 "instance": "/api/admin/v1/user",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -100,7 +100,7 @@ class CreateUserHandlerTest : AbstractCreateUserTest() {
                                     "name": "$name",
                                     "roles": ["${roles.first().name}"]
                                 }
-                            """.trimIndent().toRequestBody("application/json".toMediaType())
+                            """.trimIndent().toRequestBody("application/json".toMediaType()),
                         )
                 }
 
@@ -117,10 +117,10 @@ class CreateUserHandlerTest : AbstractCreateUserTest() {
                                 "instance": "/api/admin/v1/user",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 }

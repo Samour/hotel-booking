@@ -30,7 +30,7 @@ class DatesCalculatorTest {
         assertThat(result).isEqualTo(
             (0L..29).map {
                 auFirstDate.plusDays(it)
-            }
+            },
         )
     }
 
@@ -41,7 +41,7 @@ class DatesCalculatorTest {
         assertThat(result).isEqualTo(
             (0L..29).map {
                 usFirstDate.plusDays(it)
-            }
+            },
         )
     }
 

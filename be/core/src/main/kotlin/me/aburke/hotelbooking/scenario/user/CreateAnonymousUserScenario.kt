@@ -20,7 +20,7 @@ class CreateAnonymousUserScenario(
                 loginId = null,
                 userRoles = setOf(UserRole.CUSTOMER),
                 anonymousUser = true,
-            ).also { sessionRepository.insertUserSession(it) }
+            ).also { sessionRepository.insertUserSession(it) },
         )
     }
 }

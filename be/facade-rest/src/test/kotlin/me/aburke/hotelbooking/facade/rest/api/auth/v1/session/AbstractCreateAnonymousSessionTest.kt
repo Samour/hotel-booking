@@ -3,8 +3,8 @@ package me.aburke.hotelbooking.facade.rest.api.auth.v1.session
 import io.javalin.Javalin
 import io.mockk.every
 import io.mockk.verify
-import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.Stubs
+import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.scenario.user.AnonymousUserCreated
@@ -43,7 +43,7 @@ abstract class AbstractCreateAnonymousSessionTest {
                 userRoles = setOf(UserRole.CUSTOMER),
                 anonymousUser = true,
                 sessionExpiryTime = sessionExpiryTime,
-            )
+            ),
         )
 
         testRequest.executeRequest()

@@ -51,7 +51,7 @@ class SignUpTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 anonymousUser = null,
-            )
+            ),
         )
 
         val session = (result as? SignUpResult.Success)?.session
@@ -72,12 +72,12 @@ class SignUpTest {
                             userRoles = setOf(UserRole.CUSTOMER),
                             anonymousUser = false,
                             sessionExpiryTime = Instant.EPOCH,
-                        )
-                    )
+                        ),
+                    ),
                 )
             s.assertThat(session?.sessionExpiryTime).isCloseTo(
                 now.plus(sessionDuration),
-                Assertions.within(1, ChronoUnit.SECONDS)
+                Assertions.within(1, ChronoUnit.SECONDS),
             )
             s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(session?.userId)
             s.assertThat(stubs.userRepository.getAnonymousUserIds()).isEmpty()
@@ -89,13 +89,13 @@ class SignUpTest {
                         passwordHash = "",
                         name = NAME,
                         roles = setOf(UserRole.CUSTOMER),
-                    )
+                    ),
                 )
             s.assertThat(passwordHashResult).isTrue
             s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
                     session?.sessionId to session,
-                )
+                ),
             )
         }
     }
@@ -108,7 +108,7 @@ class SignUpTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 anonymousUser = null,
-            )
+            ),
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
             (it as SignUpResult.Success).session.userId
@@ -121,7 +121,7 @@ class SignUpTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 anonymousUser = null,
-            )
+            ),
         )
 
         assertSoftly { s ->
@@ -146,7 +146,7 @@ class SignUpTest {
                     sessionId = ANONYMOUS_SESSION_ID,
                     userId = anonymousUserId,
                 ),
-            )
+            ),
         )
 
         val session = (result as? SignUpResult.Success)?.session
@@ -167,12 +167,12 @@ class SignUpTest {
                             userRoles = setOf(UserRole.CUSTOMER),
                             anonymousUser = false,
                             sessionExpiryTime = Instant.EPOCH,
-                        )
-                    )
+                        ),
+                    ),
                 )
             s.assertThat(session?.sessionExpiryTime).isCloseTo(
                 now.plus(sessionDuration),
-                Assertions.within(100, ChronoUnit.MILLIS)
+                Assertions.within(100, ChronoUnit.MILLIS),
             )
             s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(session?.userId)
             s.assertThat(stubs.userRepository.getAnonymousUserIds()).containsExactly(session?.userId)
@@ -184,13 +184,13 @@ class SignUpTest {
                         passwordHash = "",
                         name = NAME,
                         roles = setOf(UserRole.CUSTOMER),
-                    )
+                    ),
                 )
             s.assertThat(passwordHashResult).isTrue
             s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
                     ANONYMOUS_SESSION_ID to session,
-                )
+                ),
             )
         }
     }
@@ -203,7 +203,7 @@ class SignUpTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 anonymousUser = null,
-            )
+            ),
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
             (it as SignUpResult.Success).session.userId
@@ -219,7 +219,7 @@ class SignUpTest {
                     sessionId = ANONYMOUS_SESSION_ID,
                     userId = firstUserId,
                 ),
-            )
+            ),
         )
 
         assertSoftly { s ->
@@ -237,7 +237,7 @@ class SignUpTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 anonymousUser = null,
-            )
+            ),
         ).let {
             Assertions.assertThat(it).isInstanceOf(SignUpResult.Success::class.java)
             (it as SignUpResult.Success).session.userId
@@ -254,7 +254,7 @@ class SignUpTest {
                     sessionId = ANONYMOUS_SESSION_ID,
                     userId = anonymousUserId,
                 ),
-            )
+            ),
         )
 
         assertSoftly { s ->

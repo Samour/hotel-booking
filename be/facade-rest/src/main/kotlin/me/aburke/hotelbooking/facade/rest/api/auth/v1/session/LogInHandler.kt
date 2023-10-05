@@ -29,7 +29,7 @@ class LogInHandler(
             LogInCredentials(
                 loginId = request.loginId,
                 password = request.password,
-            )
+            ),
         )
 
         when (logInResult) {
@@ -49,7 +49,7 @@ private fun Context.sendSessionWithCookie(session: UserSession) {
             userRoles = session.userRoles.map { it.name },
             anonymousUser = session.anonymousUser,
             sessionExpiryTime = session.sessionExpiryTime,
-        )
+        ),
     )
 }
 
@@ -60,5 +60,5 @@ private fun Context.sendInvalidCredentials() = problemJson(
         status = 401,
         detail = "Supplied credentials are not valid",
         instance = path(),
-    )
+    ),
 )

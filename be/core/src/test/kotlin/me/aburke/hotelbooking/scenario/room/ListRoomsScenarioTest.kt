@@ -12,7 +12,11 @@ import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.RoomStockRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeDescriptionRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
-import me.aburke.hotelbooking.ports.scenario.room.*
+import me.aburke.hotelbooking.ports.scenario.room.ListRoomsDetails
+import me.aburke.hotelbooking.ports.scenario.room.ListRoomsResult
+import me.aburke.hotelbooking.ports.scenario.room.RoomAvailability
+import me.aburke.hotelbooking.ports.scenario.room.RoomDescription
+import me.aburke.hotelbooking.ports.scenario.room.RoomTypeInfo
 import me.aburke.hotelbooking.stock.DatesCalculator
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test
@@ -75,8 +79,8 @@ class ListRoomsScenarioTest {
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,
-                )
-            )
+                ),
+            ),
         )
 
         assertSoftly { s ->
@@ -98,8 +102,8 @@ class ListRoomsScenarioTest {
                                 )
                             },
                         )
-                    }
-                )
+                    },
+                ),
             )
             s.check {
                 verify(exactly = 1) {
@@ -144,7 +148,7 @@ class ListRoomsScenarioTest {
                 it.copy(
                     stockLevels = it.stockLevels.filterIndexed { j, _ ->
                         j % 3 == 0
-                    }
+                    },
                 )
             } ?: it
         }
@@ -154,8 +158,8 @@ class ListRoomsScenarioTest {
                 availabilitySearchRange = DateRange(
                     rangeStart = availabilityRangeStart,
                     rangeEnd = availabilityRangeEnd,
-                )
-            )
+                ),
+            ),
         )
 
         assertSoftly { s ->
@@ -179,8 +183,8 @@ class ListRoomsScenarioTest {
                                     )
                                 },
                             )
-                        }
-                )
+                        },
+                ),
             )
             s.check {
                 verify(exactly = 1) {

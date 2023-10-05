@@ -13,7 +13,7 @@ class PostgresHotelRepository(
             connection.readHotelQuery()
                 .executeQueryWithRollback()
                 .apply { next() }
-                .getString("time_zone")
+                .getString("time_zone"),
         )
 
     override fun loadTimeZone(): TimeZone = timeZone

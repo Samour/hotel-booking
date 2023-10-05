@@ -3,8 +3,8 @@ package me.aburke.hotelbooking.facade.rest.api.auth.v1.session
 import io.javalin.Javalin
 import io.mockk.every
 import io.mockk.verify
-import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.Stubs
+import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.scenario.user.LogInCredentials
@@ -35,13 +35,15 @@ abstract class AbstractLogInTest {
     @AfterEach
     fun cleanUp() = stubs.cleanUp()
 
-    protected fun <T : Any> `RUN should log in user & set session cookie on successful authentication`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should log in user & set session cookie on successful authentication`(
+        testRequest: TestRequest<T>,
+    ) {
         every {
             stubs.logInPort.run(
                 LogInCredentials(
                     loginId = loginId,
                     password = password,
-                )
+                ),
             )
         } returns LogInResult.UserSessionCreated(
             UserSession(
@@ -51,7 +53,7 @@ abstract class AbstractLogInTest {
                 userRoles = userRoles,
                 anonymousUser = false,
                 sessionExpiryTime = sessionExpiryTime,
-            )
+            ),
         )
 
         testRequest.executeRequest()
@@ -64,7 +66,7 @@ abstract class AbstractLogInTest {
                         LogInCredentials(
                             loginId = loginId,
                             password = password,
-                        )
+                        ),
                     )
                 }
             }
@@ -80,7 +82,7 @@ abstract class AbstractLogInTest {
                 LogInCredentials(
                     loginId = loginId,
                     password = password,
-                )
+                ),
             )
         } returns LogInResult.InvalidCredentials
 
@@ -94,7 +96,7 @@ abstract class AbstractLogInTest {
                         LogInCredentials(
                             loginId = loginId,
                             password = password,
-                        )
+                        ),
                     )
                 }
             }

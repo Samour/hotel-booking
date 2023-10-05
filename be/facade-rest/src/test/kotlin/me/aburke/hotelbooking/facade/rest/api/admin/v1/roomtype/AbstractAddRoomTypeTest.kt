@@ -3,8 +3,8 @@ package me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype
 import io.javalin.Javalin
 import io.mockk.every
 import io.mockk.verify
-import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.Stubs
+import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeDetails
 import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypeResult
@@ -49,7 +49,7 @@ abstract class AbstractAddRoomTypeTest {
                     imageUrls = imageUrls.takeIf { withImages } ?: emptyList(),
                     pricePerNight = pricePerNight,
                     stockLevel = stockLevel,
-                )
+                ),
             )
         } returns AddRoomTypeResult(roomTypeId)
 
@@ -67,7 +67,7 @@ abstract class AbstractAddRoomTypeTest {
                             imageUrls = imageUrls.takeIf { withImages } ?: emptyList(),
                             pricePerNight = pricePerNight,
                             stockLevel = stockLevel,
-                        )
+                        ),
                     )
                 }
             }
@@ -77,7 +77,9 @@ abstract class AbstractAddRoomTypeTest {
         }
     }
 
-    protected fun <T : Any> `RUN should return 403 when user does not have MANAGE_ROOMS permission`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should return 403 when user does not have MANAGE_ROOMS permission`(
+        testRequest: TestRequest<T>,
+    ) {
         sessionId = stubs.prepareSession(UserRole.CUSTOMER)
         testRequest.executeRequest()
 

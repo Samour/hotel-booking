@@ -58,7 +58,7 @@ fun KoinApplication.restTest(case: (ApiClient, SimpleCookieJar) -> Unit) = test(
         ApiClient(
             OkHttpClient.Builder()
                 .cookieJar(cookieJar)
-                .build()
+                .build(),
         ).also {
             it.basePath = "http://localhost:${javalin.port()}"
         },
@@ -78,7 +78,7 @@ fun ApiClient.createUserWithRoles(vararg roles: UserRole): TestUser {
             r.password = password
             r.name = "test-${RandomString.make()}"
             r.roles = roles.map { UserRoleDto.fromValue(it.name) }
-        }
+        },
     ).userId
 
     return TestUser(
@@ -93,7 +93,7 @@ fun ApiClient.authenticateAs(user: TestUser) {
         LogInRequest().apply {
             loginId = user.loginId
             password = user.password
-        }
+        },
     )
 }
 

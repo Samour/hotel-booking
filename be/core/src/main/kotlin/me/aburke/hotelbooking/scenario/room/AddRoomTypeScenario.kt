@@ -34,6 +34,6 @@ class AddRoomTypeScenario(
                     clock.instant().minus(backPopulateDays.toLong(), ChronoUnit.DAYS),
                     populateRoomRange,
                 ),
-            )
+            ),
         )
 }

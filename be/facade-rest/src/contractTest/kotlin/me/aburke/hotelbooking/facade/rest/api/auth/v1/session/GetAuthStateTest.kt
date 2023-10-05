@@ -33,10 +33,10 @@ class GetAuthStateTest : AbstractGetSessionTest() {
                             r.userRoles = userRoles.map { it.name }
                             r.anonymousUser = false
                             r.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -56,10 +56,10 @@ class GetAuthStateTest : AbstractGetSessionTest() {
                             r.userRoles = userRoles.map { it.name }
                             r.anonymousUser = true
                             r.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -84,10 +84,10 @@ class GetAuthStateTest : AbstractGetSessionTest() {
                             detail = "Credentials not provided"
                             instance = "/api/auth/v1/session"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -112,10 +112,10 @@ class GetAuthStateTest : AbstractGetSessionTest() {
                             detail = "Credentials not provided"
                             instance = "/api/auth/v1/session"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

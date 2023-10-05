@@ -3,8 +3,8 @@ package me.aburke.hotelbooking.facade.rest.api.admin.v1.user
 import io.javalin.Javalin
 import io.mockk.every
 import io.mockk.verify
-import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.Stubs
+import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.scenario.user.CreateUserDetails
 import me.aburke.hotelbooking.ports.scenario.user.CreateUserResult
@@ -42,7 +42,7 @@ abstract class AbstractCreateUserTest {
                     rawPassword = password,
                     name = name,
                     userRoles = roles,
-                )
+                ),
             )
         } returns CreateUserResult.Success(
             userId = userId,
@@ -61,7 +61,7 @@ abstract class AbstractCreateUserTest {
                             rawPassword = password,
                             name = name,
                             userRoles = roles,
-                        )
+                        ),
                     )
                 }
             }
@@ -79,7 +79,7 @@ abstract class AbstractCreateUserTest {
                     rawPassword = password,
                     name = name,
                     userRoles = roles,
-                )
+                ),
             )
         } returns CreateUserResult.UsernameNotAvailable
 
@@ -96,7 +96,7 @@ abstract class AbstractCreateUserTest {
                             rawPassword = password,
                             name = name,
                             userRoles = roles,
-                        )
+                        ),
                     )
                 }
             }
@@ -106,7 +106,9 @@ abstract class AbstractCreateUserTest {
         }
     }
 
-    protected fun <T : Any> `RUN should return 403 when user does not have MANAGE_USERS role`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should return 403 when user does not have MANAGE_USERS role`(
+        testRequest: TestRequest<T>,
+    ) {
         sessionId = stubs.prepareSession(UserRole.MANAGE_ROOMS)
         testRequest.executeRequest()
 

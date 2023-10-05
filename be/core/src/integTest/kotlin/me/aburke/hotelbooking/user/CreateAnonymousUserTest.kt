@@ -42,14 +42,14 @@ class CreateAnonymousUserTest {
                         userRoles = setOf(UserRole.CUSTOMER),
                         anonymousUser = true,
                         sessionExpiryTime = stubs.time.plus(sessionDuration),
-                    )
+                    ),
                 )
             s.assertThat(stubs.userRepository.getAnonymousUserIds()).containsExactly(result.session.userId)
             s.assertThat(stubs.userRepository.getUsers()).isEmpty()
             s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
                     result.session.sessionId to result.session,
-                )
+                ),
             )
         }
     }

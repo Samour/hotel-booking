@@ -12,7 +12,7 @@ fun Connection.readAllUsers() = prepareStatement(
         select u.user_id, u.user_roles, u.name, c.login_id, c.password_hash
         from app_user u
         left outer join user_credential c on c.user_id = u.user_id
-    """.trimIndent()
+    """.trimIndent(),
 ).executeQueryWithRollback().let {
     val records = mutableListOf<UserRecord>()
     while (it.next()) {
@@ -35,7 +35,7 @@ fun Connection.readAllUsers() = prepareStatement(
                 } else {
                     null
                 },
-            )
+            ),
         )
     }
 
@@ -57,7 +57,7 @@ fun Connection.loadAllRooms(): List<RoomRecord> {
                 select r.room_type_id, r.hotel_id, r.stock_level, rd.title, rd.description, rd.image_urls
                 from room_type r
                 join room_type_description rd on rd.room_type_id = r.room_type_id
-            """.trimIndent()
+        """.trimIndent(),
     ).executeQuery()
 
     val rooms = mutableListOf<RoomRecord>()
@@ -70,7 +70,7 @@ fun Connection.loadAllRooms(): List<RoomRecord> {
                 title = results.getString("title"),
                 description = results.getString("description"),
                 imageUrls = listOf(*(results.getArray("image_urls").array as Array<String>)),
-            )
+            ),
         )
     }
 
@@ -88,7 +88,7 @@ fun Connection.loadAllRoomStocks(): List<RoomStockRecord> {
         """
                 select room_type_id, date, stock_level
                 from room_stock
-            """.trimIndent()
+        """.trimIndent(),
     ).executeQuery()
 
     val records = mutableListOf<RoomStockRecord>()
@@ -98,7 +98,7 @@ fun Connection.loadAllRoomStocks(): List<RoomStockRecord> {
                 roomTypeId = results.getString("room_type_id"),
                 date = LocalDate.parse(results.getString("date")),
                 stockLevel = results.getInt("stock_level"),
-            )
+            ),
         )
     }
 

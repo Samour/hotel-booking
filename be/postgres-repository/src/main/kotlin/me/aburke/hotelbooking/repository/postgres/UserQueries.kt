@@ -13,7 +13,7 @@ fun Connection.findUserByLoginIdQuery(loginId: String): PreparedStatement =
             from user_credential c
             join app_user u on u.user_id = c.user_id
             where login_id = ?
-        """.trimIndent()
+        """.trimIndent(),
     ).also {
         it.setString(1, loginId)
     }
@@ -25,7 +25,7 @@ fun Connection.insertUserQuery(userId: String, userRoles: Set<UserRole>, name: S
         """
             insert into app_user(user_id, user_roles, name)
             values (?, ?, ?)
-        """.trimIndent()
+        """.trimIndent(),
     ).also {
         it.setString(1, userId)
         it.setArray(2, toSqlArray(userRoles))
@@ -37,7 +37,7 @@ fun Connection.insertCredentialQuery(userId: String, loginId: String, passwordHa
         """
             insert into user_credential(user_id, login_id, password_hash)
             values (?, ?, ?)
-        """.trimIndent()
+        """.trimIndent(),
     ).also {
         it.setString(1, userId)
         it.setString(2, loginId)
@@ -50,7 +50,7 @@ fun Connection.updateUserQuery(userId: String, roles: Set<UserRole>, name: Strin
             update app_user
             set user_roles = ?, name = ?
             where user_id = ?
-        """.trimIndent()
+        """.trimIndent(),
     ).also {
         it.setArray(1, toSqlArray(roles))
         it.setString(2, name)

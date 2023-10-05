@@ -15,7 +15,7 @@ fun ResultSet.toRoomTypeRecords(): List<RoomTypeRecord> {
             ?.let { results.add(it) }
         aggregate = aggregate?.takeIf { it.roomTypeId == roomTypeId }?.let {
             it.copy(
-                stockLevels = it.stockLevels + listOf(toRoomStockRecord())
+                stockLevels = it.stockLevels + listOf(toRoomStockRecord()),
             )
         } ?: toRoomTypeRecord()
     }

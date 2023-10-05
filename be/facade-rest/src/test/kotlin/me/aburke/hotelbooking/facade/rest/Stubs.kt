@@ -8,7 +8,13 @@ import io.mockk.verify
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypePort
-import me.aburke.hotelbooking.ports.scenario.user.*
+import me.aburke.hotelbooking.ports.scenario.user.CreateAnonymousUserPort
+import me.aburke.hotelbooking.ports.scenario.user.CreateUserPort
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStatePort
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateResult
+import me.aburke.hotelbooking.ports.scenario.user.LogInPort
+import me.aburke.hotelbooking.ports.scenario.user.SignUpPort
 import org.assertj.core.api.SoftAssertions
 import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
@@ -52,7 +58,7 @@ class Stubs {
         val sessionId = UUID.randomUUID().toString()
         every {
             getAuthStatePort.run(
-                GetAuthStateDetails(sessionId)
+                GetAuthStateDetails(sessionId),
             )
         } returns GetAuthStateResult.SessionExists(
             UserSession(
@@ -61,8 +67,8 @@ class Stubs {
                 loginId = "stubbed-login-id",
                 userRoles = setOf(*roles),
                 anonymousUser = false,
-                sessionExpiryTime = Instant.now().plusSeconds(10)
-            ).also { sessions.add(it) }
+                sessionExpiryTime = Instant.now().plusSeconds(10),
+            ).also { sessions.add(it) },
         )
 
         return sessionId

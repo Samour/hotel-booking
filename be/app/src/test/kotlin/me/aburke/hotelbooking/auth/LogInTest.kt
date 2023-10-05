@@ -40,7 +40,7 @@ class LogInTest {
             LogInRequest().apply {
                 loginId = TestUser.admin.loginId
                 password = TestUser.admin.password
-            }
+            },
         )
 
         assertSoftly { s ->
@@ -51,7 +51,7 @@ class LogInTest {
                     userRoles = listOf("MANAGE_USERS")
                     anonymousUser = false
                     sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
-                }
+                },
             )
         }
 
@@ -65,7 +65,7 @@ class LogInTest {
                     userRoles = listOf("MANAGE_USERS")
                     anonymousUser = false
                     sessionExpiryTime = logInResponse.sessionExpiryTime
-                }
+                },
             )
         }
     }
@@ -77,7 +77,7 @@ class LogInTest {
                 LogInRequest().apply {
                     loginId = TestUser.admin.loginId
                     password = "wrong-password"
-                }
+                },
             )
         }
 
@@ -95,7 +95,7 @@ class LogInTest {
                             "instance": "/api/auth/v1/session",
                             "extended_details": []
                         }
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
         }
     }
@@ -107,7 +107,7 @@ class LogInTest {
                 LogInRequest().apply {
                     loginId = TestUser.admin.userId
                     password = TestUser.admin.password
-                }
+                },
             )
         }
 
@@ -125,7 +125,7 @@ class LogInTest {
                             "instance": "/api/auth/v1/session",
                             "extended_details": []
                         }
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
         }
     }

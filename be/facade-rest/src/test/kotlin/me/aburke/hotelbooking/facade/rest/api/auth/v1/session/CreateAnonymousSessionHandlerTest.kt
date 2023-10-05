@@ -19,7 +19,7 @@ class CreateAnonymousSessionHandlerTest : AbstractCreateAnonymousSessionTest() {
                 override fun makeAssertions(s: SoftAssertions) {
                     s.assertThat(response.code).isEqualTo(201)
                     s.assertThat(response.header("Set-Cookie")).isEqualTo(
-                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict"
+                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict",
                     )
                     s.assertThat(response.header("Content-Type")).isEqualTo("application/json")
                     s.assertThatJson(response.body?.string()).isEqualTo(
@@ -30,10 +30,10 @@ class CreateAnonymousSessionHandlerTest : AbstractCreateAnonymousSessionTest() {
                                 "anonymous_user": true,
                                 "session_expiry_time": "$sessionExpiryTime"
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 }

@@ -23,7 +23,7 @@ class RoomRepositoryStub : RoomRepository {
 
     override fun queryRoomsAndAvailability(
         availabilityRangeStart: LocalDate,
-        availabilityRangeEnd: LocalDate
+        availabilityRangeEnd: LocalDate,
     ): List<RoomTypeRecord> {
         if (availabilityRangeEnd < availabilityRangeStart) {
             return emptyList()
@@ -44,7 +44,7 @@ class RoomRepositoryStub : RoomRepository {
                             date = d,
                             stockLevel = s,
                         )
-                    } ?: emptyList()
+                    } ?: emptyList(),
             )
         }
     }

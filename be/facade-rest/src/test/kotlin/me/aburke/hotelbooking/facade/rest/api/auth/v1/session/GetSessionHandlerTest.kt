@@ -30,10 +30,10 @@ class GetSessionHandlerTest : AbstractGetSessionTest() {
                                 "anonymous_user": false,
                                 "session_expiry_time": "$sessionExpiryTime"
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -56,10 +56,10 @@ class GetSessionHandlerTest : AbstractGetSessionTest() {
                                 "anonymous_user": true,
                                 "session_expiry_time": "$sessionExpiryTime"
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -84,17 +84,17 @@ class GetSessionHandlerTest : AbstractGetSessionTest() {
                                 "instance": "/api/auth/v1/session",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
     @Test
     fun `should return 401 when no session ID provided`() = test(javalin) { _, client ->
         `RUN should return 401 when no session ID provided`(
-            object : TestRequest<Response>(){
+            object : TestRequest<Response>() {
                 override fun makeRequest(): Response = client.get("/api/auth/v1/session")
 
                 override fun makeAssertions(s: SoftAssertions) {
@@ -110,10 +110,10 @@ class GetSessionHandlerTest : AbstractGetSessionTest() {
                                 "instance": "/api/auth/v1/session",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 }

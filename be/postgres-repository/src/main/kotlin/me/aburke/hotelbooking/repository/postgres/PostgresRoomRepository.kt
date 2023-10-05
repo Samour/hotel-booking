@@ -59,7 +59,7 @@ class PostgresRoomRepository(
 
     override fun queryRoomsAndAvailability(
         availabilityRangeStart: LocalDate,
-        availabilityRangeEnd: LocalDate
+        availabilityRangeEnd: LocalDate,
     ): List<RoomTypeRecord> = connection.findRoomsDescriptionStockQuery(
         availabilityRangeStart,
         availabilityRangeEnd,

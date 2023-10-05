@@ -28,13 +28,13 @@ class SignUpTest : AbstractSignUpTest() {
                             it.loginId = loginId
                             it.password = password
                             it.name = name
-                        }
+                        },
                     )
 
                 override fun makeAssertions(s: SoftAssertions) {
                     s.assertThat(response.statusCode).isEqualTo(201)
                     s.assertThat(response.headers["Set-Cookie"]).containsExactly(
-                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict"
+                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict",
                     )
                     s.assertThat(response.data).isEqualTo(
                         SessionResponse().also { r ->
@@ -43,10 +43,10 @@ class SignUpTest : AbstractSignUpTest() {
                             r.userRoles = roles.map { it.name }
                             r.anonymousUser = false
                             r.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -60,13 +60,13 @@ class SignUpTest : AbstractSignUpTest() {
                             it.loginId = loginId
                             it.password = password
                             it.name = name
-                        }
+                        },
                     )
 
                 override fun makeAssertions(s: SoftAssertions) {
                     s.assertThat(response.statusCode).isEqualTo(201)
                     s.assertThat(response.headers["Set-Cookie"]).containsExactly(
-                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict"
+                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict",
                     )
                     s.assertThat(response.data).isEqualTo(
                         SessionResponse().also { r ->
@@ -75,10 +75,10 @@ class SignUpTest : AbstractSignUpTest() {
                             r.userRoles = roles.map { it.name }
                             r.anonymousUser = false
                             r.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -92,7 +92,7 @@ class SignUpTest : AbstractSignUpTest() {
                             it.loginId = loginId
                             it.password = password
                             it.name = name
-                        }
+                        },
                     )
                 }
 
@@ -109,10 +109,10 @@ class SignUpTest : AbstractSignUpTest() {
                             detail = "Username is not available"
                             instance = "/api/auth/v1/user"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -126,7 +126,7 @@ class SignUpTest : AbstractSignUpTest() {
                             it.loginId = loginId
                             it.password = password
                             it.name = name
-                        }
+                        },
                     )
 
                 override fun makeAssertions(s: SoftAssertions) {
@@ -139,10 +139,10 @@ class SignUpTest : AbstractSignUpTest() {
                             r.userRoles = roles.map { it.name }
                             r.anonymousUser = false
                             r.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -156,7 +156,7 @@ class SignUpTest : AbstractSignUpTest() {
                             it.loginId = loginId
                             it.password = password
                             it.name = name
-                        }
+                        },
                     )
                 }
 
@@ -173,10 +173,10 @@ class SignUpTest : AbstractSignUpTest() {
                             detail = "Username is not available"
                             instance = "/api/auth/v1/user"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 
@@ -190,7 +190,7 @@ class SignUpTest : AbstractSignUpTest() {
                             it.loginId = loginId
                             it.password = password
                             it.name = name
-                        }
+                        },
                     )
                 }
 
@@ -207,10 +207,10 @@ class SignUpTest : AbstractSignUpTest() {
                             detail = "User is not anonymous"
                             instance = "/api/auth/v1/user"
                             extendedDetails = emptyList()
-                        }
+                        },
                     )
                 }
-            }
+            },
         )
     }
 }

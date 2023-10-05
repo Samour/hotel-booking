@@ -10,7 +10,13 @@ import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
 import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserSession
-import me.aburke.hotelbooking.ports.scenario.user.*
+import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStatePort
+import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateResult
+import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
+import me.aburke.hotelbooking.ports.scenario.user.SignUpPort
+import me.aburke.hotelbooking.ports.scenario.user.SignUpResult
 
 data class SignUpRequest(
     val loginId: String,
@@ -38,10 +44,10 @@ class SignUpHandler(
                 anonymousUser = session?.let {
                     AnonymousSession(
                         sessionId = it.sessionId,
-                        userId = it.userId
+                        userId = it.userId,
                     )
                 },
-            )
+            ),
         )
 
         when (result) {
@@ -68,7 +74,7 @@ private fun Context.sendUserCreatedResponse(session: UserSession, existingSessio
             userRoles = session.userRoles.map { it.name },
             anonymousUser = session.anonymousUser,
             sessionExpiryTime = session.sessionExpiryTime,
-        )
+        ),
     )
 }
 
@@ -79,7 +85,7 @@ private fun Context.sendUsernameNotAvailable() = problemJson(
         status = 409,
         detail = "Username is not available",
         instance = path(),
-    )
+    ),
 )
 
 private fun Context.sendUserIsNotAnonymous() = problemJson(
@@ -89,7 +95,7 @@ private fun Context.sendUserIsNotAnonymous() = problemJson(
         status = 409,
         detail = "User is not anonymous",
         instance = path(),
-    )
+    ),
 )
 
 private fun Context.sendUserDoesNotExist() = problemJson(
@@ -99,5 +105,5 @@ private fun Context.sendUserDoesNotExist() = problemJson(
         status = 400,
         detail = "User does not exist",
         instance = path(),
-    )
+    ),
 )

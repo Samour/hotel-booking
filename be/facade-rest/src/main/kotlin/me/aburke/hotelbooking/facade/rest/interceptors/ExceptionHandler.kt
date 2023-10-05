@@ -25,7 +25,7 @@ object ExceptionHandler {
                     status = 400,
                     detail = "Request body is not valid",
                     instance = context.path(),
-                )
+                ),
             )
         }
 
@@ -38,7 +38,7 @@ object ExceptionHandler {
                     status = 500,
                     detail = "Unhandled exception occurred",
                     instance = context.path(),
-                )
+                ),
             )
         }
     }

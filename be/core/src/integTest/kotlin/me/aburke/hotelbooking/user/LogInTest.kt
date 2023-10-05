@@ -53,7 +53,7 @@ class LogInTest {
             LogInCredentials(
                 loginId = LOGIN_ID,
                 password = PASSWORD,
-            )
+            ),
         )
         val session = (result as? LogInResult.UserSessionCreated)?.session
         val allSessions = stubs.sessionRepository.getSessions().values
@@ -70,13 +70,13 @@ class LogInTest {
                             userRoles = userRoles,
                             anonymousUser = false,
                             sessionExpiryTime = now,
-                        )
-                    )
+                        ),
+                    ),
                 )
             s.assertThat(session?.sessionId).matches("[a-zA-Z0-9]{36}")
             s.assertThat(session?.sessionExpiryTime).isCloseTo(
                 now.plus(sessionDuration),
-                Assertions.within(100, ChronoUnit.MILLIS)
+                Assertions.within(100, ChronoUnit.MILLIS),
             )
             s.assertThat(allSessions).containsExactly(session)
         }
@@ -90,14 +90,14 @@ class LogInTest {
             LogInCredentials(
                 loginId = LOGIN_ID,
                 password = "incorrect-password",
-            )
+            ),
         )
         val allSessions = stubs.sessionRepository.getSessions().values
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                    LogInResult.InvalidCredentials
-                )
+                LogInResult.InvalidCredentials,
+            )
             s.assertThat(allSessions).isEmpty()
         }
     }
@@ -108,13 +108,13 @@ class LogInTest {
             LogInCredentials(
                 loginId = LOGIN_ID,
                 password = PASSWORD,
-            )
+            ),
         )
         val allSessions = stubs.sessionRepository.getSessions().values
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                LogInResult.InvalidCredentials
+                LogInResult.InvalidCredentials,
             )
             s.assertThat(allSessions).isEmpty()
         }
@@ -126,6 +126,6 @@ class LogInTest {
             passwordHash = passwordHasher.hashPassword(PASSWORD),
             name = NAME,
             roles = userRoles,
-        )
+        ),
     )
 }

@@ -46,7 +46,7 @@ class CreateUserTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 userRoles = roles,
-            )
+            ),
         )
 
         val userId = (result as? CreateUserResult.Success)?.userId
@@ -67,7 +67,7 @@ class CreateUserTest {
                         passwordHash = "",
                         name = NAME,
                         roles = roles,
-                    )
+                    ),
                 )
             s.assertThat(passwordHashResult).isTrue
         }
@@ -81,7 +81,7 @@ class CreateUserTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 userRoles = roles,
-            )
+            ),
         ).let {
             assertThat(it).isInstanceOf(CreateUserResult.Success::class.java)
             (it as CreateUserResult.Success).userId
@@ -93,7 +93,7 @@ class CreateUserTest {
                 rawPassword = RAW_PASSWORD,
                 name = NAME,
                 userRoles = roles,
-            )
+            ),
         )
 
         assertSoftly { s ->

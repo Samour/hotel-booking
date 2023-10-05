@@ -45,12 +45,12 @@ class GetAuthStateScenarioTest {
         val result = underTest.run(
             GetAuthStateDetails(
                 sessionId = SESSION_ID,
-            )
+            ),
         )
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                GetAuthStateResult.SessionExists(session)
+                GetAuthStateResult.SessionExists(session),
             )
             s.check {
                 verify(exactly = 1) {
@@ -72,12 +72,12 @@ class GetAuthStateScenarioTest {
         val result = underTest.run(
             GetAuthStateDetails(
                 sessionId = SESSION_ID,
-            )
+            ),
         )
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                GetAuthStateResult.SessionDoesNotExist
+                GetAuthStateResult.SessionDoesNotExist,
             )
             s.check {
                 verify(exactly = 1) {

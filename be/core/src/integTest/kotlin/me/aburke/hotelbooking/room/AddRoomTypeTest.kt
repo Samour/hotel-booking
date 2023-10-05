@@ -47,7 +47,7 @@ class AddRoomTypeTest {
                 imageUrls = imageUrls,
                 pricePerNight = PRICE_PER_NIGHT,
                 stockLevel = STOCK_LEVEL,
-            )
+            ),
         )
 
         val firstDate = stubs.time.atZone(hotelTimeZone.toZoneId())
@@ -63,15 +63,15 @@ class AddRoomTypeTest {
                         imageUrls = imageUrls,
                         pricePerNight = PRICE_PER_NIGHT,
                         stockLevel = STOCK_LEVEL,
-                    )
-                )
+                    ),
+                ),
             )
             s.assertThat(stubs.roomRepository.stock).isEqualTo(
                 mapOf(
                     result.roomTypeId to (0..44).map {
                         firstDate.plusDays(it.toLong()) to STOCK_LEVEL
-                    }.toMap()
-                )
+                    }.toMap(),
+                ),
             )
         }
     }

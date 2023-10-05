@@ -9,7 +9,10 @@ import io.mockk.verify
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.password.PasswordHasher
-import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
+import me.aburke.hotelbooking.ports.repository.SessionRepository
+import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
+import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.ports.scenario.user.LogInCredentials
 import me.aburke.hotelbooking.ports.scenario.user.LogInResult
 import me.aburke.hotelbooking.session.SessionFactory
@@ -87,12 +90,12 @@ class LogInScenarioTest {
             LogInCredentials(
                 loginId = LOGIN_ID,
                 password = PASSWORD,
-            )
+            ),
         )
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                LogInResult.UserSessionCreated(userSession)
+                LogInResult.UserSessionCreated(userSession),
             )
             s.check {
                 verify(exactly = 1) {
@@ -143,12 +146,12 @@ class LogInScenarioTest {
             LogInCredentials(
                 loginId = LOGIN_ID,
                 password = PASSWORD,
-            )
+            ),
         )
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                LogInResult.InvalidCredentials
+                LogInResult.InvalidCredentials,
             )
             s.check {
                 verify(exactly = 1) {
@@ -184,12 +187,12 @@ class LogInScenarioTest {
             LogInCredentials(
                 loginId = LOGIN_ID,
                 password = PASSWORD,
-            )
+            ),
         )
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
-                LogInResult.InvalidCredentials
+                LogInResult.InvalidCredentials,
             )
             s.check {
                 verify(exactly = 1) {

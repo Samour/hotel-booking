@@ -8,5 +8,5 @@ fun Context.pathWithParams() = listOfNotNull(
         .takeUnless { it.isEmpty() }
         ?.entries
         ?.flatMap { (k, v) -> v.map { k to it } }
-        ?.joinToString("&") { (k, v) -> "$k=$v" }
+        ?.joinToString("&") { (k, v) -> "$k=$v" },
 ).joinToString("?")

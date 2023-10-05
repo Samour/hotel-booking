@@ -100,7 +100,7 @@ class PostgresRoomRepositoryTest {
                     description = DESCRIPTION,
                     imageUrls = imageUrls,
                     pricePerNight = PRICE_PER_NIGHT,
-                )
+                ),
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
                 *stockDates.map {
@@ -109,7 +109,7 @@ class PostgresRoomRepositoryTest {
                         date = it,
                         stockLevel = STOCK_LEVEL,
                     )
-                }.toTypedArray()
+                }.toTypedArray(),
             )
         }
     }
@@ -140,7 +140,7 @@ class PostgresRoomRepositoryTest {
                     description = DESCRIPTION,
                     imageUrls = emptyList(),
                     pricePerNight = PRICE_PER_NIGHT,
-                )
+                ),
             )
             s.assertThat(allStock).containsExactlyInAnyOrder(
                 *stockDates.map {
@@ -149,7 +149,7 @@ class PostgresRoomRepositoryTest {
                         date = it,
                         stockLevel = STOCK_LEVEL,
                     )
-                }.toTypedArray()
+                }.toTypedArray(),
             )
         }
     }
@@ -180,7 +180,7 @@ class PostgresRoomRepositoryTest {
                     description = DESCRIPTION,
                     imageUrls = imageUrls,
                     pricePerNight = PRICE_PER_NIGHT,
-                )
+                ),
             )
             s.assertThat(allStock).isEmpty()
         }
@@ -202,9 +202,9 @@ class PostgresRoomRepositoryTest {
                 room.copy(
                     stockLevels = room.stockLevels.filter {
                         it.date >= queryStartDate && it.date <= queryEndDate
-                    }
+                    },
                 )
-            }.toTypedArray()
+            }.toTypedArray(),
         )
     }
 
@@ -237,11 +237,11 @@ class PostgresRoomRepositoryTest {
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
-                        it.date >= queryStartDate && it.date <= queryEndDate
-                                && !stockDatesToRemove.contains(it.date)
-                    }
+                        it.date >= queryStartDate && it.date <= queryEndDate &&
+                            !stockDatesToRemove.contains(it.date)
+                    },
                 )
-            }.toTypedArray()
+            }.toTypedArray(),
         )
     }
 
@@ -264,9 +264,9 @@ class PostgresRoomRepositoryTest {
                     room.copy(
                         stockLevels = room.stockLevels.filter {
                             it.date >= queryStartDate && it.date <= queryEndDate
-                        }
+                        },
                     )
-                }.toTypedArray()
+                }.toTypedArray(),
         )
     }
 
@@ -291,9 +291,9 @@ class PostgresRoomRepositoryTest {
                         it.copy(
                             stockLevel = it.stockLevel - TestRooms.getHoldCount(room.roomTypeId, it.date),
                         )
-                    }
+                    },
                 )
-            }.toTypedArray()
+            }.toTypedArray(),
         )
     }
 
@@ -304,7 +304,7 @@ class PostgresRoomRepositoryTest {
                     rd.price_per_night
                 from room_type r
                 join room_type_description rd on rd.room_type_id = r.room_type_id
-            """.trimIndent()
+            """.trimIndent(),
         ).executeQuery()
 
         val rooms = mutableListOf<RoomRecord>()
@@ -318,7 +318,7 @@ class PostgresRoomRepositoryTest {
                     description = results.getString("description"),
                     imageUrls = listOf(*(results.getArray("image_urls").array as Array<String>)),
                     pricePerNight = results.getInt("price_per_night"),
-                )
+                ),
             )
         }
 
@@ -330,7 +330,7 @@ class PostgresRoomRepositoryTest {
             """
                 select room_type_id, date, stock_level
                 from room_stock
-            """.trimIndent()
+            """.trimIndent(),
         ).executeQuery()
 
         val records = mutableListOf<TestRoomStockRecord>()
@@ -340,7 +340,7 @@ class PostgresRoomRepositoryTest {
                     roomTypeId = results.getString("room_type_id"),
                     date = LocalDate.parse(results.getString("date")),
                     stockLevel = results.getInt("stock_level"),
-                )
+                ),
             )
         }
 
@@ -351,7 +351,7 @@ class PostgresRoomRepositoryTest {
         val query = connection.prepareStatement(
             """
                 delete from room_stock where date in (?, ?, ?)
-            """.trimIndent()
+            """.trimIndent(),
         )
         val dates = stockDatesToRemove.map { it.toString() }
         query.setString(1, dates[0])
@@ -364,7 +364,7 @@ class PostgresRoomRepositoryTest {
         val query = connection.prepareStatement(
             """
                 delete from room_stock where room_type_id in (?, ?)
-            """.trimIndent()
+            """.trimIndent(),
         )
         val roomIds = roomsWithNoStock.toList()
         query.setString(1, roomIds[0])

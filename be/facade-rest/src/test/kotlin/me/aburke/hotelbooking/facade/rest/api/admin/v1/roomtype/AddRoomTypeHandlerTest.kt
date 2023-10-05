@@ -35,10 +35,10 @@ class AddRoomTypeHandlerTest : AbstractAddRoomTypeTest() {
                     {
                         "room_type_id": "$roomTypeId"
                     }
-                """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 
@@ -65,10 +65,10 @@ class AddRoomTypeHandlerTest : AbstractAddRoomTypeTest() {
                                 "instance": "/api/admin/v1/room-type",
                                 "extended_details": []
                             }
-                        """.trimIndent()
+                        """.trimIndent(),
                     )
                 }
-            }
+            },
         )
     }
 

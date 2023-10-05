@@ -3,8 +3,8 @@ package me.aburke.hotelbooking.facade.rest.api.auth.v1.session
 import io.javalin.Javalin
 import io.mockk.every
 import io.mockk.verify
-import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.Stubs
+import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
@@ -37,7 +37,7 @@ abstract class AbstractGetSessionTest {
     protected fun <T : Any> `RUN should return session details when authenticated`(testRequest: TestRequest<T>) {
         every {
             stubs.getAuthStatePort.run(
-                GetAuthStateDetails(sessionId)
+                GetAuthStateDetails(sessionId),
             )
         } returns GetAuthStateResult.SessionExists(
             UserSession(
@@ -47,7 +47,7 @@ abstract class AbstractGetSessionTest {
                 userRoles = userRoles,
                 anonymousUser = false,
                 sessionExpiryTime = sessionExpiryTime,
-            )
+            ),
         )
 
         testRequest.executeRequest()
@@ -57,7 +57,7 @@ abstract class AbstractGetSessionTest {
             s.check {
                 verify(exactly = 1) {
                     stubs.getAuthStatePort.run(
-                        GetAuthStateDetails(sessionId)
+                        GetAuthStateDetails(sessionId),
                     )
                 }
             }
@@ -67,10 +67,12 @@ abstract class AbstractGetSessionTest {
         }
     }
 
-    protected fun <T : Any> `RUN should return session details when anonymously authenticated`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should return session details when anonymously authenticated`(
+        testRequest: TestRequest<T>,
+    ) {
         every {
             stubs.getAuthStatePort.run(
-                GetAuthStateDetails(sessionId)
+                GetAuthStateDetails(sessionId),
             )
         } returns GetAuthStateResult.SessionExists(
             UserSession(
@@ -80,7 +82,7 @@ abstract class AbstractGetSessionTest {
                 userRoles = userRoles,
                 anonymousUser = true,
                 sessionExpiryTime = sessionExpiryTime,
-            )
+            ),
         )
 
         testRequest.executeRequest()
@@ -90,7 +92,7 @@ abstract class AbstractGetSessionTest {
             s.check {
                 verify(exactly = 1) {
                     stubs.getAuthStatePort.run(
-                        GetAuthStateDetails(sessionId)
+                        GetAuthStateDetails(sessionId),
                     )
                 }
             }
@@ -103,7 +105,7 @@ abstract class AbstractGetSessionTest {
     protected fun <T : Any> `RUN should return 401 when invalid session ID provided`(testRequest: TestRequest<T>) {
         every {
             stubs.getAuthStatePort.run(
-                GetAuthStateDetails(sessionId)
+                GetAuthStateDetails(sessionId),
             )
         } returns GetAuthStateResult.SessionDoesNotExist
 
@@ -114,7 +116,7 @@ abstract class AbstractGetSessionTest {
             s.check {
                 verify(exactly = 1) {
                     stubs.getAuthStatePort.run(
-                        GetAuthStateDetails(sessionId)
+                        GetAuthStateDetails(sessionId),
                     )
                 }
             }

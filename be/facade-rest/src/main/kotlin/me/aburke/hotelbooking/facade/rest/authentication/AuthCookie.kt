@@ -16,5 +16,5 @@ fun Context.setAuthCookie(session: UserSession) = cookie(
         value = session.sessionId,
         sameSite = SameSite.STRICT,
         isHttpOnly = true,
-    )
+    ),
 )

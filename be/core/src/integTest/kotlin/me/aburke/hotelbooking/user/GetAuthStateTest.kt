@@ -37,11 +37,11 @@ class GetAuthStateTest {
         val result = underTest.run(
             GetAuthStateDetails(
                 sessionId = anonymousUser.session.sessionId,
-            )
+            ),
         )
 
         assertThat(result).isEqualTo(
-            GetAuthStateResult.SessionExists(anonymousUser.session)
+            GetAuthStateResult.SessionExists(anonymousUser.session),
         )
     }
 
@@ -52,11 +52,11 @@ class GetAuthStateTest {
         val result = underTest.run(
             GetAuthStateDetails(
                 sessionId = "wrong-session-id",
-            )
+            ),
         )
 
         assertThat(result).isEqualTo(
-            GetAuthStateResult.SessionDoesNotExist
+            GetAuthStateResult.SessionDoesNotExist,
         )
     }
 }

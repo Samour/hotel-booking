@@ -6,7 +6,11 @@ import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.ports.repository.*
+import me.aburke.hotelbooking.ports.repository.InsertUserRecord
+import me.aburke.hotelbooking.ports.repository.InsertUserResult
+import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
+import me.aburke.hotelbooking.ports.repository.UserRecord
+import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.rest.client.api.AuthApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiClient
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
@@ -70,7 +74,7 @@ class SignUpTest {
                 passwordHash = "password-hash",
                 name = NAME,
                 roles = setOf(UserRole.MANAGE_USERS),
-            )
+            ),
         ) as InsertUserResult.UserInserted
 
         val anonymousUserId = client.takeIf { asAnonymousUser }
@@ -85,7 +89,7 @@ class SignUpTest {
                     loginId = LOGIN_ID
                     password = PASSWORD
                     name = NAME
-                }
+                },
             )
         }
 
@@ -104,13 +108,13 @@ class SignUpTest {
                         "instance": "/api/auth/v1/user",
                         "extended_details": []
                     }
-                """.trimIndent()
+                """.trimIndent(),
             )
             s.assertThat(allUsers.map { it.userId }).isEqualTo(
                 listOfNotNull(
                     existingUserId,
                     anonymousUserId,
-                )
+                ),
             )
         }
     }
@@ -135,7 +139,7 @@ class SignUpTest {
                 loginId = LOGIN_ID
                 password = PASSWORD
                 name = NAME
-            }
+            },
         )
 
         val secondSignUpResponse = assertThrows<ApiException> {
@@ -144,7 +148,7 @@ class SignUpTest {
                     loginId = LOGIN_ID
                     password = PASSWORD
                     name = NAME
-                }
+                },
             )
         }
 
@@ -163,7 +167,7 @@ class SignUpTest {
                         "instance": "/api/auth/v1/user",
                         "extended_details": []
                     }
-                """.trimIndent()
+                """.trimIndent(),
             )
             s.assertThat(allUsers.map { it.userId }).containsExactly(firstSignUpResponse.userId)
         }
@@ -180,7 +184,7 @@ class SignUpTest {
                     loginId = LOGIN_ID
                     password = PASSWORD
                     name = NAME
-                }
+                },
             )
         }
 
@@ -199,7 +203,7 @@ class SignUpTest {
                         "instance": "/api/auth/v1/user",
                         "extended_details": []
                     }
-                """.trimIndent()
+                """.trimIndent(),
             )
             s.assertThat(allUsers).isEmpty()
         }
@@ -211,7 +215,7 @@ class SignUpTest {
                 loginId = LOGIN_ID
                 password = PASSWORD
                 name = NAME
-            }
+            },
         )
 
         val allUsers = connection.readAllUsers()
@@ -226,7 +230,7 @@ class SignUpTest {
                         userRoles = listOf("CUSTOMER")
                         anonymousUser = false
                         sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
-                    }
+                    },
                 )
             s.assertThat(allUsers).hasSize(1)
             s.assertThat(allUsers.firstOrNull()).usingRecursiveComparison()
@@ -240,7 +244,7 @@ class SignUpTest {
                             loginId = LOGIN_ID,
                             passwordHash = "",
                         ),
-                    )
+                    ),
                 )
         }
 
@@ -253,7 +257,7 @@ class SignUpTest {
                 loginId = LOGIN_ID
                 password = PASSWORD
                 name = NAME
-            }
+            },
         )
 
         val allUsers = connection.readAllUsers()
@@ -266,7 +270,7 @@ class SignUpTest {
                     userRoles = listOf("CUSTOMER")
                     anonymousUser = false
                     sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
-                }
+                },
             )
             s.assertThat(allUsers).hasSize(1)
             s.assertThat(allUsers.firstOrNull()).usingRecursiveComparison()
@@ -280,7 +284,7 @@ class SignUpTest {
                             loginId = LOGIN_ID,
                             passwordHash = "",
                         ),
-                    )
+                    ),
                 )
         }
 
@@ -292,7 +296,7 @@ class SignUpTest {
             LogInRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
-            }
+            },
         )
 
         assertSoftly { s ->
@@ -303,7 +307,7 @@ class SignUpTest {
                     it.userRoles = listOf("CUSTOMER")
                     it.anonymousUser = false
                     it.sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
-                }
+                },
             )
         }
 
@@ -319,7 +323,7 @@ class SignUpTest {
                 it.userRoles = listOf("CUSTOMER")
                 it.anonymousUser = false
                 it.sessionExpiryTime = sessionExpiryTime.atOffset(ZoneOffset.UTC)
-            }
+            },
         )
     }
 }

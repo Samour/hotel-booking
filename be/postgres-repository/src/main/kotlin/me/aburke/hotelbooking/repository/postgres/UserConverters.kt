@@ -13,7 +13,7 @@ fun ResultSet.toNonAnonymousUserRecord() = NonAnonymousUserRecord(
     credential = UserCredentialRecord(
         loginId = getString("login_id"),
         passwordHash = getString("password_hash"),
-    )
+    ),
 )
 
 fun java.sql.Array.toUserRoles() = setOf(*(array as Array<String>))

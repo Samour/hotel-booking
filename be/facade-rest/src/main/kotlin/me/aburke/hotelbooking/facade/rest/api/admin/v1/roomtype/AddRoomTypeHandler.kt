@@ -33,14 +33,14 @@ class AddRoomTypeHandler(
                 imageUrls = request.imageUrls,
                 pricePerNight = request.pricePerNight,
                 stockLevel = request.stockLevel,
-            )
+            ),
         )
 
         ctx.status(HttpStatus.CREATED)
         ctx.json(
             AddRoomTypeResponse(
                 roomTypeId = result.roomTypeId,
-            )
+            ),
         )
     }
 }
