@@ -16,6 +16,7 @@ private const val TITLE = "title"
 private const val DESCRIPTION = "description"
 private const val STOCK_LEVEL = 25
 private const val PRICE_PER_NIGHT = 150_00
+private const val CURRENT_USER_ID = "current-user-id"
 
 private val imageUrls = listOf(
     "image-url-1",
@@ -193,6 +194,7 @@ class PostgresRoomRepositoryTest {
         val queryEndDate = LocalDate.parse("2023-09-01")
 
         val result = underTest.queryRoomsAndAvailability(
+            CURRENT_USER_ID,
             queryStartDate,
             queryEndDate,
         )
@@ -214,6 +216,7 @@ class PostgresRoomRepositoryTest {
         val queryEndDate = LocalDate.parse("2023-09-01")
 
         val result = underTest.queryRoomsAndAvailability(
+            CURRENT_USER_ID,
             queryStartDate,
             queryEndDate,
         )
@@ -229,6 +232,7 @@ class PostgresRoomRepositoryTest {
         val queryEndDate = LocalDate.parse("2023-09-01")
 
         val result = underTest.queryRoomsAndAvailability(
+            CURRENT_USER_ID,
             queryStartDate,
             queryEndDate,
         )
@@ -253,6 +257,7 @@ class PostgresRoomRepositoryTest {
         val queryEndDate = LocalDate.parse("2023-09-01")
 
         val result = underTest.queryRoomsAndAvailability(
+            CURRENT_USER_ID,
             queryStartDate,
             queryEndDate,
         )
@@ -278,6 +283,7 @@ class PostgresRoomRepositoryTest {
         val queryEndDate = LocalDate.parse("2023-09-01")
 
         val result = underTest.queryRoomsAndAvailability(
+            CURRENT_USER_ID,
             queryStartDate,
             queryEndDate,
         )
