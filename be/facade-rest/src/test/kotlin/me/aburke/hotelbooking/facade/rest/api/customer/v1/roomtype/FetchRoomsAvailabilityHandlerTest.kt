@@ -19,7 +19,7 @@ class FetchRoomsAvailabilityHandlerTest : AbstractFetchRoomsAvailabilityHandlerT
             object : TestRequest<Response>() {
                 override fun makeRequest(): Response = client.get(
                     "/api/customer/v1/room-type/availability?" +
-                            "availability_range_start=$searchRangeStart&availability_range_end=$searchRangeEnd",
+                        "availability_range_start=$searchRangeStart&availability_range_end=$searchRangeEnd",
                 )
 
                 override fun makeAssertions(s: SoftAssertions) {
@@ -37,7 +37,7 @@ class FetchRoomsAvailabilityHandlerTest : AbstractFetchRoomsAvailabilityHandlerT
             object : TestRequest<Response>() {
                 override fun makeRequest(): Response = client.request(
                     "/api/customer/v1/room-type/availability?" +
-                            "availability_range_start=$searchRangeStart&availability_range_end=$searchRangeEnd",
+                        "availability_range_start=$searchRangeStart&availability_range_end=$searchRangeEnd",
                 ) { rb ->
                     rb.header("Cookie", "$AUTH_COOKIE_KEY=${session.sessionId}")
                         .get()

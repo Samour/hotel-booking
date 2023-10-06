@@ -59,7 +59,9 @@ abstract class AbstractFetchRoomsAvailabilityHandlerTest {
     @AfterEach
     fun cleanUp() = stubs.cleanUp()
 
-    protected fun <T : Any> `RUN should fetch room availabilities for unauthenticated user`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should fetch room availabilities for unauthenticated user`(
+        testRequest: TestRequest<T>,
+    ) {
         every {
             stubs.listRoomsPort.run(
                 ListRoomsDetails(
@@ -132,7 +134,9 @@ abstract class AbstractFetchRoomsAvailabilityHandlerTest {
         }
     }
 
-    protected fun <T : Any> `RUN should return 400 if date is in invalid format or missing`(testRequest: TestRequest<T>) {
+    protected fun <T : Any> `RUN should return 400 if date is in invalid format or missing`(
+        testRequest: TestRequest<T>,
+    ) {
         testRequest.executeRequest()
 
         assertSoftly { s ->

@@ -88,7 +88,7 @@ class EndpointsProvider : ArgumentsProvider {
 
         "POST" to "/api/admin/v1/room-type",
 
-        "GET" to "/api/customer/v1/room-type/availability"
+        "GET" to "/api/customer/v1/room-type/availability",
     )
 
     override fun provideArguments(p0: ExtensionContext?): Stream<out Arguments> {
