@@ -9,7 +9,12 @@ import java.util.UUID.randomUUID
 
 // TODO Add a condition that excludes holds for the current user
 //  (ie the user can see rooms that they have a hold on)
-fun Connection.findRoomsDescriptionStockQuery(rangeStart: LocalDate, rangeEnd: LocalDate, now: Instant) =
+fun Connection.findRoomsDescriptionStockQuery(
+    userId: String,
+    rangeStart: LocalDate,
+    rangeEnd: LocalDate,
+    now: Instant,
+) =
     prepareStatement(
         """
             select r.room_type_id,
@@ -26,7 +31,7 @@ fun Connection.findRoomsDescriptionStockQuery(rangeStart: LocalDate, rangeEnd: L
                 select rsh.room_stock_id, count(rsh.room_stock_hold_id) as held_stock
                 from room_stock_hold rsh
                 join room_hold rh on rh.room_hold_id = rsh.room_hold_id
-                where rh.hold_expiry > ?
+                where rh.hold_expiry > ? and rh.user_id != ?
                 group by rsh.room_stock_id
             ) holds on holds.room_stock_id = rs.room_stock_id
             where rs.date >= ?
@@ -35,8 +40,9 @@ fun Connection.findRoomsDescriptionStockQuery(rangeStart: LocalDate, rangeEnd: L
         """.trimIndent(),
     ).apply {
         setString(1, now.toString())
-        setString(2, rangeStart.toString())
-        setString(3, rangeEnd.toString())
+        setString(2, userId)
+        setString(3, rangeStart.toString())
+        setString(4, rangeEnd.toString())
     }
 
 // Write queries

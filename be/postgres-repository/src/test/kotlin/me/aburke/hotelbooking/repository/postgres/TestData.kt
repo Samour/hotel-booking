@@ -51,6 +51,20 @@ object TestRooms {
         ),
     )
 
-    fun getHoldCount(roomTypeId: String, date: LocalDate): Int =
-        holds[roomTypeId]?.get(date) ?: 0
+    val userWithHoldsId = "test-hold-user-1"
+    val holdsForUserWithHold = mapOf<String, Map<LocalDate, Int>>(
+        "room-type-id-1" to mapOf(
+            LocalDate.parse("2023-08-17") to 1,
+            LocalDate.parse("2023-08-19") to 1,
+            LocalDate.parse("2023-08-20") to 1,
+        ),
+        "room-type-id-2" to mapOf(
+            LocalDate.parse("2023-08-20") to 1,
+            LocalDate.parse("2023-08-21") to 1,
+            LocalDate.parse("2023-08-22") to 1,
+        ),
+    )
 }
+
+fun Map<String, Map<LocalDate, Int>>.getHoldCount(roomTypeId: String, date: LocalDate): Int =
+    this[roomTypeId]?.get(date) ?: 0

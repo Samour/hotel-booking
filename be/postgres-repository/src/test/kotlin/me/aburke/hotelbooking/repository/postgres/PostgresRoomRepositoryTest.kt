@@ -300,7 +300,37 @@ class PostgresRoomRepositoryTest {
                         it.date >= queryStartDate && it.date <= queryEndDate
                     }.map {
                         it.copy(
-                            stockLevel = it.stockLevel - TestRooms.getHoldCount(room.roomTypeId, it.date),
+                            stockLevel = it.stockLevel - TestRooms.holds.getHoldCount(room.roomTypeId, it.date),
+                        )
+                    },
+                )
+            }.toTypedArray(),
+        )
+    }
+
+    @Test
+    fun `should include stock that is held by the current user`() {
+        connection.insertTestRooms(TestRooms.rooms)
+        connection.executeScript("test/room/insert_room_holds.sql")
+
+        val queryStartDate = LocalDate.parse("2023-08-13")
+        val queryEndDate = LocalDate.parse("2023-09-01")
+
+        val result = underTest.queryRoomsAndAvailability(
+            TestRooms.userWithHoldsId,
+            queryStartDate,
+            queryEndDate,
+        )
+
+        assertThat(result).containsExactlyInAnyOrder(
+            *TestRooms.rooms.map { room ->
+                room.copy(
+                    stockLevels = room.stockLevels.filter {
+                        it.date >= queryStartDate && it.date <= queryEndDate
+                    }.map {
+                        it.copy(
+                            stockLevel = it.stockLevel - TestRooms.holdsForUserWithHold
+                                .getHoldCount(room.roomTypeId, it.date),
                         )
                     },
                 )

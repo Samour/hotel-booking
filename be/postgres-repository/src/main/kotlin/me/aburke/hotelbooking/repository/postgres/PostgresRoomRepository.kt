@@ -62,6 +62,7 @@ class PostgresRoomRepository(
         availabilityRangeStart: LocalDate,
         availabilityRangeEnd: LocalDate,
     ): List<RoomTypeRecord> = connection.findRoomsDescriptionStockQuery(
+        currentUserId,
         availabilityRangeStart,
         availabilityRangeEnd,
         clock.instant(),
