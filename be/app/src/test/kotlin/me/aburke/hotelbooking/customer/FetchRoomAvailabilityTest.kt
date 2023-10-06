@@ -18,7 +18,7 @@ class FetchRoomAvailabilityTest {
 
     @BeforeEach
     fun init() {
-        app = createApp(useEndpointsProperties = true).first
+        app = createApp().first
     }
 
     @AfterEach

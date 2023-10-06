@@ -26,7 +26,7 @@ import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 
 fun createApp(
     populateTestData: Boolean = true,
-    useEndpointsProperties: Boolean = false,
+    useEndpointsProperties: Boolean = true,
 ): Pair<KoinApplication, Instant> {
     val instant = Instant.now()
     val clock = mockk<Clock>()
