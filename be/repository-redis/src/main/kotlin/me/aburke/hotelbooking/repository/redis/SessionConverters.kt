@@ -1,7 +1,6 @@
 package me.aburke.hotelbooking.repository.redis
 
-import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.ports.repository.UserSession
 import java.time.Instant
 
 fun UserSession.toRedisMap() = mapOf(
@@ -18,7 +17,6 @@ fun Map<String, String>.toUserSession() = UserSession(
     userId = this["user-id"]!!,
     loginId = this["login-id"],
     userRoles = this["user-roles"]!!.split("|")
-        .map(UserRole::valueOf)
         .toSet(),
     anonymousUser = this["anonymous-user"]!!.toBoolean(),
     sessionExpiryTime = Instant.parse(this["session-expiry-time"]),

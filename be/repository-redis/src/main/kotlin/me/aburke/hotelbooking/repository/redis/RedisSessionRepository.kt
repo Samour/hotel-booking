@@ -1,7 +1,7 @@
 package me.aburke.hotelbooking.repository.redis
 
-import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.repository.SessionRepository
+import me.aburke.hotelbooking.ports.repository.UserSession
 import redis.clients.jedis.JedisPooled
 import java.time.Clock
 import java.time.Duration

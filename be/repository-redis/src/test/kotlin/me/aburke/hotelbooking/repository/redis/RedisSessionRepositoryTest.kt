@@ -1,8 +1,7 @@
 package me.aburke.hotelbooking.repository.redis
 
-import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.repository.SessionRepository
+import me.aburke.hotelbooking.ports.repository.UserSession
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -14,7 +13,7 @@ import java.time.Instant
 private const val SESSION_ID = "session-id"
 private const val USER_ID = "user-id"
 
-private val userRoles = setOf(UserRole.MANAGE_USERS, UserRole.MANAGE_ROOMS)
+private val userRoles = setOf("MANAGE_USERS", "MANAGE_ROOMS")
 private val sessionExpiryTime = Instant.now().plusSeconds(3000)
 val session = UserSession(
     sessionId = SESSION_ID,
