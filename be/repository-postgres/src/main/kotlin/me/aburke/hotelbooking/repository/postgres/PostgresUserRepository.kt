@@ -1,6 +1,5 @@
 package me.aburke.hotelbooking.repository.postgres
 
-import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
 import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
@@ -22,7 +21,7 @@ class PostgresUserRepository(
 
         val query = connection.insertUserQuery(
             userId = userId,
-            userRoles = setOf(UserRole.CUSTOMER),
+            userRoles = setOf("CUSTOMER"),
             name = "",
         )
 

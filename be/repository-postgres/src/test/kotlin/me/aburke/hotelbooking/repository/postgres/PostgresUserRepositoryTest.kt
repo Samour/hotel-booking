@@ -1,6 +1,5 @@
 package me.aburke.hotelbooking.repository.postgres
 
-import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
 import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
@@ -46,7 +45,7 @@ class PostgresUserRepositoryTest {
         assertThat(users).containsExactly(
             UserRecord(
                 userId = result,
-                userRoles = setOf(UserRole.CUSTOMER),
+                userRoles = setOf("CUSTOMER"),
                 name = "",
                 credential = null,
             ),
@@ -60,7 +59,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
-                roles = setOf(UserRole.MANAGE_ROOMS),
+                roles = setOf("MANAGE_ROOMS"),
             ),
         )
 
@@ -72,7 +71,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = userId ?: "",
-                    userRoles = setOf(UserRole.MANAGE_ROOMS),
+                    userRoles = setOf("MANAGE_ROOMS"),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -90,7 +89,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
-                roles = setOf(UserRole.MANAGE_ROOMS),
+                roles = setOf("MANAGE_ROOMS"),
             ),
         ).let {
             assertThat(it).isInstanceOf(InsertUserResult.UserInserted::class.java)
@@ -102,7 +101,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = RandomString.make(),
                 name = RandomString.make(),
-                roles = setOf(UserRole.MANAGE_ROOMS),
+                roles = setOf("MANAGE_ROOMS"),
             ),
         )
 
@@ -113,7 +112,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = firstUserId,
-                    userRoles = setOf(UserRole.MANAGE_ROOMS),
+                    userRoles = setOf("MANAGE_ROOMS"),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -134,7 +133,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
-                roles = setOf(UserRole.MANAGE_USERS),
+                roles = setOf("MANAGE_USERS"),
             ),
         )
 
@@ -147,7 +146,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = userId,
-                    userRoles = setOf(UserRole.MANAGE_USERS),
+                    userRoles = setOf("MANAGE_USERS"),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -165,7 +164,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
-                roles = setOf(UserRole.MANAGE_ROOMS),
+                roles = setOf("MANAGE_ROOMS"),
             ),
         ).let {
             assertThat(it).isInstanceOf(InsertUserResult.UserInserted::class.java)
@@ -178,7 +177,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = RandomString.make(),
                 name = RandomString.make(),
-                roles = setOf(UserRole.MANAGE_USERS),
+                roles = setOf("MANAGE_USERS"),
             ),
         )
 
@@ -189,7 +188,7 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactly(
                 UserRecord(
                     userId = userId,
-                    userRoles = setOf(UserRole.MANAGE_ROOMS),
+                    userRoles = setOf("MANAGE_ROOMS"),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -208,7 +207,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
-                roles = setOf(UserRole.MANAGE_USERS),
+                roles = setOf("MANAGE_USERS"),
             ),
         )
 
@@ -228,7 +227,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = PASSWORD_HASH,
                 name = NAME,
-                roles = setOf(UserRole.MANAGE_ROOMS),
+                roles = setOf("MANAGE_ROOMS"),
             ),
         ).let {
             assertThat(it).isInstanceOf(InsertUserResult.UserInserted::class.java)
@@ -241,7 +240,7 @@ class PostgresUserRepositoryTest {
                 loginId = LOGIN_ID,
                 passwordHash = RandomString.make(),
                 name = RandomString.make(),
-                roles = setOf(UserRole.MANAGE_USERS),
+                roles = setOf("MANAGE_USERS"),
             ),
         )
 
@@ -252,13 +251,13 @@ class PostgresUserRepositoryTest {
             s.assertThat(users).containsExactlyInAnyOrder(
                 UserRecord(
                     userId = anonymousUserId,
-                    userRoles = setOf(UserRole.CUSTOMER),
+                    userRoles = setOf("CUSTOMER"),
                     name = "",
                     credential = null,
                 ),
                 UserRecord(
                     userId = existingUserId,
-                    userRoles = setOf(UserRole.MANAGE_ROOMS),
+                    userRoles = setOf("MANAGE_ROOMS"),
                     name = NAME,
                     credential = UserCredentialRecord(
                         loginId = LOGIN_ID,
@@ -277,7 +276,7 @@ class PostgresUserRepositoryTest {
                     loginId = LOGIN_ID,
                     passwordHash = PASSWORD_HASH,
                     name = NAME,
-                    roles = setOf(UserRole.CUSTOMER),
+                    roles = setOf("CUSTOMER"),
                 ),
             ) as InsertUserResult.UserInserted
             ).userId
@@ -287,7 +286,7 @@ class PostgresUserRepositoryTest {
         assertThat(result).isEqualTo(
             NonAnonymousUserRecord(
                 userId = userId,
-                userRoles = setOf(UserRole.CUSTOMER),
+                userRoles = setOf("CUSTOMER"),
                 name = NAME,
                 credential = UserCredentialRecord(
                     loginId = LOGIN_ID,

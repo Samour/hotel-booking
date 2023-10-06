@@ -1,6 +1,5 @@
 package me.aburke.hotelbooking.repository.postgres
 
-import me.aburke.hotelbooking.model.user.UserRole
 import java.sql.Connection
 import java.sql.PreparedStatement
 
@@ -20,7 +19,7 @@ fun Connection.findUserByLoginIdQuery(loginId: String): PreparedStatement =
 
 // Write queries
 
-fun Connection.insertUserQuery(userId: String, userRoles: Set<UserRole>, name: String): PreparedStatement =
+fun Connection.insertUserQuery(userId: String, userRoles: Set<String>, name: String): PreparedStatement =
     prepareStatement(
         """
             insert into app_user(user_id, user_roles, name)
@@ -44,7 +43,7 @@ fun Connection.insertCredentialQuery(userId: String, loginId: String, passwordHa
         it.setString(3, passwordHash)
     }
 
-fun Connection.updateUserQuery(userId: String, roles: Set<UserRole>, name: String): PreparedStatement =
+fun Connection.updateUserQuery(userId: String, roles: Set<String>, name: String): PreparedStatement =
     prepareStatement(
         """
             update app_user

@@ -1,6 +1,5 @@
 package me.aburke.hotelbooking.repository.postgres
 
-import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
 import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
 import java.sql.Connection
@@ -17,10 +16,9 @@ fun ResultSet.toNonAnonymousUserRecord() = NonAnonymousUserRecord(
 )
 
 fun java.sql.Array.toUserRoles() = setOf(*(array as Array<String>))
-    .map { UserRole.valueOf(it) }
     .toSet()
 
-fun Connection.toSqlArray(roles: Set<UserRole>) = createArrayOf(
+fun Connection.toSqlArray(roles: Set<String>) = createArrayOf(
     "varchar",
-    roles.map { it.name }.toTypedArray(),
+    roles.toTypedArray(),
 )
