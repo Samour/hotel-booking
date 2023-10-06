@@ -8,18 +8,20 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
 import io.javalin.json.JavalinJackson
 import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.AddRoomTypeHandler
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.RoomRoutes
 import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.GetSessionHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInHandler
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionRoutes
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpHandler
+import me.aburke.hotelbooking.facade.rest.api.customer.v1.roomtype.FetchRoomsAvailabilityHandler
 import me.aburke.hotelbooking.facade.rest.interceptors.AuthenticationInterceptor
 import me.aburke.hotelbooking.facade.rest.interceptors.ExceptionHandler.registerExceptionHandlers
 import org.koin.dsl.module
+import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.RoomRoutes as AdminRoomRoutes
 import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.UserRoutes as AdminUserRoutes
 import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.UserRoutes as AuthUserRoutes
+import me.aburke.hotelbooking.facade.rest.api.customer.v1.roomtype.RoomRoutes as CustomerRoomRoutes
 
 val restModule = module {
     single { GetSessionHandler() }
@@ -34,7 +36,10 @@ val restModule = module {
     single { AdminUserRoutes(get()) }
 
     single { AddRoomTypeHandler(get()) }
-    single { RoomRoutes(get()) }
+    single { AdminRoomRoutes(get()) }
+
+    single { FetchRoomsAvailabilityHandler(get()) }
+    single { CustomerRoomRoutes(get()) }
 
     single { AuthenticationInterceptor(get()) }
     single {
@@ -43,7 +48,8 @@ val restModule = module {
                 get<SessionRoutes>(),
                 get<AuthUserRoutes>(),
                 get<AdminUserRoutes>(),
-                get<RoomRoutes>(),
+                get<AdminRoomRoutes>(),
+                get<CustomerRoomRoutes>(),
             ),
         )
     }

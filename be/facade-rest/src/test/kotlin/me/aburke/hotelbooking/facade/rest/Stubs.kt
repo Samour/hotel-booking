@@ -8,6 +8,7 @@ import io.mockk.verify
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypePort
+import me.aburke.hotelbooking.ports.scenario.room.ListRoomsPort
 import me.aburke.hotelbooking.ports.scenario.user.CreateAnonymousUserPort
 import me.aburke.hotelbooking.ports.scenario.user.CreateUserPort
 import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
@@ -30,6 +31,7 @@ class Stubs {
     val signUpPort = mockk<SignUpPort>()
     val createUserPort = mockk<CreateUserPort>()
     val addRoomTypePort = mockk<AddRoomTypePort>()
+    val listRoomsPort = mockk<ListRoomsPort>()
 
     private lateinit var app: KoinApplication
 
@@ -43,6 +45,7 @@ class Stubs {
             single { signUpPort }
             single { createUserPort }
             single { addRoomTypePort }
+            single { listRoomsPort }
         }
         app = koinApplication {
             properties(properties)
