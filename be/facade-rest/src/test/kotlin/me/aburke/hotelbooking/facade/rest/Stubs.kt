@@ -54,24 +54,17 @@ class Stubs {
 
     fun cleanUp() = app.close()
 
-    fun prepareSession(vararg roles: UserRole): String {
-        val sessionId = UUID.randomUUID().toString()
+    fun prepareSession(vararg roles: UserRole): UserSession {
+        val session = createRandomSession(*roles)
+
+        sessions.add(session)
         every {
             getAuthStatePort.run(
-                GetAuthStateDetails(sessionId),
+                GetAuthStateDetails(session.sessionId),
             )
-        } returns GetAuthStateResult.SessionExists(
-            UserSession(
-                sessionId = sessionId,
-                userId = UUID.randomUUID().toString(),
-                loginId = "stubbed-login-id",
-                userRoles = setOf(*roles),
-                anonymousUser = false,
-                sessionExpiryTime = Instant.now().plusSeconds(10),
-            ).also { sessions.add(it) },
-        )
+        } returns GetAuthStateResult.SessionExists(session)
 
-        return sessionId
+        return session
     }
 
     fun SoftAssertions.verifyStubs() {
@@ -94,3 +87,12 @@ class Stubs {
         }
     }
 }
+
+fun createRandomSession(vararg roles: UserRole) = UserSession(
+    sessionId = UUID.randomUUID().toString(),
+    userId = UUID.randomUUID().toString(),
+    loginId = "stubbed-login-id",
+    userRoles = setOf(*roles),
+    anonymousUser = false,
+    sessionExpiryTime = Instant.now().plusSeconds(10),
+)

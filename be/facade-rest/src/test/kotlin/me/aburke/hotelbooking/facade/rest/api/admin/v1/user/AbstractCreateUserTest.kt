@@ -48,7 +48,7 @@ abstract class AbstractCreateUserTest {
             userId = userId,
         )
 
-        sessionId = stubs.prepareSession(UserRole.MANAGE_USERS)
+        sessionId = stubs.prepareSession(UserRole.MANAGE_USERS).sessionId
         testRequest.executeRequest()
 
         assertSoftly { s ->
@@ -83,7 +83,7 @@ abstract class AbstractCreateUserTest {
             )
         } returns CreateUserResult.UsernameNotAvailable
 
-        sessionId = stubs.prepareSession(UserRole.MANAGE_USERS)
+        sessionId = stubs.prepareSession(UserRole.MANAGE_USERS).sessionId
         testRequest.executeRequest()
 
         assertSoftly { s ->
@@ -109,7 +109,7 @@ abstract class AbstractCreateUserTest {
     protected fun <T : Any> `RUN should return 403 when user does not have MANAGE_USERS role`(
         testRequest: TestRequest<T>,
     ) {
-        sessionId = stubs.prepareSession(UserRole.MANAGE_ROOMS)
+        sessionId = stubs.prepareSession(UserRole.MANAGE_ROOMS).sessionId
         testRequest.executeRequest()
 
         assertSoftly { s ->

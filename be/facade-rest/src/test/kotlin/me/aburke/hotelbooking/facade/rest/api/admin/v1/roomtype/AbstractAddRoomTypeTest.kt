@@ -53,7 +53,7 @@ abstract class AbstractAddRoomTypeTest {
             )
         } returns AddRoomTypeResult(roomTypeId)
 
-        sessionId = stubs.prepareSession(UserRole.MANAGE_ROOMS)
+        sessionId = stubs.prepareSession(UserRole.MANAGE_ROOMS).sessionId
         testRequest.executeRequest()
 
         assertSoftly { s ->
@@ -80,7 +80,7 @@ abstract class AbstractAddRoomTypeTest {
     protected fun <T : Any> `RUN should return 403 when user does not have MANAGE_ROOMS permission`(
         testRequest: TestRequest<T>,
     ) {
-        sessionId = stubs.prepareSession(UserRole.CUSTOMER)
+        sessionId = stubs.prepareSession(UserRole.CUSTOMER).sessionId
         testRequest.executeRequest()
 
         assertSoftly { s ->
