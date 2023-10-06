@@ -24,7 +24,10 @@ import java.time.Clock
 import java.time.Instant
 import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 
-fun createApp(populateTestData: Boolean = true): Pair<KoinApplication, Instant> {
+fun createApp(
+    populateTestData: Boolean = true,
+    useEndpointsProperties: Boolean = false,
+): Pair<KoinApplication, Instant> {
     val instant = Instant.now()
     val clock = mockk<Clock>()
     every {
@@ -38,6 +41,9 @@ fun createApp(populateTestData: Boolean = true): Pair<KoinApplication, Instant> 
     val app = koinApplication {
         fileProperties()
         fileProperties("/features.properties")
+        if (useEndpointsProperties) {
+            fileProperties("/endpoints.properties")
+        }
         modules(testModule, *appModules.toTypedArray())
     }
     app.koin.get<Connection>().apply {
