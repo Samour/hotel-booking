@@ -3,6 +3,7 @@ package me.aburke.hotelbooking.repository.postgres
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
+import me.aburke.hotelbooking.repository.postgres.queries.insertTestRooms
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
@@ -189,7 +190,8 @@ class PostgresRoomRepositoryTest {
 
     @Test
     fun `should return rooms, descriptions & stock levels based on date range`() {
-        connection.executeScript("test/room/insert_room_data.sql")
+        connection.insertTestRooms(TestRooms.rooms)
+
         val queryStartDate = LocalDate.parse("2023-08-13")
         val queryEndDate = LocalDate.parse("2023-09-01")
 
@@ -226,8 +228,9 @@ class PostgresRoomRepositoryTest {
 
     @Test
     fun `should return room & stock data when there are gaps in stock records`() {
-        connection.executeScript("test/room/insert_room_data.sql")
+        connection.insertTestRooms(TestRooms.rooms)
         deleteSomeRoomStock()
+
         val queryStartDate = LocalDate.parse("2023-08-13")
         val queryEndDate = LocalDate.parse("2023-09-01")
 
@@ -251,8 +254,9 @@ class PostgresRoomRepositoryTest {
 
     @Test
     fun `should omit rooms which have no stock data`() {
-        connection.executeScript("test/room/insert_room_data.sql")
+        connection.insertTestRooms(TestRooms.rooms)
         deleteStockForRooms()
+
         val queryStartDate = LocalDate.parse("2023-08-13")
         val queryEndDate = LocalDate.parse("2023-09-01")
 
@@ -277,8 +281,9 @@ class PostgresRoomRepositoryTest {
 
     @Test
     fun `should return rooms, descriptions & stock levels based on date range & hold data`() {
-        connection.executeScript("test/room/insert_room_data.sql")
+        connection.insertTestRooms(TestRooms.rooms)
         connection.executeScript("test/room/insert_room_holds.sql")
+
         val queryStartDate = LocalDate.parse("2023-08-13")
         val queryEndDate = LocalDate.parse("2023-09-01")
 
