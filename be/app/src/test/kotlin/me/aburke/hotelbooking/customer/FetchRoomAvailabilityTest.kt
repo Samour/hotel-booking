@@ -17,8 +17,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.fail
 import org.koin.core.KoinApplication
 import java.time.Instant
 import java.time.LocalDate
@@ -61,6 +63,12 @@ class FetchRoomAvailabilityTest {
         assertThat(response.roomTypes).containsExactlyInAnyOrder(
             *rooms.map { it.toRoomTypeWithAvailability() }.toTypedArray(),
         )
+    }
+
+    @Disabled
+    @Test
+    fun `should return rooms that are held by another user as unavailable`() {
+        fail("TODO")
     }
 
     @Test

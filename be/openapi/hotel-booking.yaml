@@ -269,6 +269,58 @@ paths:
                     items:
                       $ref: '#/components/schemas/RoomTypeWithAvailability'
 
+  /api/customer/v1/room-type/hold:
+    post:
+      operationId: holdRoom
+      summary: Temporarily hold a room for certain dates
+      security:
+        - session: [ CUSTOMER ]
+      tags:
+        - incubating
+        - customer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - room_type_id
+                - hold_start_date
+                - hold_end_date
+              properties:
+                room_type_id:
+                  type: string
+                hold_start_date:
+                  type: string
+                  format: date
+                hold_end_date:
+                  type: string
+                  format: date
+      responses:
+        "201":
+          description: Hold successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - room_hold_id
+                  - hold_expiry
+                properties:
+                  room_hold_id:
+                    type: string
+                  hold_expiry:
+                    type: string
+                    format: date-time
+                  removed_room_hold_id:
+                    type: string
+        "409":
+          description: Hold could not be created due to unavailable stock levels
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemResponse'
+
 
 components:
   securitySchemes:
