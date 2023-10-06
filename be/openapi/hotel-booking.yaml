@@ -140,8 +140,7 @@ paths:
       operationId: addRoomType
       summary: Add a new room type
       security:
-        - session:
-            - MANAGE_ROOMS
+        - session: [ MANAGE_ROOMS ]
       tags:
         - admin
       requestBody:
@@ -186,8 +185,7 @@ paths:
       operationId: createUser
       summary: Create a new user with specified roles
       security:
-        - session:
-            - MANAGE_USERS
+        - session: [ MANAGE_USERS ]
       tags:
         - admin
       requestBody:
