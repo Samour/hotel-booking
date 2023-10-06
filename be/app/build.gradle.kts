@@ -11,17 +11,17 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation(project(":core"))
-    implementation(project(":postgres-repository"))
-    implementation(project(":redis-repository"))
+    implementation(project(":domain"))
+    implementation(project(":repository-postgres"))
+    implementation(project(":repository-redis"))
     implementation(project(":facade-rest"))
 
     implementation("io.insert-koin:koin-core:${properties["koinVersion"]}")
     implementation("io.javalin:javalin:${properties["javalinVersion"]}")
 
     testImplementation(project(":ports"))
-    testImplementation(project(":postgres-migrations"))
-    testImplementation(project(":rest-client"))
+    testImplementation(project(":tool-postgres-migrations"))
+    testImplementation(project(":test-rest-client"))
     testImplementation("redis.clients:jedis:${properties["jedisVersion"]}")
 
     testImplementation("com.fasterxml.jackson.core:jackson-databind:${properties["jacksonVersion"]}")

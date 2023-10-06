@@ -10,11 +10,11 @@ jobs:
       - run: ./gradlew ktlintCheck
         working-directory: be
 
-  test-core:
+  test-domain:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: ./gradlew core:test core:integTest
+      - run: ./gradlew domain:test domain:integTest
         working-directory: be
 
   test-facade-rest:
@@ -24,24 +24,24 @@ jobs:
       - run: ./gradlew facade-rest:test facade-rest:contractTest
         working-directory: be
 
-  test-postgres-repository:
+  test-repository-postgres:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: DB_NAME=postgres_test docker compose up -d postgresql
         working-directory: be
-      - run: ./gradlew postgres-repository:test
+      - run: ./gradlew repository-postgres:test
         working-directory: be
       - run: docker compose down
         working-directory: be
 
-  test-redis-repository:
+  test-repository-redis:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - run: docker compose up -d redis
         working-directory: be
-      - run: ./gradlew redis-repository:test
+      - run: ./gradlew repository-redis:test
         working-directory: be
       - run: docker compose down
         working-directory: be

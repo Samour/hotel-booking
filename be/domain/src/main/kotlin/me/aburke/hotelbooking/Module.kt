@@ -20,7 +20,7 @@ import me.aburke.hotelbooking.stock.DatesCalculator
 import org.koin.dsl.module
 import java.time.Duration
 
-val coreModule = module {
+val domainModule = module {
     single { PasswordHasher() }
     single<CreateUserPort> { CreateUserScenario(get(), get()) }
 

@@ -11,7 +11,7 @@ dependencies {
     implementation("io.insert-koin:koin-core:${properties["koinVersion"]}")
     implementation("org.postgresql:postgresql:${properties["postgresqlVersion"]}")
 
-    testImplementation(project(":postgres-migrations"))
+    testImplementation(project(":tool-postgres-migrations"))
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:${properties["junitVersion"]}")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:${properties["junitVersion"]}")

@@ -2,7 +2,7 @@ package me.aburke.hotelbooking.stubs
 
 import io.mockk.every
 import io.mockk.mockk
-import me.aburke.hotelbooking.coreModule
+import me.aburke.hotelbooking.domainModule
 import me.aburke.hotelbooking.ports.repository.HotelRepository
 import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.SessionRepository
@@ -43,7 +43,7 @@ class Stubs {
             fileProperties()
             modules(
                 stubsModule,
-                coreModule,
+                domainModule,
             )
         }
     }

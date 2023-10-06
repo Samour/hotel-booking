@@ -21,7 +21,7 @@ class Application(
 }
 
 val appModules = listOf(
-    coreModule,
+    domainModule,
     postgresModule,
     redisModule,
     restModule,

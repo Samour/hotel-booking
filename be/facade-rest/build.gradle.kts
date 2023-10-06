@@ -41,5 +41,5 @@ dependencies {
     testImplementation("org.skyscreamer:jsonassert:${properties["jsonAssertVersion"]}")
     testImplementation("io.javalin:javalin-testtools:${properties["javalinVersion"]}")
 
-    contractTestImplementation(project(":rest-client"))
+    contractTestImplementation(project(":test-rest-client"))
 }

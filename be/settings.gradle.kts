@@ -2,13 +2,13 @@ rootProject.name = "hotel-booking"
 
 include(
     "ports",
-    "core",
+    "domain",
 
-    "postgres-repository",
-    "redis-repository",
+    "repository-postgres",
+    "repository-redis",
     "facade-rest",
     "app",
 
-    "postgres-migrations",
-    "rest-client",
+    "tool-postgres-migrations",
+    "test-rest-client",
 )
