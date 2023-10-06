@@ -9,6 +9,6 @@ class UserRoutes(
 ) : Routes {
 
     override fun addRoutes(registry: RouteRegistry) {
-        registry.post("/api/auth/v1/user", EndpointRole.Public, signUpHandler)
+        registry.post("/api/auth/v1/user", EndpointRole.Optional(EndpointRole.Any), signUpHandler)
     }
 }

@@ -25,6 +25,10 @@ sealed interface EndpointRole : RouteRole {
             userRoles.containsAll(roles)
     }
 
+    /**
+     * Credentials do not need to be supplied (ie may be called as Public)
+     * If credentials are supplied, they must satisfy {@param endpointRole}
+     */
     data class Optional(val endpointRole: EndpointRole) : EndpointRole {
         override fun allowedForRoles(userRoles: Set<UserRole>): Boolean = endpointRole.allowedForRoles(userRoles)
     }

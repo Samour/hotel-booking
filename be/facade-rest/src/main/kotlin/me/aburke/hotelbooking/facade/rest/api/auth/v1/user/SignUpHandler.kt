@@ -4,16 +4,14 @@ import io.javalin.http.Context
 import io.javalin.http.Handler
 import io.javalin.http.HttpStatus
 import io.javalin.http.bodyAsClass
-import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.facade.rest.authentication.setAuthCookie
+import me.aburke.hotelbooking.facade.rest.authentication.userSessionOptional
 import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
 import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
-import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
 import me.aburke.hotelbooking.ports.scenario.user.GetAuthStatePort
-import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateResult
 import me.aburke.hotelbooking.ports.scenario.user.SignUpDetails
 import me.aburke.hotelbooking.ports.scenario.user.SignUpPort
 import me.aburke.hotelbooking.ports.scenario.user.SignUpResult
@@ -30,9 +28,7 @@ class SignUpHandler(
 ) : Handler {
 
     override fun handle(ctx: Context) {
-        val session = ctx.cookie(AUTH_COOKIE_KEY)?.let {
-            getAuthStatePort.run(GetAuthStateDetails(it)) as? GetAuthStateResult.SessionExists
-        }?.session
+        val session = ctx.userSessionOptional()
 
         val request = ctx.bodyAsClass<SignUpRequest>()
 

@@ -19,26 +19,21 @@ class AuthenticationInterceptor(
 ) : AccessManager {
 
     override fun manage(handler: Handler, ctx: Context, routeRoles: Set<RouteRole>) {
+        val sessionId = ctx.cookie(AUTH_COOKIE_KEY)
         val endpointRoles = routeRoles.mapNotNull { it as? EndpointRole }
             .takeUnless { it.isEmpty() } ?: listOf(EndpointRole.Any)
 
-        if (endpointRoles == listOf(EndpointRole.Public)) {
+        if (sessionId == null && endpointRoles.allowsPublicAccess()) {
             handler.handle(ctx)
             return
         }
 
-        val sessionId = ctx.cookie(AUTH_COOKIE_KEY)
         val userSession = sessionId?.let {
             getAuthStatePort.run(GetAuthStateDetails(it)) as? GetAuthStateResult.SessionExists
         }?.session
 
         if (userSession == null) {
-            // TODO we can pull this line up & merge with line 25?
-            if (sessionId == null && endpointRoles.all { it == EndpointRole.Public || it is EndpointRole.Optional }) {
-                handler.handle(ctx)
-            } else {
-                ctx.problemJson(ctx.unauthorizedResponse())
-            }
+            ctx.problemJson(ctx.unauthorizedResponse())
             return
         }
 
@@ -53,4 +48,8 @@ class AuthenticationInterceptor(
             ctx.problemJson(ctx.forbiddenResponse())
         }
     }
+}
+
+private fun List<EndpointRole>.allowsPublicAccess() = all {
+    it == EndpointRole.Public || it is EndpointRole.Optional
 }

@@ -52,8 +52,8 @@ class SignUpHandlerTest : AbstractSignUpTest() {
     }
 
     @Test
-    fun `should create new user when provided session ID is not valid`() = test(javalin) { _, client ->
-        `RUN should create new user when provided session ID is not valid`(
+    fun `should return 401 when provided session ID is not valid`() = test(javalin) { _, client ->
+        `RUN should return 401 when provided session ID is not valid`(
             object : TestRequest<Response>() {
                 override fun makeRequest(): Response = client.request("/api/auth/v1/user") {
                     it.header("Cookie", "$AUTH_COOKIE_KEY=$sessionId")
@@ -70,19 +70,18 @@ class SignUpHandlerTest : AbstractSignUpTest() {
                 }
 
                 override fun makeAssertions(s: SoftAssertions) {
-                    s.assertThat(response.code).isEqualTo(201)
-                    s.assertThat(response.header("Set-Cookie")).isEqualTo(
-                        "$AUTH_COOKIE_KEY=$sessionId; Path=/; HttpOnly; SameSite=Strict",
-                    )
-                    s.assertThat(response.header("Content-Type")).isEqualTo("application/json")
+                    s.assertThat(response.code).isEqualTo(401)
+                    s.assertThat(response.header("Set-Cookie")).isNull()
+                    s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
                     s.assertThatJson(response.body?.string()).isEqualTo(
                         """
                             {
-                                "user_id": "$userId",
-                                "login_id": "$loginId",
-                                "user_roles": ["${roles.first()}"],
-                                "anonymous_user": false,
-                                "session_expiry_time": "$sessionExpiryTime"
+                                "title": "Not Authorized",
+                                "code": "UNAUTHORIZED",
+                                "status": 401,
+                                "detail": "Credentials not provided",
+                                "instance": "/api/auth/v1/user",
+                                "extended_details": []
                             }
                         """.trimIndent(),
                     )

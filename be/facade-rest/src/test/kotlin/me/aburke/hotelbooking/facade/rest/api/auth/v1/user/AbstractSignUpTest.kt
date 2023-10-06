@@ -83,7 +83,7 @@ abstract class AbstractSignUpTest {
         }
     }
 
-    protected fun <T : Any> `RUN should create new user when provided session ID is not valid`(
+    protected fun <T : Any> `RUN should return 401 when provided session ID is not valid`(
         testRequest: TestRequest<T>,
     ) {
         every {
@@ -93,25 +93,6 @@ abstract class AbstractSignUpTest {
                 ),
             )
         } returns GetAuthStateResult.SessionDoesNotExist
-        every {
-            stubs.signUpPort.run(
-                SignUpDetails(
-                    loginId = loginId,
-                    rawPassword = password,
-                    name = name,
-                    anonymousUser = null,
-                ),
-            )
-        } returns SignUpResult.Success(
-            UserSession(
-                sessionId = sessionId,
-                userId = userId,
-                loginId = loginId,
-                userRoles = roles,
-                anonymousUser = false,
-                sessionExpiryTime = sessionExpiryTime,
-            ),
-        )
 
         testRequest.executeRequest()
 
@@ -122,18 +103,6 @@ abstract class AbstractSignUpTest {
                     stubs.getAuthStatePort.run(
                         GetAuthStateDetails(
                             sessionId = sessionId,
-                        ),
-                    )
-                }
-            }
-            s.check {
-                verify(exactly = 1) {
-                    stubs.signUpPort.run(
-                        SignUpDetails(
-                            loginId = loginId,
-                            rawPassword = password,
-                            name = name,
-                            anonymousUser = null,
                         ),
                     )
                 }
