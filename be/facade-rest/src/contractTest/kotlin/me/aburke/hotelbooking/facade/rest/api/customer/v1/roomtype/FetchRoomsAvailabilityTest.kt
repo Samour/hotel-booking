@@ -38,8 +38,25 @@ class FetchRoomsAvailabilityTest : AbstractFetchRoomsAvailabilityHandlerTest() {
     }
 
     @Test
-    fun `should fetch room availabilities for authenticated user`() {
-        fail("TODO")
+    fun `should fetch room availabilities for authenticated user`() = test(javalin) { _, _ ->
+        `RUN should fetch room availabilities for authenticated user`(
+            object : TestRequest<ApiResponse<FetchRoomsAvailability200Response>>() {
+                override fun makeRequest(): ApiResponse<FetchRoomsAvailability200Response> =
+                    CustomerApi(javalin.client(session.sessionId)).fetchRoomsAvailabilityWithHttpInfo(
+                        searchRangeStart,
+                        searchRangeEnd,
+                    )
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    s.assertThat(response.statusCode).isEqualTo(200)
+                    s.assertThat(response.data).isEqualTo(
+                        FetchRoomsAvailability200Response().apply {
+                            roomTypes = roomTypeInfo.map { it.toResponse() }
+                        },
+                    )
+                }
+            },
+        )
     }
 
     @Test

@@ -1,6 +1,7 @@
 package me.aburke.hotelbooking.facade.rest.api.customer.v1.roomtype
 
 import io.javalin.http.Context
+import me.aburke.hotelbooking.facade.rest.authentication.userSessionOptional
 import me.aburke.hotelbooking.model.date.DateRange
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsDetails
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsPort
@@ -36,7 +37,7 @@ class FetchRoomsAvailabilityHandler(private val listRoomsPort: ListRoomsPort) {
     fun handle(ctx: Context, availabilityRangeStart: String, availabilityRangeEnd: String) {
         val result = listRoomsPort.run(
             ListRoomsDetails(
-                currentUserId = null,
+                currentUserId = ctx.userSessionOptional()?.userId,
                 availabilitySearchRange = DateRange(
                     rangeStart = LocalDate.parse(availabilityRangeStart),
                     rangeEnd = LocalDate.parse(availabilityRangeEnd),

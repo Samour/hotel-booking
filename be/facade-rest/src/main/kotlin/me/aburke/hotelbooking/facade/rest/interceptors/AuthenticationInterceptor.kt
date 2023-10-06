@@ -32,7 +32,11 @@ class AuthenticationInterceptor(
         }?.session
 
         if (userSession == null) {
-            ctx.problemJson(ctx.unauthorizedResponse())
+            if (endpointRoles.all { it == EndpointRole.Public || it is EndpointRole.Optional }) {
+                handler.handle(ctx)
+            } else {
+                ctx.problemJson(ctx.unauthorizedResponse())
+            }
             return
         }
 

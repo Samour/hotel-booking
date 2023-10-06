@@ -3,6 +3,7 @@ package me.aburke.hotelbooking.facade.rest.api.customer.v1.roomtype
 import io.javalin.testtools.JavalinTest.test
 import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.assertThatJson
+import me.aburke.hotelbooking.facade.rest.authentication.AUTH_COOKIE_KEY
 import me.aburke.hotelbooking.ports.scenario.room.RoomAvailability
 import me.aburke.hotelbooking.ports.scenario.room.RoomTypeInfo
 import okhttp3.Response
@@ -24,21 +25,31 @@ class FetchRoomsAvailabilityHandlerTest : AbstractFetchRoomsAvailabilityHandlerT
                 override fun makeAssertions(s: SoftAssertions) {
                     s.assertThat(response.code).isEqualTo(200)
                     s.assertThat(response.header("Content-Type")).isEqualTo("application/json")
-                    s.assertThatJson(response.body?.string()).isEqualTo(
-                        """
-                        {
-                            "room_types": [${roomTypeInfo.joinToString { it.toJson() }}]
-                        }
-                        """.trimIndent(),
-                    )
+                    s.assertThatJson(response.body?.string()).isEqualTo(expectedJsonResponse())
                 }
             },
         )
     }
 
     @Test
-    fun `should fetch room availabilities for authenticated user`() {
-        fail("TODO")
+    fun `should fetch room availabilities for authenticated user`() = test(javalin) { _, client ->
+        `RUN should fetch room availabilities for authenticated user`(
+            object : TestRequest<Response>() {
+                override fun makeRequest(): Response = client.request(
+                    "/api/customer/v1/room-type/availability?" +
+                            "availability_range_start=$searchRangeStart&availability_range_end=$searchRangeEnd",
+                ) { rb ->
+                    rb.header("Cookie", "$AUTH_COOKIE_KEY=${session.sessionId}")
+                        .get()
+                }
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    s.assertThat(response.code).isEqualTo(200)
+                    s.assertThat(response.header("Content-Type")).isEqualTo("application/json")
+                    s.assertThatJson(response.body?.string()).isEqualTo(expectedJsonResponse())
+                }
+            },
+        )
     }
 
     @Test
@@ -55,6 +66,12 @@ class FetchRoomsAvailabilityHandlerTest : AbstractFetchRoomsAvailabilityHandlerT
     fun `should return 403 if authenticated session does not have CUSTOMER permission`() {
         fail("TODO")
     }
+
+    private fun expectedJsonResponse() = """
+        {
+            "room_types": [${roomTypeInfo.joinToString { it.toJson() }}]
+        }
+    """.trimIndent()
 }
 
 private fun RoomTypeInfo.toJson() = """

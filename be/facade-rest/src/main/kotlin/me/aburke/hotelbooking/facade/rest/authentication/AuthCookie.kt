@@ -8,7 +8,10 @@ import me.aburke.hotelbooking.model.user.UserSession
 const val AUTH_COOKIE_KEY = "SessionId"
 const val USER_SESSION_ATTRIBUTE = "UserSession"
 
-fun Context.getUserSession(): UserSession = attribute(USER_SESSION_ATTRIBUTE)!!
+// TODO rename to userSession
+fun Context.getUserSession(): UserSession = userSessionOptional()!!
+
+fun Context.userSessionOptional(): UserSession? = attribute(USER_SESSION_ATTRIBUTE)
 
 fun Context.setAuthCookie(session: UserSession) = cookie(
     Cookie(
