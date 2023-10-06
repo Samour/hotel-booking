@@ -22,7 +22,7 @@ class RoomRepositoryStub : RoomRepository {
     }
 
     override fun queryRoomsAndAvailability(
-        currentUserId: String,
+        currentUserId: String?,
         availabilityRangeStart: LocalDate,
         availabilityRangeEnd: LocalDate,
     ): List<RoomTypeRecord> {

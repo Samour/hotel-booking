@@ -9,6 +9,9 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.NullSource
+import org.junit.jupiter.params.provider.ValueSource
 import org.koin.core.KoinApplication
 import java.sql.Connection
 import java.time.LocalDate
@@ -279,8 +282,10 @@ class PostgresRoomRepositoryTest {
         )
     }
 
-    @Test
-    fun `should return rooms, descriptions & stock levels based on date range & hold data`() {
+    @ParameterizedTest
+    @ValueSource(strings = [CURRENT_USER_ID])
+    @NullSource
+    fun `should return rooms, descriptions & stock levels based on date range & hold data`(userId: String?) {
         connection.insertTestRooms(TestRooms.rooms)
         connection.executeScript("test/room/insert_room_holds.sql")
 
@@ -288,7 +293,7 @@ class PostgresRoomRepositoryTest {
         val queryEndDate = LocalDate.parse("2023-09-01")
 
         val result = underTest.queryRoomsAndAvailability(
-            CURRENT_USER_ID,
+            userId,
             queryStartDate,
             queryEndDate,
         )

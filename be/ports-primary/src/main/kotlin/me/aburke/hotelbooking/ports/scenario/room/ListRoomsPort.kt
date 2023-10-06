@@ -5,7 +5,7 @@ import me.aburke.hotelbooking.ports.scenario.Scenario
 import java.time.LocalDate
 
 data class ListRoomsDetails(
-    val currentUserId: String,
+    val currentUserId: String?,
     val availabilitySearchRange: DateRange,
 ) : Scenario.Details
 
