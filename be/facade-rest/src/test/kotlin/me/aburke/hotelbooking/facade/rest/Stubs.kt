@@ -86,6 +86,7 @@ class Stubs {
                 signUpPort,
                 createUserPort,
                 addRoomTypePort,
+                listRoomsPort,
             )
         }
     }
