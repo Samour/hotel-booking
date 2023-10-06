@@ -5,6 +5,8 @@ info:
   version: 1.0.0
 
 paths:
+
+  # ============ Auth endpoints ============
   /api/auth/v1/session:
     post:
       operationId: logIn
@@ -135,6 +137,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemResponse'
 
+  # ============ Admin endpoints ============
   /api/admin/v1/room-type:
     post:
       operationId: addRoomType
@@ -228,6 +231,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemResponse'
 
+  # ============ Customer endpoints ============
   /api/customer/v1/room-type/availability:
     get:
       operationId: fetchRoomsAvailability
@@ -274,28 +278,8 @@ components:
       name: SessionId
 
   schemas:
-    SessionResponse:
-      type: object
-      required:
-        - user_id
-        - user_roles
-        - anonymous_user
-        - session_expiry_time
-      properties:
-        user_id:
-          type: string
-        login_id:
-          type: string
-        user_roles:
-          type: array
-          items:
-            type: string
-        anonymous_user:
-          type: boolean
-        session_expiry_time:
-          type: string
-          format: date-time
 
+    # ============ Error (general purpose) schemas ============
     ProblemResponse:
       type: object
       required:
@@ -328,6 +312,29 @@ components:
               detail:
                 type: string
 
+    # ============ Auth schemas ============
+    SessionResponse:
+      type: object
+      required:
+        - user_id
+        - user_roles
+        - anonymous_user
+        - session_expiry_time
+      properties:
+        user_id:
+          type: string
+        login_id:
+          type: string
+        user_roles:
+          type: array
+          items:
+            type: string
+        anonymous_user:
+          type: boolean
+        session_expiry_time:
+          type: string
+          format: date-time
+
     UserRole:
       type: string
       enum:
@@ -335,6 +342,7 @@ components:
         - MANAGE_USERS
         - MANAGE_ROOMS
 
+    # ============ Customer schemas ============
     RoomTypeWithAvailability:
       type: object
       required:
