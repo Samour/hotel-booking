@@ -27,12 +27,14 @@ class AuthenticationInterceptor(
             return
         }
 
-        val userSession = ctx.cookie(AUTH_COOKIE_KEY)?.let {
+        val sessionId = ctx.cookie(AUTH_COOKIE_KEY)
+        val userSession = sessionId?.let {
             getAuthStatePort.run(GetAuthStateDetails(it)) as? GetAuthStateResult.SessionExists
         }?.session
 
         if (userSession == null) {
-            if (endpointRoles.all { it == EndpointRole.Public || it is EndpointRole.Optional }) {
+            // TODO we can pull this line up & merge with line 25?
+            if (sessionId == null && endpointRoles.all { it == EndpointRole.Public || it is EndpointRole.Optional }) {
                 handler.handle(ctx)
             } else {
                 ctx.problemJson(ctx.unauthorizedResponse())

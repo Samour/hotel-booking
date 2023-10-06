@@ -9,7 +9,6 @@ import me.aburke.hotelbooking.ports.scenario.room.RoomTypeInfo
 import okhttp3.Response
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 
 class FetchRoomsAvailabilityHandlerTest : AbstractFetchRoomsAvailabilityHandlerTest() {
 
@@ -125,13 +124,67 @@ class FetchRoomsAvailabilityHandlerTest : AbstractFetchRoomsAvailabilityHandlerT
     }
 
     @Test
-    fun `should return 401 if invalid session ID provided`() {
-        fail("TODO")
+    fun `should return 401 if invalid session ID provided`() = test(javalin) { _, client ->
+        `RUN should return 401 if invalid session ID provided`(
+            object : TestRequest<Response>() {
+                override fun makeRequest(): Response = client.request(
+                    "/api/customer/v1/room-type/availability?" +
+                        "availability_range_start=$searchRangeStart&availability_range_end=$searchRangeEnd",
+                ) { rb ->
+                    rb.header("Cookie", "$AUTH_COOKIE_KEY=${session.sessionId}")
+                        .get()
+                }
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    s.assertThat(response.code).isEqualTo(401)
+                    s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+                    s.assertThatJson(response.body?.string()).isEqualTo(
+                        """
+                            {
+                                "title": "Not Authorized",
+                                "code": "UNAUTHORIZED",
+                                "status": 401,
+                                "detail": "Credentials not provided",
+                                "instance": "/api/customer/v1/room-type/availability",
+                                "extended_details": []
+                            }
+                        """.trimIndent(),
+                    )
+                }
+            },
+        )
     }
 
     @Test
-    fun `should return 403 if authenticated session does not have CUSTOMER permission`() {
-        fail("TODO")
+    fun `should return 403 if authenticated session does not have CUSTOMER permission`() = test(javalin) { _, client ->
+        `RUN should return 403 if authenticated session does not have CUSTOMER permission`(
+            object : TestRequest<Response>() {
+                override fun makeRequest(): Response = client.request(
+                    "/api/customer/v1/room-type/availability?" +
+                        "availability_range_start=$searchRangeStart&availability_range_end=$searchRangeEnd",
+                ) { rb ->
+                    rb.header("Cookie", "$AUTH_COOKIE_KEY=${session.sessionId}")
+                        .get()
+                }
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    s.assertThat(response.code).isEqualTo(403)
+                    s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+                    s.assertThatJson(response.body?.string()).isEqualTo(
+                        """
+                            {
+                                "title": "Forbidden",
+                                "code": "FORBIDDEN",
+                                "status": 403,
+                                "detail": "Insufficient permissions to access resource",
+                                "instance": "/api/customer/v1/room-type/availability",
+                                "extended_details": []
+                            }
+                        """.trimIndent(),
+                    )
+                }
+            },
+        )
     }
 
     private fun expectedJsonResponse() = """

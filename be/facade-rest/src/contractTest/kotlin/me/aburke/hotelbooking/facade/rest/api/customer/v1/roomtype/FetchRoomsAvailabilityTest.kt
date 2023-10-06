@@ -18,7 +18,6 @@ import me.aburke.hotelbooking.rest.client.model.RoomTypeWithAvailability
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.junit.jupiter.api.fail
 import me.aburke.hotelbooking.rest.client.model.RoomDescription as ClientRoomDescription
 
 class FetchRoomsAvailabilityTest : AbstractFetchRoomsAvailabilityHandlerTest() {
@@ -101,13 +100,65 @@ class FetchRoomsAvailabilityTest : AbstractFetchRoomsAvailabilityHandlerTest() {
     }
 
     @Test
-    fun `should return 401 if invalid session ID provided`() {
-        fail("TODO")
+    fun `should return 401 if invalid session ID provided`() = test(javalin) { _, _ ->
+        `RUN should return 401 if invalid session ID provided`(
+            object : TestRequest<ApiException>() {
+                override fun makeRequest(): ApiException = assertThrows {
+                    CustomerApi(javalin.client(session.sessionId)).fetchRoomsAvailabilityWithHttpInfo(
+                        searchRangeStart,
+                        searchRangeEnd,
+                    )
+                }
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    val responseBody = response.responseBody.parseResponse<ProblemResponse>()
+                    s.assertThat(response.code).isEqualTo(401)
+                    s.assertThat(response.responseHeaders["Content-Type"])
+                        .containsExactly("application/problem+json;charset=utf-8")
+                    s.assertThat(responseBody).isEqualTo(
+                        ProblemResponse().apply {
+                            title = "Not Authorized"
+                            code = "UNAUTHORIZED"
+                            status = 401
+                            detail = "Credentials not provided"
+                            instance = "/api/customer/v1/room-type/availability"
+                            extendedDetails = emptyList()
+                        },
+                    )
+                }
+            },
+        )
     }
 
     @Test
-    fun `should return 403 if authenticated session does not have CUSTOMER permission`() {
-        fail("TODO")
+    fun `should return 403 if authenticated session does not have CUSTOMER permission`() = test(javalin) { _, _ ->
+        `RUN should return 403 if authenticated session does not have CUSTOMER permission`(
+            object : TestRequest<ApiException>() {
+                override fun makeRequest(): ApiException = assertThrows {
+                    CustomerApi(javalin.client(session.sessionId)).fetchRoomsAvailabilityWithHttpInfo(
+                        searchRangeStart,
+                        searchRangeEnd,
+                    )
+                }
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    val responseBody = response.responseBody.parseResponse<ProblemResponse>()
+                    s.assertThat(response.code).isEqualTo(403)
+                    s.assertThat(response.responseHeaders["Content-Type"])
+                        .containsExactly("application/problem+json;charset=utf-8")
+                    s.assertThat(responseBody).isEqualTo(
+                        ProblemResponse().apply {
+                            title = "Forbidden"
+                            code = "FORBIDDEN"
+                            status = 403
+                            detail = "Insufficient permissions to access resource"
+                            instance = "/api/customer/v1/room-type/availability"
+                            extendedDetails = emptyList()
+                        },
+                    )
+                }
+            },
+        )
     }
 }
 
