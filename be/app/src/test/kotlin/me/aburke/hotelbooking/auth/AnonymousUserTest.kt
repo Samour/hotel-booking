@@ -70,7 +70,7 @@ class AnonymousUserTest {
             s.assertThat(allUsers).containsExactly(
                 UserRecord(
                     userId = createSessionResponse.userId,
-                    userRoles = setOf(UserRole.CUSTOMER),
+                    userRoles = setOf(UserRole.CUSTOMER.name),
                     name = "",
                     credential = null,
                 ),

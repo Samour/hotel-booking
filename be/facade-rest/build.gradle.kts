@@ -24,7 +24,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation(project(":ports"))
+    implementation(project(":ports-primary"))
 
     implementation("ch.qos.logback:logback-classic:${properties["logbackVersion"]}")
     implementation("io.insert-koin:koin-core:${properties["koinVersion"]}")

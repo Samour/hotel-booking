@@ -19,7 +19,8 @@ dependencies {
     implementation("io.insert-koin:koin-core:${properties["koinVersion"]}")
     implementation("io.javalin:javalin:${properties["javalinVersion"]}")
 
-    testImplementation(project(":ports"))
+    testImplementation(project(":ports-primary"))
+    testImplementation(project(":ports-secondary"))
     testImplementation(project(":tool-postgres-migrations"))
     testImplementation(project(":test-rest-client"))
     testImplementation("redis.clients:jedis:${properties["jedisVersion"]}")

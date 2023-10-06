@@ -73,7 +73,7 @@ class SignUpTest {
                 loginId = LOGIN_ID,
                 passwordHash = "password-hash",
                 name = NAME,
-                roles = setOf(UserRole.MANAGE_USERS),
+                roles = setOf(UserRole.MANAGE_USERS.name),
             ),
         ) as InsertUserResult.UserInserted
 
@@ -238,7 +238,7 @@ class SignUpTest {
                 .isEqualTo(
                     UserRecord(
                         userId = response.userId,
-                        userRoles = setOf(UserRole.CUSTOMER),
+                        userRoles = setOf(UserRole.CUSTOMER.name),
                         name = NAME,
                         credential = UserCredentialRecord(
                             loginId = LOGIN_ID,
@@ -278,7 +278,7 @@ class SignUpTest {
                 .isEqualTo(
                     UserRecord(
                         userId = anonymousUserId,
-                        userRoles = setOf(UserRole.CUSTOMER),
+                        userRoles = setOf(UserRole.CUSTOMER.name),
                         name = NAME,
                         credential = UserCredentialRecord(
                             loginId = LOGIN_ID,

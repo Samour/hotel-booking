@@ -8,6 +8,7 @@ import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.createUserWithRoles
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.toNameSet
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
 import me.aburke.hotelbooking.ports.repository.UserRecord
@@ -78,7 +79,7 @@ class CreateUserTest {
                 .isEqualTo(
                     UserRecord(
                         userId = response.userId,
-                        userRoles = roles,
+                        userRoles = roles.toNameSet(),
                         name = NAME,
                         credential = UserCredentialRecord(
                             loginId = LOGIN_ID,
