@@ -20,6 +20,8 @@ sealed interface HoldRoomResult : Scenario.Result {
     ) : HoldRoomResult
 
     data object StockNotAvailable : HoldRoomResult
+
+    data object ConcurrentHoldRequest : HoldRoomResult
 }
 
 interface HoldRoomPort : Scenario<HoldRoomDetail, HoldRoomResult>

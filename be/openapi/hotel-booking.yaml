@@ -314,7 +314,9 @@ paths:
                   removed_room_hold_id:
                     type: string
         "409":
-          description: Hold could not be created due to unavailable stock levels
+          description: |
+            Hold could not be created due to unavailable stock levels or a concurrent request from the authenticated
+            user
           content:
             application/json:
               schema:
