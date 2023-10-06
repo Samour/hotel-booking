@@ -1,7 +1,8 @@
 rootProject.name = "hotel-booking"
 
 include(
-    "ports",
+    "ports-primary",
+    "ports-secondary",
     "domain",
 
     "repository-postgres",

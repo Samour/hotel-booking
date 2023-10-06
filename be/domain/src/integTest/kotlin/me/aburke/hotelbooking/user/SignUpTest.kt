@@ -2,6 +2,7 @@ package me.aburke.hotelbooking.user
 
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.model.user.toDbModel
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.scenario.user.AnonymousSession
@@ -88,13 +89,13 @@ class SignUpTest {
                         loginId = LOGIN_ID,
                         passwordHash = "",
                         name = NAME,
-                        roles = setOf(UserRole.CUSTOMER),
+                        roles = setOf(UserRole.CUSTOMER.name),
                     ),
                 )
             s.assertThat(passwordHashResult).isTrue
             s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
-                    session?.sessionId to session,
+                    session?.sessionId to session?.toDbModel(),
                 ),
             )
         }
@@ -183,13 +184,13 @@ class SignUpTest {
                         loginId = LOGIN_ID,
                         passwordHash = "",
                         name = NAME,
-                        roles = setOf(UserRole.CUSTOMER),
+                        roles = setOf(UserRole.CUSTOMER.name),
                     ),
                 )
             s.assertThat(passwordHashResult).isTrue
             s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
-                    ANONYMOUS_SESSION_ID to session,
+                    ANONYMOUS_SESSION_ID to session?.toDbModel(),
                 ),
             )
         }

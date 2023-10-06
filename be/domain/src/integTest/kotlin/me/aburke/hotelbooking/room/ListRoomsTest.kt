@@ -1,7 +1,7 @@
 package me.aburke.hotelbooking.room
 
 import me.aburke.hotelbooking.RandomString
-import me.aburke.hotelbooking.model.user.DateRange
+import me.aburke.hotelbooking.model.date.DateRange
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsDetails
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsPort

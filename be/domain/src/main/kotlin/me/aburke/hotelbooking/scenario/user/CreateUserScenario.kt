@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.scenario.user
 
+import me.aburke.hotelbooking.model.user.toNameSet
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
@@ -19,7 +20,7 @@ class CreateUserScenario(
             loginId = details.loginId,
             passwordHash = passwordHash,
             name = details.name,
-            roles = details.userRoles,
+            roles = details.userRoles.toNameSet(),
         )
 
         return when (val result = userRepository.insertUser(insertRecord)) {

@@ -1,12 +1,21 @@
 package me.aburke.hotelbooking.model.user
 
-import java.time.Instant
+import me.aburke.hotelbooking.ports.repository.UserSession as DbUserSession
 
-data class UserSession(
-    val sessionId: String,
-    val userId: String,
-    val loginId: String?,
-    val userRoles: Set<UserRole>,
-    val anonymousUser: Boolean,
-    val sessionExpiryTime: Instant,
+fun UserSession.toDbModel() = DbUserSession(
+    sessionId = sessionId,
+    userId = userId,
+    loginId = loginId,
+    userRoles = userRoles.toNameSet(),
+    anonymousUser = anonymousUser,
+    sessionExpiryTime = sessionExpiryTime,
+)
+
+fun DbUserSession.toUserSession() = UserSession(
+    sessionId = sessionId,
+    userId = userId,
+    loginId = loginId,
+    userRoles = userRoles.toUserRoles(),
+    anonymousUser = anonymousUser,
+    sessionExpiryTime = sessionExpiryTime,
 )

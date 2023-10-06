@@ -19,6 +19,7 @@ private const val RAW_PASSWORD = "raw-password"
 private const val NAME = "name"
 
 private val roles = setOf(UserRole.CUSTOMER)
+private val roleNames = setOf(UserRole.CUSTOMER.name)
 
 class CreateUserTest {
 
@@ -66,7 +67,7 @@ class CreateUserTest {
                         loginId = LOGIN_ID,
                         passwordHash = "",
                         name = NAME,
-                        roles = roles,
+                        roles = roleNames,
                     ),
                 )
             s.assertThat(passwordHashResult).isTrue

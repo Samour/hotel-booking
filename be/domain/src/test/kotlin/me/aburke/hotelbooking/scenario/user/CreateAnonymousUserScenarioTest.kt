@@ -17,8 +17,10 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
+import me.aburke.hotelbooking.ports.repository.UserSession as DbUserSession
 
 private const val USER_ID = "user-id"
+private val sessionExpiryTime = Instant.now()
 
 private val session = UserSession(
     sessionId = "session-id",
@@ -26,7 +28,15 @@ private val session = UserSession(
     loginId = null,
     userRoles = setOf(UserRole.CUSTOMER),
     anonymousUser = true,
-    sessionExpiryTime = Instant.now(),
+    sessionExpiryTime = sessionExpiryTime,
+)
+private val dbSession = DbUserSession(
+    sessionId = "session-id",
+    userId = USER_ID,
+    loginId = null,
+    userRoles = setOf(UserRole.CUSTOMER.name),
+    anonymousUser = true,
+    sessionExpiryTime = sessionExpiryTime,
 )
 
 @ExtendWith(MockKExtension::class)
@@ -58,7 +68,7 @@ class CreateAnonymousUserScenarioTest {
             )
         } returns session
         every {
-            sessionRepository.insertUserSession(session)
+            sessionRepository.insertUserSession(dbSession)
         } returns Unit
 
         val result = underTest.run(CreateAnonymousUserPort.Details)
@@ -84,7 +94,7 @@ class CreateAnonymousUserScenarioTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    sessionRepository.insertUserSession(session)
+                    sessionRepository.insertUserSession(dbSession)
                 }
             }
             s.check {

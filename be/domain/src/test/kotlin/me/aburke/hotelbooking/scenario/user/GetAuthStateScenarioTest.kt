@@ -15,8 +15,10 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
+import me.aburke.hotelbooking.ports.repository.UserSession as DbUserSession
 
 private const val SESSION_ID = "session-id"
+private val sessionExpiryTime = Instant.now()
 
 private val session = UserSession(
     sessionId = SESSION_ID,
@@ -24,7 +26,15 @@ private val session = UserSession(
     loginId = "login-id",
     userRoles = setOf(UserRole.MANAGE_USERS),
     anonymousUser = false,
-    sessionExpiryTime = Instant.now(),
+    sessionExpiryTime = sessionExpiryTime,
+)
+private val dbSession = DbUserSession(
+    sessionId = SESSION_ID,
+    userId = "user-id",
+    loginId = "login-id",
+    userRoles = setOf(UserRole.MANAGE_USERS.name),
+    anonymousUser = false,
+    sessionExpiryTime = sessionExpiryTime,
 )
 
 @ExtendWith(MockKExtension::class)
@@ -40,7 +50,7 @@ class GetAuthStateScenarioTest {
     fun `should return session when exists`() {
         every {
             sessionRepository.loadUserSession(SESSION_ID)
-        } returns session
+        } returns dbSession
 
         val result = underTest.run(
             GetAuthStateDetails(

@@ -22,7 +22,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
-    implementation(project(":ports"))
+    implementation(project(":ports-primary"))
+    implementation(project(":ports-secondary"))
 
     implementation("io.insert-koin:koin-core:${properties["koinVersion"]}")
     implementation("at.favre.lib:bcrypt:${properties["jbcryptVersion"]}")

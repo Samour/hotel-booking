@@ -20,6 +20,7 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
+import me.aburke.hotelbooking.ports.repository.UserSession as DbUserSession
 
 private const val DUMMY_PW_HASH = "\$2a\$06\$8vB.M.kAHzcx2fFItjFG3.nY4UBiHTvV9P2xdsHlNmtAFzZ8.QQc."
 private const val LOGIN_ID = "login-id"
@@ -29,10 +30,12 @@ private const val NAME = "name"
 private const val PASSWORD_HASH = "password-hash"
 private const val SESSION_IDENTIFIER = "session-identifier"
 
+private val sessionExpiryTime = Instant.now().plusSeconds(3600)
 private val userRoles = setOf(UserRole.CUSTOMER)
+private val userRoleNames = setOf(UserRole.CUSTOMER.name)
 private val userRecord = NonAnonymousUserRecord(
     userId = USER_ID,
-    userRoles = userRoles,
+    userRoles = userRoleNames,
     name = NAME,
     credential = UserCredentialRecord(
         loginId = LOGIN_ID,
@@ -45,7 +48,15 @@ private val userSession = UserSession(
     loginId = LOGIN_ID,
     userRoles = userRoles,
     anonymousUser = false,
-    sessionExpiryTime = Instant.now().plusSeconds(3600),
+    sessionExpiryTime = sessionExpiryTime,
+)
+private val dbUserSession = DbUserSession(
+    sessionId = SESSION_IDENTIFIER,
+    userId = USER_ID,
+    loginId = LOGIN_ID,
+    userRoles = userRoleNames,
+    anonymousUser = false,
+    sessionExpiryTime = sessionExpiryTime,
 )
 
 @ExtendWith(MockKExtension::class)
@@ -83,7 +94,7 @@ class LogInScenarioTest {
             )
         } returns userSession
         every {
-            sessionRepository.insertUserSession(userSession)
+            sessionRepository.insertUserSession(dbUserSession)
         } returns Unit
 
         val result = underTest.run(
@@ -119,7 +130,7 @@ class LogInScenarioTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    sessionRepository.insertUserSession(userSession)
+                    sessionRepository.insertUserSession(dbUserSession)
                 }
             }
             s.check {

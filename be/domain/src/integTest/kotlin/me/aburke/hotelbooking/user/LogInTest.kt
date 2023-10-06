@@ -2,6 +2,7 @@ package me.aburke.hotelbooking.user
 
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.model.user.toDbModel
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
@@ -24,6 +25,7 @@ private const val PASSWORD = "password"
 private const val NAME = "name"
 
 private val userRoles = setOf(UserRole.CUSTOMER)
+private val roleNames = setOf(UserRole.CUSTOMER.name)
 
 class LogInTest {
 
@@ -78,7 +80,7 @@ class LogInTest {
                 now.plus(sessionDuration),
                 Assertions.within(100, ChronoUnit.MILLIS),
             )
-            s.assertThat(allSessions).containsExactly(session)
+            s.assertThat(allSessions).containsExactly(session?.toDbModel())
         }
     }
 
@@ -125,7 +127,7 @@ class LogInTest {
             loginId = LOGIN_ID,
             passwordHash = passwordHasher.hashPassword(PASSWORD),
             name = NAME,
-            roles = userRoles,
+            roles = roleNames,
         ),
     )
 }

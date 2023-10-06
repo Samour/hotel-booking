@@ -1,7 +1,5 @@
 package me.aburke.hotelbooking.model.user
 
-enum class UserRole {
-    CUSTOMER,
-    MANAGE_ROOMS,
-    MANAGE_USERS,
-}
+fun Set<UserRole>.toNameSet() = asSequence().map { it.name }.toSet()
+
+fun Set<String>.toUserRoles() = asSequence().map { UserRole.valueOf(it) }.toSet()

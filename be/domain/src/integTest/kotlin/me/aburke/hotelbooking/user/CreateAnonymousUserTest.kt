@@ -2,6 +2,7 @@ package me.aburke.hotelbooking.user
 
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
+import me.aburke.hotelbooking.model.user.toDbModel
 import me.aburke.hotelbooking.ports.scenario.user.CreateAnonymousUserPort
 import me.aburke.hotelbooking.sessionDuration
 import me.aburke.hotelbooking.stubs.Stubs
@@ -48,7 +49,7 @@ class CreateAnonymousUserTest {
             s.assertThat(stubs.userRepository.getUsers()).isEmpty()
             s.assertThat(stubs.sessionRepository.getSessions()).isEqualTo(
                 mapOf(
-                    result.session.sessionId to result.session,
+                    result.session.sessionId to result.session.toDbModel(),
                 ),
             )
         }

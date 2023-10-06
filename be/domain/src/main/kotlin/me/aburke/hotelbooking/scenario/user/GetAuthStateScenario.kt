@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.scenario.user
 
+import me.aburke.hotelbooking.model.user.toUserSession
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import me.aburke.hotelbooking.ports.scenario.user.GetAuthStateDetails
 import me.aburke.hotelbooking.ports.scenario.user.GetAuthStatePort
@@ -11,6 +12,6 @@ class GetAuthStateScenario(
 
     override fun run(details: GetAuthStateDetails): GetAuthStateResult =
         sessionRepository.loadUserSession(details.sessionId)?.let {
-            GetAuthStateResult.SessionExists(it)
+            GetAuthStateResult.SessionExists(it.toUserSession())
         } ?: GetAuthStateResult.SessionDoesNotExist
 }

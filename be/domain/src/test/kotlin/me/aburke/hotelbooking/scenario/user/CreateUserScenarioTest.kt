@@ -25,6 +25,7 @@ private const val HASHED_PASSWORD = "hashed-password"
 private const val USER_ID = "user-id"
 
 private val roles = setOf(UserRole.MANAGE_USERS, UserRole.MANAGE_ROOMS)
+private val roleNames = setOf(UserRole.MANAGE_USERS.name, UserRole.MANAGE_ROOMS.name)
 
 @ExtendWith(MockKExtension::class)
 class CreateUserScenarioTest {
@@ -49,7 +50,7 @@ class CreateUserScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = roles,
+                    roles = roleNames,
                 ),
             )
         } returns InsertUserResult.UserInserted(
@@ -83,7 +84,7 @@ class CreateUserScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = roles,
+                            roles = roleNames,
                         ),
                     )
                 }
@@ -103,7 +104,7 @@ class CreateUserScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = roles,
+                    roles = roleNames,
                 ),
             )
         } returns InsertUserResult.LoginIdUniquenessViolation
@@ -133,7 +134,7 @@ class CreateUserScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = roles,
+                            roles = roleNames,
                         ),
                     )
                 }

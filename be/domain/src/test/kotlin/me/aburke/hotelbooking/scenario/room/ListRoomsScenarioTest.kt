@@ -7,7 +7,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
 import me.aburke.hotelbooking.RandomString
-import me.aburke.hotelbooking.model.user.DateRange
+import me.aburke.hotelbooking.model.date.DateRange
 import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.RoomStockRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeDescriptionRecord

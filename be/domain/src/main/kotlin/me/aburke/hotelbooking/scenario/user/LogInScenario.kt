@@ -1,5 +1,7 @@
 package me.aburke.hotelbooking.scenario.user
 
+import me.aburke.hotelbooking.model.user.toDbModel
+import me.aburke.hotelbooking.model.user.toUserRoles
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
@@ -33,10 +35,10 @@ class LogInScenario(
         val session = sessionFactory.createForUser(
             userId = user.userId,
             loginId = user.credential.loginId,
-            userRoles = user.userRoles,
+            userRoles = user.userRoles.toUserRoles(),
             anonymousUser = false,
         )
-        sessionRepository.insertUserSession(session)
+        sessionRepository.insertUserSession(session.toDbModel())
 
         return LogInResult.UserSessionCreated(session)
     }

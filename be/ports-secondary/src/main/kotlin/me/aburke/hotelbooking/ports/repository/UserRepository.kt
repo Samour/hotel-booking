@@ -1,12 +1,10 @@
 package me.aburke.hotelbooking.ports.repository
 
-import me.aburke.hotelbooking.model.user.UserRole
-
 data class InsertUserRecord(
     val loginId: String,
     val passwordHash: String,
     val name: String,
-    val roles: Set<UserRole>,
+    val roles: Set<String>,
 )
 
 sealed interface InsertUserResult {
@@ -18,14 +16,14 @@ sealed interface InsertUserResult {
 
 data class UserRecord(
     val userId: String,
-    val userRoles: Set<UserRole>,
+    val userRoles: Set<String>,
     val name: String,
     val credential: UserCredentialRecord?,
 )
 
 data class NonAnonymousUserRecord(
     val userId: String,
-    val userRoles: Set<UserRole>,
+    val userRoles: Set<String>,
     val name: String,
     val credential: UserCredentialRecord,
 )

@@ -1,4 +1,4 @@
-package me.aburke.hotelbooking.model.user
+package me.aburke.hotelbooking.model.date
 
 import java.time.LocalDate
 

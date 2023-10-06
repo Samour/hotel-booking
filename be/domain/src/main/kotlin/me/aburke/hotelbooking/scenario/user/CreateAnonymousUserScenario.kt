@@ -1,6 +1,7 @@
 package me.aburke.hotelbooking.scenario.user
 
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.toDbModel
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.ports.scenario.user.AnonymousUserCreated
@@ -20,7 +21,7 @@ class CreateAnonymousUserScenario(
                 loginId = null,
                 userRoles = setOf(UserRole.CUSTOMER),
                 anonymousUser = true,
-            ).also { sessionRepository.insertUserSession(it) },
+            ).also { sessionRepository.insertUserSession(it.toDbModel()) },
         )
     }
 }

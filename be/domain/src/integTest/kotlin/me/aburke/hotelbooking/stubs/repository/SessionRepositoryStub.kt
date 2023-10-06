@@ -1,7 +1,7 @@
 package me.aburke.hotelbooking.stubs.repository
 
-import me.aburke.hotelbooking.model.user.UserSession
 import me.aburke.hotelbooking.ports.repository.SessionRepository
+import me.aburke.hotelbooking.ports.repository.UserSession
 
 class SessionRepositoryStub : SessionRepository {
 

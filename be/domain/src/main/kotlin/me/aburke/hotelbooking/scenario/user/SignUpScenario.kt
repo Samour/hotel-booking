@@ -1,6 +1,8 @@
 package me.aburke.hotelbooking.scenario.user
 
 import me.aburke.hotelbooking.model.user.UserRole
+import me.aburke.hotelbooking.model.user.toDbModel
+import me.aburke.hotelbooking.model.user.toUserRoles
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
@@ -26,7 +28,7 @@ class SignUpScenario(
             loginId = details.loginId,
             passwordHash = passwordHash,
             name = details.name,
-            roles = setOf(UserRole.CUSTOMER),
+            roles = setOf(UserRole.CUSTOMER.name),
         )
 
         return details.anonymousUser?.let {
@@ -40,9 +42,9 @@ class SignUpScenario(
                 sessionFactory.createForUser(
                     userId = result.userId,
                     loginId = insertRecord.loginId,
-                    userRoles = insertRecord.roles,
+                    userRoles = insertRecord.roles.toUserRoles(),
                     anonymousUser = false,
-                ).also { sessionRepository.insertUserSession(it) },
+                ).also { sessionRepository.insertUserSession(it.toDbModel()) },
             )
 
             is InsertUserResult.LoginIdUniquenessViolation -> SignUpResult.UsernameNotAvailable
@@ -57,10 +59,10 @@ class SignUpScenario(
                 sessionFactory.createForUser(
                     userId = result.userId,
                     loginId = insertRecord.loginId,
-                    userRoles = insertRecord.roles,
+                    userRoles = insertRecord.roles.toUserRoles(),
                     anonymousUser = false,
                 ).copy(sessionId = anonymousSession.sessionId)
-                    .also { sessionRepository.insertUserSession(it) },
+                    .also { sessionRepository.insertUserSession(it.toDbModel()) },
             )
 
             is PromoteAnonymousUserResult.UserIsNotAnonymous -> SignUpResult.UserIsNotAnonymous

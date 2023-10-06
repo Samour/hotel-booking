@@ -22,6 +22,7 @@ import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import java.time.Instant
+import me.aburke.hotelbooking.ports.repository.UserSession as DbUserSession
 
 private const val LOGIN_ID = "login-id"
 private const val NAME = "name"
@@ -29,6 +30,7 @@ private const val RAW_PASSWORD = "raw-password"
 private const val HASHED_PASSWORD = "hashed-password"
 private const val USER_ID = "user-id"
 private const val ANONYMOUS_SESSION_ID = "anonymous-session-id"
+private val sessionExpiryTime = Instant.now()
 
 private val session = UserSession(
     sessionId = "session-id",
@@ -36,7 +38,15 @@ private val session = UserSession(
     loginId = LOGIN_ID,
     userRoles = setOf(UserRole.CUSTOMER),
     anonymousUser = false,
-    sessionExpiryTime = Instant.now(),
+    sessionExpiryTime = sessionExpiryTime,
+)
+private val dbSession = DbUserSession(
+    sessionId = "session-id",
+    userId = "user-id",
+    loginId = LOGIN_ID,
+    userRoles = setOf(UserRole.CUSTOMER.name),
+    anonymousUser = false,
+    sessionExpiryTime = sessionExpiryTime,
 )
 
 @ExtendWith(MockKExtension::class)
@@ -68,7 +78,7 @@ class SignUpScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = setOf(UserRole.CUSTOMER),
+                    roles = setOf(UserRole.CUSTOMER.name),
                 ),
             )
         } returns InsertUserResult.UserInserted(
@@ -83,7 +93,7 @@ class SignUpScenarioTest {
             )
         } returns session
         every {
-            sessionRepository.insertUserSession(session)
+            sessionRepository.insertUserSession(dbSession)
         } returns Unit
 
         val result = underTest.run(
@@ -111,7 +121,7 @@ class SignUpScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = setOf(UserRole.CUSTOMER),
+                            roles = setOf(UserRole.CUSTOMER.name),
                         ),
                     )
                 }
@@ -128,7 +138,7 @@ class SignUpScenarioTest {
             }
             s.check {
                 verify(exactly = 1) {
-                    sessionRepository.insertUserSession(session)
+                    sessionRepository.insertUserSession(dbSession)
                 }
             }
             s.confirmMocks()
@@ -146,7 +156,7 @@ class SignUpScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = setOf(UserRole.CUSTOMER),
+                    roles = setOf(UserRole.CUSTOMER.name),
                 ),
             )
         } returns InsertUserResult.LoginIdUniquenessViolation
@@ -176,7 +186,7 @@ class SignUpScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = setOf(UserRole.CUSTOMER),
+                            roles = setOf(UserRole.CUSTOMER.name),
                         ),
                     )
                 }
@@ -197,7 +207,7 @@ class SignUpScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = setOf(UserRole.CUSTOMER),
+                    roles = setOf(UserRole.CUSTOMER.name),
                 ),
             )
         } returns PromoteAnonymousUserResult.UserCredentialsInserted(
@@ -213,7 +223,7 @@ class SignUpScenarioTest {
         } returns session
         every {
             sessionRepository.insertUserSession(
-                session.copy(sessionId = ANONYMOUS_SESSION_ID),
+                dbSession.copy(sessionId = ANONYMOUS_SESSION_ID),
             )
         } returns Unit
 
@@ -248,7 +258,7 @@ class SignUpScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = setOf(UserRole.CUSTOMER),
+                            roles = setOf(UserRole.CUSTOMER.name),
                         ),
                     )
                 }
@@ -266,7 +276,7 @@ class SignUpScenarioTest {
             s.check {
                 verify(exactly = 1) {
                     sessionRepository.insertUserSession(
-                        session.copy(sessionId = ANONYMOUS_SESSION_ID),
+                        dbSession.copy(sessionId = ANONYMOUS_SESSION_ID),
                     )
                 }
             }
@@ -286,7 +296,7 @@ class SignUpScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = setOf(UserRole.CUSTOMER),
+                    roles = setOf(UserRole.CUSTOMER.name),
                 ),
             )
         } returns PromoteAnonymousUserResult.UserIsNotAnonymous
@@ -320,7 +330,7 @@ class SignUpScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = setOf(UserRole.CUSTOMER),
+                            roles = setOf(UserRole.CUSTOMER.name),
                         ),
                     )
                 }
@@ -341,7 +351,7 @@ class SignUpScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = setOf(UserRole.CUSTOMER),
+                    roles = setOf(UserRole.CUSTOMER.name),
                 ),
             )
         } returns PromoteAnonymousUserResult.LoginIdUniquenessViolation
@@ -375,7 +385,7 @@ class SignUpScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = setOf(UserRole.CUSTOMER),
+                            roles = setOf(UserRole.CUSTOMER.name),
                         ),
                     )
                 }
@@ -396,7 +406,7 @@ class SignUpScenarioTest {
                     loginId = LOGIN_ID,
                     passwordHash = HASHED_PASSWORD,
                     name = NAME,
-                    roles = setOf(UserRole.CUSTOMER),
+                    roles = setOf(UserRole.CUSTOMER.name),
                 ),
             )
         } returns PromoteAnonymousUserResult.AnonymousUserDoesNotExist
@@ -430,7 +440,7 @@ class SignUpScenarioTest {
                             loginId = LOGIN_ID,
                             passwordHash = HASHED_PASSWORD,
                             name = NAME,
-                            roles = setOf(UserRole.CUSTOMER),
+                            roles = setOf(UserRole.CUSTOMER.name),
                         ),
                     )
                 }

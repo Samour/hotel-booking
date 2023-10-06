@@ -1,6 +1,6 @@
 package me.aburke.hotelbooking.ports.scenario.room
 
-import me.aburke.hotelbooking.model.user.DateRange
+import me.aburke.hotelbooking.model.date.DateRange
 import me.aburke.hotelbooking.ports.scenario.Scenario
 import java.time.LocalDate
 
