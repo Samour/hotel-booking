@@ -5,7 +5,7 @@ import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.UserRecord
-import me.aburke.hotelbooking.rest.client.api.AuthApi
+import me.aburke.hotelbooking.rest.client.api.AuthUnstableApi
 import me.aburke.hotelbooking.rest.client.model.SessionResponse
 import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -37,7 +37,7 @@ class AnonymousUserTest {
 
     @Test
     fun `should create session for anonymous user`() = app.restTest { client, _ ->
-        val createSessionResponse = AuthApi(client).createAnonymousSession()
+        val createSessionResponse = AuthUnstableApi(client).createAnonymousSession()
 
         assertSoftly { s ->
             s.assertThat(createSessionResponse).usingRecursiveComparison()
@@ -53,7 +53,7 @@ class AnonymousUserTest {
                 )
         }
 
-        val sessionResponse = AuthApi(client).fetchAuthState()
+        val sessionResponse = AuthUnstableApi(client).fetchAuthState()
 
         val allUsers = connection.readAllUsers()
 

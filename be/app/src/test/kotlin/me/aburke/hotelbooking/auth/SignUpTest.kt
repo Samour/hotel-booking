@@ -11,7 +11,7 @@ import me.aburke.hotelbooking.ports.repository.InsertUserResult
 import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
 import me.aburke.hotelbooking.ports.repository.UserRecord
 import me.aburke.hotelbooking.ports.repository.UserRepository
-import me.aburke.hotelbooking.rest.client.api.AuthApi
+import me.aburke.hotelbooking.rest.client.api.AuthUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiClient
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.LogInRequest
@@ -79,12 +79,12 @@ class SignUpTest {
 
         val anonymousUserId = client.takeIf { asAnonymousUser }
             ?.let {
-                AuthApi(it).createAnonymousSession()
+                AuthUnstableApi(it).createAnonymousSession()
                     .userId
             }
 
         val response = assertThrows<ApiException> {
-            AuthApi(client).signUp(
+            AuthUnstableApi(client).signUp(
                 SignUpRequest().apply {
                     loginId = LOGIN_ID
                     password = PASSWORD
@@ -105,7 +105,7 @@ class SignUpTest {
                         "code": "CONFLICT",
                         "status": 409,
                         "detail": "Username is not available",
-                        "instance": "/api/auth/v1/user",
+                        "instance": "/api/auth/v0/user",
                         "extended_details": []
                     }
                 """.trimIndent(),
@@ -121,7 +121,7 @@ class SignUpTest {
 
     @Test
     fun `should create credentials for anonymous user`() = app.restTest { client, cookieJar ->
-        val anonymousUserId = AuthApi(client).createAnonymousSession()
+        val anonymousUserId = AuthUnstableApi(client).createAnonymousSession()
             .userId
 
         val signUpResponse = signUpWithAnonymous(client, anonymousUserId)
@@ -134,7 +134,7 @@ class SignUpTest {
 
     @Test
     fun `should return 409 when current user is not anonymous`() = app.restTest { client, _ ->
-        val firstSignUpResponse = AuthApi(client).signUp(
+        val firstSignUpResponse = AuthUnstableApi(client).signUp(
             SignUpRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -143,7 +143,7 @@ class SignUpTest {
         )
 
         val secondSignUpResponse = assertThrows<ApiException> {
-            AuthApi(client).signUp(
+            AuthUnstableApi(client).signUp(
                 SignUpRequest().apply {
                     loginId = LOGIN_ID
                     password = PASSWORD
@@ -164,7 +164,7 @@ class SignUpTest {
                         "code": "CONFLICT",
                         "status": 409,
                         "detail": "User is not anonymous",
-                        "instance": "/api/auth/v1/user",
+                        "instance": "/api/auth/v0/user",
                         "extended_details": []
                     }
                 """.trimIndent(),
@@ -175,11 +175,11 @@ class SignUpTest {
 
     @Test
     fun `should return 400 when current user does not exist`() = app.restTest { client, _ ->
-        AuthApi(client).createAnonymousSession()
+        AuthUnstableApi(client).createAnonymousSession()
         connection.executeScript("clear_db.sql")
 
         val secondSignUpResponse = assertThrows<ApiException> {
-            AuthApi(client).signUp(
+            AuthUnstableApi(client).signUp(
                 SignUpRequest().apply {
                     loginId = LOGIN_ID
                     password = PASSWORD
@@ -200,7 +200,7 @@ class SignUpTest {
                         "code": "BAD_REQUEST",
                         "status": 400,
                         "detail": "User does not exist",
-                        "instance": "/api/auth/v1/user",
+                        "instance": "/api/auth/v0/user",
                         "extended_details": []
                     }
                 """.trimIndent(),
@@ -210,7 +210,7 @@ class SignUpTest {
     }
 
     private fun signUp(client: ApiClient): SessionResponse {
-        val response = AuthApi(client).signUp(
+        val response = AuthUnstableApi(client).signUp(
             SignUpRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -252,7 +252,7 @@ class SignUpTest {
     }
 
     private fun signUpWithAnonymous(client: ApiClient, anonymousUserId: String): SessionResponse {
-        val response = AuthApi(client).signUp(
+        val response = AuthUnstableApi(client).signUp(
             SignUpRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -292,7 +292,7 @@ class SignUpTest {
     }
 
     private fun logIn(client: ApiClient, userId: String): SessionResponse {
-        val response = AuthApi(client).logIn(
+        val response = AuthUnstableApi(client).logIn(
             LogInRequest().apply {
                 loginId = LOGIN_ID
                 password = PASSWORD
@@ -315,7 +315,7 @@ class SignUpTest {
     }
 
     private fun ApiClient.verifySession(userId: String, sessionExpiryTime: Instant) {
-        val response = AuthApi(this).fetchAuthState()
+        val response = AuthUnstableApi(this).fetchAuthState()
         assertThat(response).isEqualTo(
             SessionResponse().also {
                 it.userId = userId

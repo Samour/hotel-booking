@@ -7,8 +7,8 @@ import me.aburke.hotelbooking.client.SimpleCookieJar
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.rest.client.api.AdminApi
-import me.aburke.hotelbooking.rest.client.api.AuthApi
+import me.aburke.hotelbooking.rest.client.api.AdminUnstableApi
+import me.aburke.hotelbooking.rest.client.api.AuthUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiClient
 import me.aburke.hotelbooking.rest.client.model.CreateUserRequest
 import me.aburke.hotelbooking.rest.client.model.LogInRequest
@@ -78,7 +78,7 @@ fun ApiClient.createUserWithRoles(vararg roles: UserRole): TestUser {
     val loginId = "test-${RandomString.make()}"
     val password = "test-${RandomString.make()}"
     authenticateAsAdmin()
-    val userId = AdminApi(this).createUser(
+    val userId = AdminUnstableApi(this).createUser(
         CreateUserRequest().also { r ->
             r.loginId = loginId
             r.password = password
@@ -95,7 +95,7 @@ fun ApiClient.createUserWithRoles(vararg roles: UserRole): TestUser {
 }
 
 fun ApiClient.authenticateAs(user: TestUser) {
-    AuthApi(this).logIn(
+    AuthUnstableApi(this).logIn(
         LogInRequest().apply {
             loginId = user.loginId
             password = user.password

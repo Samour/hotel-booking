@@ -7,14 +7,14 @@ info:
 paths:
 
   # ============ Auth endpoints ============
-  /api/auth/v1/session:
+  /api/auth/v0/session:
     post:
       operationId: logIn
       summary: Log in using credentials
       description: |
         Log in with username/password. Successful authentication will result in a "SessionId" cookie being set
       tags:
-        - auth
+        - authUnstable
       requestBody:
         content:
           application/json:
@@ -55,7 +55,7 @@ paths:
       security:
         - session: [ ]
       tags:
-        - auth
+        - authUnstable
       responses:
         "200":
           description: Return details of currently authenticated session
@@ -70,12 +70,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemResponse'
 
-  /api/auth/v1/session/anonymous:
+  /api/auth/v0/session/anonymous:
     post:
       operationId: createAnonymousSession
       summary: Create anonymous user & a session for the new user
       tags:
-        - auth
+        - authUnstable
       responses:
         "201":
           description: Return details of newly created user
@@ -89,7 +89,7 @@ paths:
                 type: string
                 format: cookie
 
-  /api/auth/v1/user:
+  /api/auth/v0/user:
     post:
       operationId: signUp
       summary: Sign up as a new customer & create a session for the new user
@@ -99,7 +99,7 @@ paths:
       security:
         - session: [ ]
       tags:
-        - auth
+        - authUnstable
       requestBody:
         content:
           application/json:
@@ -138,14 +138,14 @@ paths:
                 $ref: '#/components/schemas/ProblemResponse'
 
   # ============ Admin endpoints ============
-  /api/admin/v1/room-type:
+  /api/admin/v0/room-type:
     post:
       operationId: addRoomType
       summary: Add a new room type
       security:
         - session: [ MANAGE_ROOMS ]
       tags:
-        - admin
+        - adminUnstable
       requestBody:
         content:
           application/json:
@@ -183,14 +183,14 @@ paths:
                   room_type_id:
                     type: string
 
-  /api/admin/v1/user:
+  /api/admin/v0/user:
     post:
       operationId: createUser
       summary: Create a new user with specified roles
       security:
         - session: [ MANAGE_USERS ]
       tags:
-        - admin
+        - adminUnstable
       requestBody:
         content:
           application/json:
@@ -232,7 +232,7 @@ paths:
                 $ref: '#/components/schemas/ProblemResponse'
 
   # ============ Customer endpoints ============
-  /api/customer/v1/room-type/availability:
+  /api/customer/v0/room-type/availability:
     get:
       operationId: fetchRoomsAvailability
       summary: Load room details with availabilities
@@ -240,7 +240,7 @@ paths:
         - { }
         - session: [ CUSTOMER ]
       tags:
-        - customer
+        - customerUnstable
       parameters:
         - in: query
           name: availability_range_start
@@ -269,15 +269,14 @@ paths:
                     items:
                       $ref: '#/components/schemas/RoomTypeWithAvailability'
 
-  /api/customer/v1/room-type/hold:
+  /api/customer/v0/room-type/hold:
     post:
       operationId: holdRoom
       summary: Temporarily hold a room for certain dates
       security:
         - session: [ CUSTOMER ]
       tags:
-        - incubating
-        - customer
+        - customerUnstable
       requestBody:
         content:
           application/json:

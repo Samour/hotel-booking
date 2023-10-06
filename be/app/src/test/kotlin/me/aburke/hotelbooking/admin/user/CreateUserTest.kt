@@ -13,7 +13,7 @@ import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
 import me.aburke.hotelbooking.ports.repository.UserRecord
 import me.aburke.hotelbooking.ports.repository.UserRepository
-import me.aburke.hotelbooking.rest.client.api.AdminApi
+import me.aburke.hotelbooking.rest.client.api.AdminUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.CreateUserRequest
 import me.aburke.hotelbooking.restTest
@@ -54,7 +54,7 @@ class CreateUserTest {
     fun `should create user`() = app.restTest { client, _ ->
         client.authenticateAsAdmin()
 
-        val response = AdminApi(client).createUser(
+        val response = AdminUnstableApi(client).createUser(
             CreateUserRequest().also { r ->
                 r.loginId = LOGIN_ID
                 r.password = PASSWORD
@@ -96,7 +96,7 @@ class CreateUserTest {
         client.authenticateAsAdmin()
 
         val response = assertThrows<ApiException> {
-            AdminApi(client).createUser(
+            AdminUnstableApi(client).createUser(
                 CreateUserRequest().also { r ->
                     r.loginId = TestUser.admin.loginId
                     r.password = PASSWORD
@@ -117,7 +117,7 @@ class CreateUserTest {
                         "code": "CONFLICT",
                         "status": 409,
                         "detail": "Username is not available",
-                        "instance": "/api/admin/v1/user",
+                        "instance": "/api/admin/v0/user",
                         "extended_details": []
                     }
                 """.trimIndent(),
@@ -134,7 +134,7 @@ class CreateUserTest {
         client.authenticateAs(reducedUser)
 
         val response = assertThrows<ApiException> {
-            AdminApi(client).createUser(
+            AdminUnstableApi(client).createUser(
                 CreateUserRequest().also { r ->
                     r.loginId = LOGIN_ID
                     r.password = PASSWORD
@@ -155,7 +155,7 @@ class CreateUserTest {
                         "code": "FORBIDDEN",
                         "status": 403,
                         "detail": "Insufficient permissions to access resource",
-                        "instance": "/api/admin/v1/user",
+                        "instance": "/api/admin/v0/user",
                         "extended_details": []
                     }
                 """.trimIndent(),

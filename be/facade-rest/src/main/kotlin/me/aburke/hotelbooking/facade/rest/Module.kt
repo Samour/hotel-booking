@@ -7,21 +7,21 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.javalin.Javalin
 import io.javalin.json.JavalinJackson
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.AddRoomTypeHandler
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.CreateUserHandler
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.CreateAnonymousSessionHandler
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.GetSessionHandler
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.LogInHandler
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.session.SessionRoutes
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.SignUpHandler
-import me.aburke.hotelbooking.facade.rest.api.customer.v1.roomtype.FetchRoomsAvailabilityHandler
+import me.aburke.hotelbooking.facade.rest.api.admin.roomtype.AddRoomTypeHandler
+import me.aburke.hotelbooking.facade.rest.api.admin.user.CreateUserHandler
+import me.aburke.hotelbooking.facade.rest.api.auth.session.CreateAnonymousSessionHandler
+import me.aburke.hotelbooking.facade.rest.api.auth.session.GetSessionHandler
+import me.aburke.hotelbooking.facade.rest.api.auth.session.LogInHandler
+import me.aburke.hotelbooking.facade.rest.api.auth.session.SessionRoutes
+import me.aburke.hotelbooking.facade.rest.api.auth.user.SignUpHandler
+import me.aburke.hotelbooking.facade.rest.api.customer.roomtype.FetchRoomsAvailabilityHandler
 import me.aburke.hotelbooking.facade.rest.interceptors.AuthenticationInterceptor
 import me.aburke.hotelbooking.facade.rest.interceptors.ExceptionHandler.registerExceptionHandlers
 import org.koin.dsl.module
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.roomtype.RoomRoutes as AdminRoomRoutes
-import me.aburke.hotelbooking.facade.rest.api.admin.v1.user.UserRoutes as AdminUserRoutes
-import me.aburke.hotelbooking.facade.rest.api.auth.v1.user.UserRoutes as AuthUserRoutes
-import me.aburke.hotelbooking.facade.rest.api.customer.v1.roomtype.RoomRoutes as CustomerRoomRoutes
+import me.aburke.hotelbooking.facade.rest.api.admin.roomtype.RoomRoutes as AdminRoomRoutes
+import me.aburke.hotelbooking.facade.rest.api.admin.user.UserRoutes as AdminUserRoutes
+import me.aburke.hotelbooking.facade.rest.api.auth.user.UserRoutes as AuthUserRoutes
+import me.aburke.hotelbooking.facade.rest.api.customer.roomtype.RoomRoutes as CustomerRoomRoutes
 
 val restModule = module {
     single { GetSessionHandler() }

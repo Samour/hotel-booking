@@ -78,17 +78,17 @@ class EndpointFeatureFlagTest {
 class EndpointsProvider : ArgumentsProvider {
 
     private val endpoints = listOf(
-        "GET" to "/api/auth/v1/session",
-        "POST" to "/api/auth/v1/session",
-        "POST" to "/api/auth/v1/session/anonymous",
+        "GET" to "/api/auth/v0/session",
+        "POST" to "/api/auth/v0/session",
+        "POST" to "/api/auth/v0/session/anonymous",
 
-        "POST" to "/api/auth/v1/user",
+        "POST" to "/api/auth/v0/user",
 
-        "POST" to "/api/admin/v1/user",
+        "POST" to "/api/admin/v0/user",
 
-        "POST" to "/api/admin/v1/room-type",
+        "POST" to "/api/admin/v0/room-type",
 
-        "GET" to "/api/customer/v1/room-type/availability",
+        "GET" to "/api/customer/v0/room-type/availability",
     )
 
     override fun provideArguments(p0: ExtensionContext?): Stream<out Arguments> {

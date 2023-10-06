@@ -4,7 +4,7 @@ import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.data.sessionDuration
-import me.aburke.hotelbooking.rest.client.api.AuthApi
+import me.aburke.hotelbooking.rest.client.api.AuthUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.LogInRequest
 import me.aburke.hotelbooking.rest.client.model.SessionResponse
@@ -36,7 +36,7 @@ class LogInTest {
 
     @Test
     fun `should log in user & set session cookie on successful authentication`() = app.restTest { client, _ ->
-        val logInResponse = AuthApi(client).logIn(
+        val logInResponse = AuthUnstableApi(client).logIn(
             LogInRequest().apply {
                 loginId = TestUser.admin.loginId
                 password = TestUser.admin.password
@@ -55,7 +55,7 @@ class LogInTest {
             )
         }
 
-        val sessionResponse = AuthApi(client).fetchAuthState()
+        val sessionResponse = AuthUnstableApi(client).fetchAuthState()
 
         assertSoftly { s ->
             s.assertThat(sessionResponse).isEqualTo(
@@ -73,7 +73,7 @@ class LogInTest {
     @Test
     fun `should return 401 when password is incorrect`() = app.restTest { client, _ ->
         val logInException = assertThrows<ApiException> {
-            AuthApi(client).logIn(
+            AuthUnstableApi(client).logIn(
                 LogInRequest().apply {
                     loginId = TestUser.admin.loginId
                     password = "wrong-password"
@@ -92,7 +92,7 @@ class LogInTest {
                             "code": "UNAUTHORIZED",
                             "status": 401,
                             "detail": "Supplied credentials are not valid",
-                            "instance": "/api/auth/v1/session",
+                            "instance": "/api/auth/v0/session",
                             "extended_details": []
                         }
                     """.trimIndent(),
@@ -103,7 +103,7 @@ class LogInTest {
     @Test
     fun `should return 401 when user does not exist`() = app.restTest { client, _ ->
         val logInException = assertThrows<ApiException> {
-            AuthApi(client).logIn(
+            AuthUnstableApi(client).logIn(
                 LogInRequest().apply {
                     loginId = TestUser.admin.userId
                     password = TestUser.admin.password
@@ -122,7 +122,7 @@ class LogInTest {
                             "code": "UNAUTHORIZED",
                             "status": 401,
                             "detail": "Supplied credentials are not valid",
-                            "instance": "/api/auth/v1/session",
+                            "instance": "/api/auth/v0/session",
                             "extended_details": []
                         }
                     """.trimIndent(),

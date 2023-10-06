@@ -1,7 +1,7 @@
 package me.aburke.hotelbooking.customer
 
 import me.aburke.hotelbooking.createApp
-import me.aburke.hotelbooking.rest.client.api.CustomerApi
+import me.aburke.hotelbooking.rest.client.api.CustomerUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.HoldRoomRequest
 import me.aburke.hotelbooking.restTest
@@ -27,7 +27,7 @@ class HoldRoomTest {
     @Test
     fun `endpoint should not be available`() = app.restTest { client, _ ->
         assertThrows<ApiException> {
-            CustomerApi(client).holdRoom(
+            CustomerUnstableApi(client).holdRoom(
                 HoldRoomRequest(),
             )
         }.also {

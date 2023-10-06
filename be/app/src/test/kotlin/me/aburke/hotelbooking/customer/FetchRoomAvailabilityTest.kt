@@ -4,8 +4,8 @@ import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.authenticateWith
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.rest.client.api.AdminApi
-import me.aburke.hotelbooking.rest.client.api.CustomerApi
+import me.aburke.hotelbooking.rest.client.api.AdminUnstableApi
+import me.aburke.hotelbooking.rest.client.api.CustomerUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiClient
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.AddRoomTypeRequest
@@ -55,7 +55,7 @@ class FetchRoomAvailabilityTest {
 
         cookieJar.clearAllCookies()
 
-        val response = CustomerApi(client).fetchRoomsAvailability(
+        val response = CustomerUnstableApi(client).fetchRoomsAvailability(
             searchRangeStart,
             searchRangeEnd,
         )
@@ -77,7 +77,7 @@ class FetchRoomAvailabilityTest {
         client.createRooms()
 
         val response = assertThrows<ApiException> {
-            CustomerApi(client).fetchRoomsAvailability(
+            CustomerUnstableApi(client).fetchRoomsAvailability(
                 searchRangeStart,
                 searchRangeEnd,
             )
@@ -92,7 +92,7 @@ class FetchRoomAvailabilityTest {
                         "code": "FORBIDDEN",
                         "status": 403,
                         "detail": "Insufficient permissions to access resource",
-                        "instance": "/api/customer/v1/room-type/availability",
+                        "instance": "/api/customer/v0/room-type/availability",
                         "extended_details": []
                     }
                 """.trimIndent(),
@@ -109,7 +109,7 @@ class FetchRoomAvailabilityTest {
             stockLevel = 5
         }
 
-        AdminApi(this).addRoomType(request).roomTypeId to request
+        AdminUnstableApi(this).addRoomType(request).roomTypeId to request
     }
 
     private fun Pair<String, AddRoomTypeRequest>.toRoomTypeWithAvailability() = RoomTypeWithAvailability().apply {

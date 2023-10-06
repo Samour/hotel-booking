@@ -12,7 +12,7 @@ import me.aburke.hotelbooking.data.StockPopulation
 import me.aburke.hotelbooking.data.hotelId
 import me.aburke.hotelbooking.data.hotelTimeZone
 import me.aburke.hotelbooking.model.user.UserRole
-import me.aburke.hotelbooking.rest.client.api.AdminApi
+import me.aburke.hotelbooking.rest.client.api.AdminUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.AddRoomTypeRequest
 import me.aburke.hotelbooking.restTest
@@ -60,7 +60,7 @@ class AddRoomTypeTest {
     fun `should add room type`() = app.restTest { client, _ ->
         client.authenticateWith(UserRole.MANAGE_ROOMS)
 
-        val response = AdminApi(client).addRoomType(
+        val response = AdminUnstableApi(client).addRoomType(
             AddRoomTypeRequest().also {
                 it.title = TITLE
                 it.description = DESCRIPTION
@@ -106,7 +106,7 @@ class AddRoomTypeTest {
         client.authenticateAsAdmin()
 
         val response = assertThrows<ApiException> {
-            AdminApi(client).addRoomType(
+            AdminUnstableApi(client).addRoomType(
                 AddRoomTypeRequest().also {
                     it.title = TITLE
                     it.description = DESCRIPTION
@@ -128,7 +128,7 @@ class AddRoomTypeTest {
                         "code": "FORBIDDEN",
                         "status": 403,
                         "detail": "Insufficient permissions to access resource",
-                        "instance": "/api/admin/v1/room-type",
+                        "instance": "/api/admin/v0/room-type",
                         "extended_details": []
                     }
                 """.trimIndent(),
