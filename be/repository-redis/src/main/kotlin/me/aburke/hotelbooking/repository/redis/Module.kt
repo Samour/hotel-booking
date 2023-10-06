@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.repository.redis
 
+import me.aburke.hotelbooking.ports.repository.LockRepository
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import org.koin.dsl.module
 import org.koin.dsl.onClose
@@ -14,4 +15,5 @@ val redisModule = module {
     } onClose { it?.close() }
 
     single<SessionRepository> { RedisSessionRepository(get(), get()) }
+    single<LockRepository> { RedisLockRepository(get()) }
 }

@@ -99,7 +99,7 @@ class RedisSessionRepositoryTest {
     }
 
     private fun loadAllSessions(): List<UserSession> =
-        jedisPooled.keys("session:*")
+        jedisPooled.keys(Namespace.session.key("*"))
             .map { jedisPooled.hgetAll(it) }
             .map { it.toUserSession() }
 }

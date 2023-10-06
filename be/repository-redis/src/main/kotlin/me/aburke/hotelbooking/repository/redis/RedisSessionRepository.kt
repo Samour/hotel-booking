@@ -13,17 +13,17 @@ class RedisSessionRepository(
 
     override fun insertUserSession(session: UserSession) {
         jedisPooled.hset(
-            "session:${session.sessionId}",
+            Namespace.session.key(session.sessionId),
             session.toRedisMap(),
         )
         jedisPooled.expire(
-            "session:${session.sessionId}",
+            Namespace.session.key(session.sessionId),
             Duration.between(clock.instant(), session.sessionExpiryTime).toSeconds(),
         )
     }
 
     override fun loadUserSession(sessionId: String): UserSession? =
-        jedisPooled.hgetAll("session:$sessionId")
+        jedisPooled.hgetAll(Namespace.session.key(sessionId))
             .takeUnless { it.isEmpty() }
             ?.toUserSession()
 }
