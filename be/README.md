@@ -13,6 +13,8 @@ Each module has its own README with more details & test/running instructions
 
 ### Module naming scheme
 
+- `ports-` prefix indicates a collection of ports used to interface with the domain. There are only 2 ports modules:
+`ports-primary` and `ports-secondary`.
 - `facade-` prefix indicates a **driving adaptor** which provides access to invoke domain logic
 - `repository-` or `receiver-` prefix indicates a **driven adaptor** which provides the domain logic with access to
 external resources
@@ -22,15 +24,16 @@ execution.
 - `test-` prefix indicates a module which provides some functionality specifically for use in test source sets. They are
 **not** built in to the application binary.
 
-The special module names `domain`, `ports` and `app` are explained below
+The special module names `domain` and `app` are explained in *application modules* below
 
 ### Application modules
 
+- `ports-primary` contains **driving ports** to invoke `domain` logic
+- `ports-secondary` contains **driven ports** for `domain` to invoke downstream adaptors
 - `domain` contains domain logic for the application
   - `test` contains unit tests of `domain` classes
   - `integTest` contains behavioural tests with all components in `domain` assembled, running against stubs for
 downstream ports
-- `ports` contains driving ports to invoke `domain` logic and driven ports for `domain` to invoke downstream adaptors
 - `facade-rest` contains HTTP REST driving adaptor which exposes the application functionality. It also contains an
 Open API spec for the REST interface.
   - `test` contains HTTP integration tests with driving ports stubbed. HTTP requests & responses are defined at a
