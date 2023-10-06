@@ -53,8 +53,75 @@ class FetchRoomsAvailabilityHandlerTest : AbstractFetchRoomsAvailabilityHandlerT
     }
 
     @Test
-    fun `should return 400 if date is in invalid format`() {
-        fail("TODO")
+    fun `should return 400 if date is in invalid format`() = test(javalin) { _, client ->
+        `RUN should return 400 if date is in invalid format or missing`(
+            object : TestRequest<Response>() {
+                override fun makeRequest(): Response = client.get(
+                    "/api/customer/v1/room-type/availability?" +
+                        "availability_range_start=2023&availability_range_end=2024",
+                )
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    s.assertThat(response.code).isEqualTo(400)
+                    s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+                    s.assertThatJson(response.body?.string()).isEqualTo(
+                        """
+                            {
+                                "title": "Invalid Parameters",
+                                "code": "BAD_REQUEST",
+                                "status": 400,
+                                "detail": "URL parameters are badly formed",
+                                "instance": "/api/customer/v1/room-type/availability",
+                                "extended_details": [
+                                    {
+                                        "code": "INVALID_FORMAT_DATE",
+                                        "detail": "availability_range_start"
+                                    },
+                                    {
+                                        "code": "INVALID_FORMAT_DATE",
+                                        "detail": "availability_range_end"
+                                    }
+                                ]
+                            }
+                        """.trimIndent(),
+                    )
+                }
+            },
+        )
+    }
+
+    @Test
+    fun `should return 400 if date is not provided`() = test(javalin) { _, client ->
+        `RUN should return 400 if date is in invalid format or missing`(
+            object : TestRequest<Response>() {
+                override fun makeRequest(): Response = client.get(
+                    "/api/customer/v1/room-type/availability?" +
+                        "availability_range_start=$searchRangeStart",
+                )
+
+                override fun makeAssertions(s: SoftAssertions) {
+                    s.assertThat(response.code).isEqualTo(400)
+                    s.assertThat(response.header("Content-Type")).isEqualTo("application/problem+json;charset=utf-8")
+                    s.assertThatJson(response.body?.string()).isEqualTo(
+                        """
+                            {
+                                "title": "Invalid Parameters",
+                                "code": "BAD_REQUEST",
+                                "status": 400,
+                                "detail": "URL parameters are badly formed",
+                                "instance": "/api/customer/v1/room-type/availability",
+                                "extended_details": [
+                                    {
+                                        "code": "INVALID_FORMAT_DATE",
+                                        "detail": "availability_range_end"
+                                    }
+                                ]
+                            }
+                        """.trimIndent(),
+                    )
+                }
+            },
+        )
     }
 
     @Test

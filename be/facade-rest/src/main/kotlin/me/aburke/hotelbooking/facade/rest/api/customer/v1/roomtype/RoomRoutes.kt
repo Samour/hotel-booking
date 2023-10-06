@@ -13,8 +13,8 @@ class RoomRoutes(private val fetchRoomsAvailabilityHandler: FetchRoomsAvailabili
         ) {
             fetchRoomsAvailabilityHandler.handle(
                 it,
-                it.queryParam("availability_range_start")!!,
-                it.queryParam("availability_range_end")!!,
+                it.queryParam("availability_range_start"),
+                it.queryParam("availability_range_end"),
             )
         }
     }

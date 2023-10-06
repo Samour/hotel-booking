@@ -1,13 +1,18 @@
 package me.aburke.hotelbooking.facade.rest.api.customer.v1.roomtype
 
 import io.javalin.http.Context
+import io.javalin.http.HttpStatus
 import me.aburke.hotelbooking.facade.rest.authentication.userSessionOptional
+import me.aburke.hotelbooking.facade.rest.responses.ProblemAdditionalDetail
+import me.aburke.hotelbooking.facade.rest.responses.ProblemResponse
+import me.aburke.hotelbooking.facade.rest.responses.problemJson
 import me.aburke.hotelbooking.model.date.DateRange
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsDetails
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsPort
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsResult
 import me.aburke.hotelbooking.ports.scenario.room.RoomAvailability
 import me.aburke.hotelbooking.ports.scenario.room.RoomTypeInfo
+import java.time.DateTimeException
 import java.time.LocalDate
 
 data class FetchRoomsAvailabilityResponse(
@@ -34,19 +39,55 @@ data class RoomAvailabilityResponse(
 
 class FetchRoomsAvailabilityHandler(private val listRoomsPort: ListRoomsPort) {
 
-    fun handle(ctx: Context, availabilityRangeStart: String, availabilityRangeEnd: String) {
+    fun handle(ctx: Context, availabilityRangeStart: String?, availabilityRangeEnd: String?) {
+        val rangeStart = availabilityRangeStart?.localDateOrNull()
+        val rangeEnd = availabilityRangeEnd?.localDateOrNull()
+
+        if (rangeStart == null || rangeEnd == null) {
+            ctx.invalidParametersResponse(rangeStart, rangeEnd)
+            return
+        }
+
         val result = listRoomsPort.run(
             ListRoomsDetails(
                 currentUserId = ctx.userSessionOptional()?.userId,
                 availabilitySearchRange = DateRange(
-                    rangeStart = LocalDate.parse(availabilityRangeStart),
-                    rangeEnd = LocalDate.parse(availabilityRangeEnd),
+                    rangeStart = rangeStart,
+                    rangeEnd = rangeEnd,
                 ),
             ),
         )
 
         ctx.json(result.toResponse())
     }
+}
+
+private fun String.localDateOrNull(): LocalDate? = try {
+    LocalDate.parse(this)
+} catch (e: DateTimeException) {
+    null
+}
+
+private fun Context.invalidParametersResponse(availabilityRangeStart: LocalDate?, availabilityRangeEnd: LocalDate?) {
+    problemJson(
+        ProblemResponse(
+            title = "Invalid Parameters",
+            code = HttpStatus.BAD_REQUEST.name,
+            status = HttpStatus.BAD_REQUEST.code,
+            detail = "URL parameters are badly formed",
+            instance = "/api/customer/v1/room-type/availability",
+            extendedDetails = listOfNotNull(
+                ProblemAdditionalDetail(
+                    code = "INVALID_FORMAT_DATE",
+                    detail = "availability_range_start",
+                ).takeIf { availabilityRangeStart == null },
+                ProblemAdditionalDetail(
+                    code = "INVALID_FORMAT_DATE",
+                    detail = "availability_range_end",
+                ).takeIf { availabilityRangeEnd == null },
+            ),
+        ),
+    )
 }
 
 private fun ListRoomsResult.toResponse() = FetchRoomsAvailabilityResponse(
