@@ -16,7 +16,7 @@ class RouteRegistry(
 
     private fun endpointEnabled(method: String, path: String) =
         configSource(
-            "endpoints${path.replace('/', '.')}.${method.lowercase()}",
+            "endpoints${path.replace('/', '.')}.${method.uppercase()}",
             "ENABLED",
         ).uppercase() != "DISABLED"
 

@@ -18,7 +18,7 @@ data class Endpoint(
     val expectEnabled: Boolean,
 ) {
 
-    val property = "endpoints${path.replace('/', '.')}.${method.lowercase()}"
+    val property = "endpoints${path.replace('/', '.')}.${method.uppercase()}"
 
     fun makeRequest(client: HttpClient) =
         when (method) {
