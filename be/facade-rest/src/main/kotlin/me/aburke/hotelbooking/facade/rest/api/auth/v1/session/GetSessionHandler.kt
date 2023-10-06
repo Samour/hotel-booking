@@ -2,14 +2,14 @@ package me.aburke.hotelbooking.facade.rest.api.auth.v1.session
 
 import io.javalin.http.Context
 import io.javalin.http.Handler
-import me.aburke.hotelbooking.facade.rest.authentication.getUserSession
+import me.aburke.hotelbooking.facade.rest.authentication.userSession
 import me.aburke.hotelbooking.facade.rest.responses.SessionResponse
 import me.aburke.hotelbooking.model.user.UserSession
 
 class GetSessionHandler : Handler {
 
     override fun handle(ctx: Context) {
-        ctx.json(ctx.getUserSession().toSessionResponse())
+        ctx.json(ctx.userSession().toSessionResponse())
     }
 }
 

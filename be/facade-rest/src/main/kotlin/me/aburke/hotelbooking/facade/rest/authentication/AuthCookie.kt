@@ -9,7 +9,7 @@ const val AUTH_COOKIE_KEY = "SessionId"
 const val USER_SESSION_ATTRIBUTE = "UserSession"
 
 // TODO rename to userSession
-fun Context.getUserSession(): UserSession = userSessionOptional()!!
+fun Context.userSession(): UserSession = userSessionOptional()!!
 
 fun Context.userSessionOptional(): UserSession? = attribute(USER_SESSION_ATTRIBUTE)
 
