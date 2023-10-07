@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.scenario.room
 
+import me.aburke.hotelbooking.lock.FastFailLock
 import me.aburke.hotelbooking.ports.repository.CreateRoomHoldResult
 import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.ports.scenario.room.HoldRoomDetail
@@ -12,10 +13,14 @@ class HoldRoomScenario(
     private val maxConcurrentHolds: Int,
     private val roomHoldDuration: Duration,
     private val clock: Clock,
+    private val fastFailLock: FastFailLock,
     private val roomHoldRepository: RoomHoldRepository,
 ) : HoldRoomPort {
 
-    override fun run(details: HoldRoomDetail): HoldRoomResult {
+    override fun run(details: HoldRoomDetail): HoldRoomResult = fastFailLock.execute(
+        details.userId,
+        HoldRoomResult.ConcurrentHoldRequest,
+    ) {
         val holdToRemove = pickHoldToRemove(details.userId, details.roomTypeId)
 
         val roomHoldExpiry = clock.instant().plus(roomHoldDuration)
@@ -28,7 +33,7 @@ class HoldRoomScenario(
             holdIdToRemove = holdToRemove,
         )
 
-        return when (roomHoldResult) {
+        when (roomHoldResult) {
             is CreateRoomHoldResult.RoomHoldCreated -> HoldRoomResult.RoomHoldCreated(
                 roomHoldId = roomHoldResult.roomHoldId,
                 holdExpiry = roomHoldExpiry,

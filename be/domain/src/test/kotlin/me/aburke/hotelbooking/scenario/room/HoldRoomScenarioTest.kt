@@ -5,11 +5,14 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
 import io.mockk.verify
+import me.aburke.hotelbooking.lock.FastFailLock
 import me.aburke.hotelbooking.ports.repository.CreateRoomHoldResult
 import me.aburke.hotelbooking.ports.repository.RoomHold
 import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.ports.scenario.room.HoldRoomDetail
 import me.aburke.hotelbooking.ports.scenario.room.HoldRoomResult
+import me.aburke.hotelbooking.stubConflict
+import me.aburke.hotelbooking.stubUnblocked
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -51,6 +54,9 @@ class HoldRoomScenarioTest {
     lateinit var clock: Clock
 
     @MockK
+    lateinit var fastFailLock: FastFailLock
+
+    @MockK
     lateinit var roomHoldRepository: RoomHoldRepository
 
     private lateinit var underTest: HoldRoomScenario
@@ -61,12 +67,14 @@ class HoldRoomScenarioTest {
             maxConcurrentHolds = MAX_CONCURRENT_HOLDS,
             roomHoldDuration = roomHoldDuration,
             clock = clock,
+            fastFailLock = fastFailLock,
             roomHoldRepository = roomHoldRepository,
         )
     }
 
     @Test
     fun `should create hold on room for user`() {
+        fastFailLock.stubUnblocked(USER_ID, HoldRoomResult.ConcurrentHoldRequest)
         every { clock.instant() } returns instant
         every {
             roomHoldRepository.findHoldsForUser(USER_ID)
@@ -101,6 +109,11 @@ class HoldRoomScenarioTest {
             )
             s.check {
                 verify(exactly = 1) {
+                    fastFailLock.execute(eq(USER_ID), eq(HoldRoomResult.ConcurrentHoldRequest), any())
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
                     clock.instant()
                 }
             }
@@ -124,6 +137,7 @@ class HoldRoomScenarioTest {
             s.check {
                 confirmVerified(
                     clock,
+                    fastFailLock,
                     roomHoldRepository,
                 )
             }
@@ -132,6 +146,7 @@ class HoldRoomScenarioTest {
 
     @Test
     fun `should replace an existing hold on the same room`() {
+        fastFailLock.stubUnblocked(USER_ID, HoldRoomResult.ConcurrentHoldRequest)
         every { clock.instant() } returns instant
         every {
             roomHoldRepository.findHoldsForUser(USER_ID)
@@ -173,6 +188,11 @@ class HoldRoomScenarioTest {
             )
             s.check {
                 verify(exactly = 1) {
+                    fastFailLock.execute(eq(USER_ID), eq(HoldRoomResult.ConcurrentHoldRequest), any())
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
                     clock.instant()
                 }
             }
@@ -196,6 +216,7 @@ class HoldRoomScenarioTest {
             s.check {
                 confirmVerified(
                     clock,
+                    fastFailLock,
                     roomHoldRepository,
                 )
             }
@@ -204,6 +225,7 @@ class HoldRoomScenarioTest {
 
     @Test
     fun `should allow multiple holds to be created provided they are on different rooms`() {
+        fastFailLock.stubUnblocked(USER_ID, HoldRoomResult.ConcurrentHoldRequest)
         every { clock.instant() } returns instant
         every {
             roomHoldRepository.findHoldsForUser(USER_ID)
@@ -245,6 +267,11 @@ class HoldRoomScenarioTest {
             )
             s.check {
                 verify(exactly = 1) {
+                    fastFailLock.execute(eq(USER_ID), eq(HoldRoomResult.ConcurrentHoldRequest), any())
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
                     clock.instant()
                 }
             }
@@ -268,6 +295,7 @@ class HoldRoomScenarioTest {
             s.check {
                 confirmVerified(
                     clock,
+                    fastFailLock,
                     roomHoldRepository,
                 )
             }
@@ -282,6 +310,7 @@ class HoldRoomScenarioTest {
      */
     @Test
     fun `should limit the total number of holds for a user`() {
+        fastFailLock.stubUnblocked(USER_ID, HoldRoomResult.ConcurrentHoldRequest)
         every { clock.instant() } returns instant
         every {
             roomHoldRepository.findHoldsForUser(USER_ID)
@@ -335,6 +364,11 @@ class HoldRoomScenarioTest {
             )
             s.check {
                 verify(exactly = 1) {
+                    fastFailLock.execute(eq(USER_ID), eq(HoldRoomResult.ConcurrentHoldRequest), any())
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
                     clock.instant()
                 }
             }
@@ -358,6 +392,7 @@ class HoldRoomScenarioTest {
             s.check {
                 confirmVerified(
                     clock,
+                    fastFailLock,
                     roomHoldRepository,
                 )
             }
@@ -366,6 +401,7 @@ class HoldRoomScenarioTest {
 
     @Test
     fun `should return StockNotAvailable when there is not enough available stock to create the hold`() {
+        fastFailLock.stubUnblocked(USER_ID, HoldRoomResult.ConcurrentHoldRequest)
         every { clock.instant() } returns instant
         every {
             roomHoldRepository.findHoldsForUser(USER_ID)
@@ -394,6 +430,11 @@ class HoldRoomScenarioTest {
             s.assertThat(result).isEqualTo(HoldRoomResult.StockNotAvailable)
             s.check {
                 verify(exactly = 1) {
+                    fastFailLock.execute(eq(USER_ID), eq(HoldRoomResult.ConcurrentHoldRequest), any())
+                }
+            }
+            s.check {
+                verify(exactly = 1) {
                     clock.instant()
                 }
             }
@@ -417,6 +458,37 @@ class HoldRoomScenarioTest {
             s.check {
                 confirmVerified(
                     clock,
+                    fastFailLock,
+                    roomHoldRepository,
+                )
+            }
+        }
+    }
+
+    @Test
+    fun `should return ConcurrentHoldRequest when lock cannot be acquired`() {
+        fastFailLock.stubConflict(USER_ID, HoldRoomResult.ConcurrentHoldRequest)
+
+        val result = underTest.run(
+            HoldRoomDetail(
+                userId = USER_ID,
+                roomTypeId = ROOM_TYPE_ID,
+                holdStartDate = holdStartDate,
+                holdEndDate = holdEndDate,
+            ),
+        )
+
+        assertSoftly { s ->
+            s.assertThat(result).isEqualTo(HoldRoomResult.ConcurrentHoldRequest)
+            s.check {
+                verify(exactly = 1) {
+                    fastFailLock.execute(eq(USER_ID), eq(HoldRoomResult.ConcurrentHoldRequest), any())
+                }
+            }
+            s.check {
+                confirmVerified(
+                    clock,
+                    fastFailLock,
                     roomHoldRepository,
                 )
             }
