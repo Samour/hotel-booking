@@ -12,9 +12,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 import org.koin.core.KoinApplication
 import java.sql.Connection
 import java.time.Instant
@@ -267,16 +265,88 @@ class PostgresRoomHoldRepositoryTest {
         }
     }
 
-    @Disabled
     @Test
-    fun `should create hold when stock is available due to a hold thats past its expiry time`() {
-        fail("TODO")
+    fun `should create hold when stock is available due to a hold that's past its expiry time`() {
+        connection.executeScript("test/room/insert_room_holds.sql")
+        connection.setRoomStockLevel(TestRooms.UserWithExpiredHold.expiredRoomTypeId, 1)
+
+        val holdDates = listOf(
+            TestRooms.UserWithExpiredHold.expiredHoldDates.last(),
+            TestRooms.UserWithExpiredHold.expiredHoldDates.last().plusDays(1),
+            TestRooms.UserWithExpiredHold.expiredHoldDates.last().plusDays(2),
+        )
+
+        val result = underTest.createRoomHold(
+            userId = TestRooms.UserWithHolds.userId,
+            roomTypeId = TestRooms.UserWithExpiredHold.expiredRoomTypeId,
+            roomHoldExpiry = TestRooms.UserWithHolds.additionalRoomHold.holdExpiry,
+            holdStartDate = holdDates.first(),
+            holdEndDate = holdDates.last(),
+            holdIdToRemove = null,
+        )
+
+        val createdRoomHoldId = (result as? CreateRoomHoldResult.RoomHoldCreated)?.roomHoldId ?: ""
+        val holdRows = connection.readAllHoldsForUser(TestRooms.UserWithHolds.userId)
+
+        assertSoftly { s ->
+            s.assertThat(result).isInstanceOf(CreateRoomHoldResult.RoomHoldCreated::class.java)
+            s.assertThat(holdRows).containsExactlyInAnyOrder(
+                *TestRooms.UserWithHolds.roomHoldDates.map {
+                    RoomHoldRow(
+                        roomHoldId = TestRooms.UserWithHolds.roomHold.roomHoldId,
+                        userId = TestRooms.UserWithHolds.userId,
+                        holdExpiry = TestRooms.UserWithHolds.roomHold.holdExpiry,
+                        roomTypeId = TestRooms.UserWithHolds.roomHold.roomTypeId,
+                        date = it,
+                    )
+                }.plus(
+                    holdDates.map {
+                        RoomHoldRow(
+                            roomHoldId = createdRoomHoldId,
+                            userId = TestRooms.UserWithHolds.userId,
+                            holdExpiry = TestRooms.UserWithHolds.additionalRoomHold.holdExpiry,
+                            roomTypeId = TestRooms.UserWithExpiredHold.expiredRoomTypeId,
+                            date = it,
+                        )
+                    },
+                ).toTypedArray(),
+            )
+        }
     }
 
-    @Disabled
     @Test
     fun `should roll back transaction if the room type ID does not exist`() {
-        fail("TODO")
+        connection.executeScript("test/room/insert_room_holds.sql")
+
+        val holdDates = (5L..9L).map {
+            TestRooms.stockBaseDate.plusDays(it)
+        }
+
+        val result = underTest.createRoomHold(
+            userId = TestRooms.UserWithHolds.userId,
+            roomTypeId = "not-a-valid-room-type-id",
+            roomHoldExpiry = TestRooms.UserWithHolds.additionalRoomHold.holdExpiry,
+            holdStartDate = holdDates.first(),
+            holdEndDate = holdDates.last(),
+            holdIdToRemove = TestRooms.UserWithHolds.roomHold.roomHoldId,
+        )
+
+        val holdRows = connection.readAllHoldsForUser(TestRooms.UserWithHolds.userId)
+
+        assertSoftly { s ->
+            s.assertThat(result).isEqualTo(CreateRoomHoldResult.StockNotAvailable)
+            s.assertThat(holdRows).containsExactlyInAnyOrder(
+                *TestRooms.UserWithHolds.roomHoldDates.map {
+                    RoomHoldRow(
+                        roomHoldId = TestRooms.UserWithHolds.roomHold.roomHoldId,
+                        userId = TestRooms.UserWithHolds.userId,
+                        holdExpiry = TestRooms.UserWithHolds.roomHold.holdExpiry,
+                        roomTypeId = TestRooms.UserWithHolds.roomHold.roomTypeId,
+                        date = it,
+                    )
+                }.toTypedArray(),
+            )
+        }
     }
 }
 

@@ -92,6 +92,12 @@ object TestRooms {
             roomTypeId = "room-type-id-2",
             holdExpiry = Instant.parse("2023-08-09T15:02:00Z"),
         )
+        val expiredRoomTypeId = "room-type-id-2"
+        val expiredHoldDates = listOf(
+            LocalDate.parse("2023-08-21"),
+            LocalDate.parse("2023-08-22"),
+            LocalDate.parse("2023-08-24"),
+        )
     }
 
     object RoomHeldByAnotherUser {
