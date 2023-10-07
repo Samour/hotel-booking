@@ -44,18 +44,28 @@ fun Connection.createRoomStockHolds(
     roomTypeId: String,
     holdStartDate: LocalDate,
     holdEndDate: LocalDate,
+    now: Instant,
 ) = prepareStatement(
     """
         insert into room_stock_hold(room_stock_hold_id, room_hold_id, room_stock_id)
         select gen_random_uuid(), ?, rs.room_stock_id
             from room_stock rs
-            where rs.room_type_id = ? and rs.date <= ? and rs.date >= ? and rs.stock_level > 0
+            left outer join (
+                select rsh.room_stock_id, count(rsh.room_stock_hold_id) as held_stock_count
+                from room_stock_hold rsh
+                join room_hold rh on rh.room_hold_id = rsh.room_hold_id
+                where rh.hold_expiry > ?
+                group by rsh.room_stock_id
+            ) held_stock on held_stock.room_stock_id = rs.room_stock_id
+            where rs.room_type_id = ? and rs.date <= ? and rs.date >= ?
+                and rs.stock_level - coalesce(held_stock.held_stock_count, 0) > 0
     """.trimIndent(),
 ).apply {
     setString(1, roomHoldId)
-    setString(2, roomTypeId)
-    setString(3, "$holdEndDate")
-    setString(4, "$holdStartDate")
+    setString(2, "$now")
+    setString(3, roomTypeId)
+    setString(4, "$holdEndDate")
+    setString(5, "$holdStartDate")
 }
 
 fun Connection.deleteRoomHold(

@@ -42,6 +42,7 @@ class PostgresRoomHoldRepository(
             roomTypeId = roomTypeId,
             holdStartDate = holdStartDate,
             holdEndDate = holdEndDate,
+            now = clock.instant(),
         )
         val deleteHoldQuery = holdIdToRemove?.let { connection.deleteRoomHold(it) }
 

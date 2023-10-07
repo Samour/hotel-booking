@@ -193,9 +193,48 @@ class PostgresRoomHoldRepositoryTest {
         }
     }
 
-    @Disabled
     @Test
     fun `should roll back transaction if the number of pre-existing holds is equal to the room stock`() {
+        connection.executeScript("test/room/insert_room_holds.sql")
+        connection.setRoomStockLevel(TestRooms.RoomHeldByAnotherUser.roomTypeId, 1)
+
+        val result = underTest.createRoomHold(
+            userId = TestRooms.UserWithHolds.userId,
+            roomTypeId = TestRooms.RoomHeldByAnotherUser.roomTypeId,
+            roomHoldExpiry = TestRooms.UserWithHolds.additionalRoomHold.holdExpiry,
+            holdStartDate = TestRooms.RoomHeldByAnotherUser.heldDates.first().minusDays(2),
+            holdEndDate = TestRooms.RoomHeldByAnotherUser.heldDates.last(),
+            holdIdToRemove = TestRooms.UserWithHolds.roomHold.roomHoldId,
+        )
+
+        val holdRows = connection.readAllHoldsForUser(TestRooms.UserWithHolds.userId)
+
+        assertSoftly { s ->
+            s.assertThat(result).isEqualTo(CreateRoomHoldResult.StockNotAvailable)
+            s.assertThat(holdRows).containsExactlyInAnyOrder(
+                *TestRooms.UserWithHolds.roomHoldDates.map {
+                    RoomHoldRow(
+                        roomHoldId = TestRooms.UserWithHolds.roomHold.roomHoldId,
+                        userId = TestRooms.UserWithHolds.userId,
+                        holdExpiry = TestRooms.UserWithHolds.roomHold.holdExpiry,
+                        roomTypeId = TestRooms.UserWithHolds.roomHold.roomTypeId,
+                        date = it,
+                    )
+                }.toTypedArray(),
+            )
+        }
+    }
+
+    @Suppress("ktlint:max-line-length")
+    @Disabled
+    @Test
+    fun `should create hold when no stock is available due to the hold that is being deleted as part of this transaction`() {
+        fail("TODO")
+    }
+
+    @Disabled
+    @Test
+    fun `should create hold when stock is available due to a hold thats past its expiry time`() {
         fail("TODO")
     }
 

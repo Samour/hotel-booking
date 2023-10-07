@@ -93,6 +93,15 @@ object TestRooms {
             holdExpiry = Instant.parse("2023-08-09T15:02:00Z"),
         )
     }
+
+    object RoomHeldByAnotherUser {
+        val roomTypeId = "room-type-id-2"
+        val heldDates = listOf(
+            LocalDate.parse("2023-08-20"),
+            LocalDate.parse("2023-08-21"),
+            LocalDate.parse("2023-08-22"),
+        )
+    }
 }
 
 fun Map<String, Map<LocalDate, Int>>.getHoldCount(roomTypeId: String, date: LocalDate): Int =
