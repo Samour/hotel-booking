@@ -18,7 +18,7 @@ class HoldRoomTest {
 
     @BeforeEach
     fun init() {
-        app = createApp().first
+        app = createApp().app
     }
 
     @AfterEach

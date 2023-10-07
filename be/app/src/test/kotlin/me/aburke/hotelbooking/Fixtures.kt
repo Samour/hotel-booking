@@ -21,21 +21,33 @@ import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.Protocol
 import java.sql.Connection
 import java.time.Clock
+import java.time.Duration
 import java.time.Instant
 import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
+
+class TestContext(
+    val app: KoinApplication,
+) {
+
+    var time = Instant.now().minusSeconds(10_000)
+        private set
+
+    fun incrementClock() {
+        time = time.plusMillis((10L..350L).random())
+    }
+
+    fun stubClock() {
+        val clock = app.koin.get<Clock>()
+        every { clock.instant() } returns time
+    }
+}
 
 fun createApp(
     populateTestData: Boolean = true,
     useEndpointsProperties: Boolean = true,
-): Pair<KoinApplication, Instant> {
-    val instant = Instant.now()
-    val clock = mockk<Clock>()
-    every {
-        clock.instant()
-    } returns instant
-
+): TestContext {
     val testModule = module {
-        single<Clock> { clock }
+        single<Clock> { mockk() }
     }
 
     val app = koinApplication {
@@ -55,8 +67,12 @@ fun createApp(
     }
     app.koin.get<JedisPooled>().sendCommand(Protocol.Command.FLUSHDB)
 
-    return app to instant
+    return TestContext(app).apply { stubClock() }
 }
+
+// Set this to true if you want the OkHttp client to have high timeouts eg. for setting breakpoints locally
+// Make sure this is false in mainline code so that CI does not use this slow client during test steps
+private const val USE_SLOW_CLIENT = false
 
 fun KoinApplication.restTest(case: (ApiClient, SimpleCookieJar) -> Unit) = test(koin.get()) { javalin, _ ->
     val cookieJar = SimpleCookieJar()
@@ -64,7 +80,13 @@ fun KoinApplication.restTest(case: (ApiClient, SimpleCookieJar) -> Unit) = test(
         ApiClient(
             OkHttpClient.Builder()
                 .cookieJar(cookieJar)
-                .build(),
+                .apply {
+                    if (USE_SLOW_CLIENT) {
+                        connectTimeout(Duration.parse("PT10M"))
+                        readTimeout(Duration.parse("PT10M"))
+                        writeTimeout(Duration.parse("PT10M"))
+                    }
+                }.build(),
         ).also {
             it.basePath = "http://localhost:${javalin.port()}"
         },

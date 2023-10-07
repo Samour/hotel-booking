@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.admin.room
 
+import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.authenticateAsAdmin
 import me.aburke.hotelbooking.authenticateWith
@@ -21,9 +22,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.koin.core.KoinApplication
 import java.sql.Connection
-import java.time.Instant
 
 private const val TITLE = "title"
 private const val DESCRIPTION = "description"
@@ -39,25 +38,20 @@ private val imageUrls = listOf(
 
 class AddRoomTypeTest {
 
-    private lateinit var instant: Instant
-
-    private lateinit var app: KoinApplication
+    private lateinit var testContext: TestContext
     private lateinit var connection: Connection
 
     @BeforeEach
     fun init() {
-        createApp().let {
-            app = it.first
-            instant = it.second
-        }
-        connection = app.koin.get()
+        testContext = createApp()
+        connection = testContext.app.koin.get()
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = testContext.app.close()
 
     @Test
-    fun `should add room type`() = app.restTest { client, _ ->
+    fun `should add room type`() = testContext.app.restTest { client, _ ->
         client.authenticateWith(UserRole.MANAGE_ROOMS)
 
         val response = AdminUnstableApi(client).addRoomType(
@@ -72,7 +66,7 @@ class AddRoomTypeTest {
         val allRooms = connection.loadAllRooms()
         val allStock = connection.loadAllRoomStocks()
 
-        val expectedStock = instant.atZone(hotelTimeZone.toZoneId())
+        val expectedStock = testContext.time.atZone(hotelTimeZone.toZoneId())
             .toLocalDate()
             .let { date ->
                 (0 until StockPopulation.POPULATE_RANGE).map {
@@ -102,7 +96,7 @@ class AddRoomTypeTest {
     }
 
     @Test
-    fun `should return 403 when user does not have MANAGE_ROOMS permission`() = app.restTest { client, _ ->
+    fun `should return 403 when user does not have MANAGE_ROOMS permission`() = testContext.app.restTest { client, _ ->
         client.authenticateAsAdmin()
 
         val response = assertThrows<ApiException> {

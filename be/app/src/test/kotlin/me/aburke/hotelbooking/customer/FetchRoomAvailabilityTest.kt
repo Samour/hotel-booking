@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.customer
 
+import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.authenticateWith
 import me.aburke.hotelbooking.createApp
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.fail
-import org.koin.core.KoinApplication
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 
@@ -31,39 +30,36 @@ class FetchRoomAvailabilityTest {
     private lateinit var searchRangeStart: LocalDate
     private lateinit var searchRangeEnd: LocalDate
 
-    private lateinit var app: KoinApplication
-    private lateinit var instant: Instant
+    private lateinit var testContext: TestContext
 
     @BeforeEach
     fun init() {
-        createApp().also {
-            app = it.first
-            instant = it.second
-        }
+        testContext = createApp()
 
-        searchRangeStart = LocalDate.ofInstant(instant, ZoneOffset.UTC)
+        searchRangeStart = LocalDate.ofInstant(testContext.time, ZoneOffset.UTC)
         searchRangeEnd = searchRangeStart.plusDays(9)
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = testContext.app.close()
 
     @Test
-    fun `should return rooms with availability data for unauthenticated user`() = app.restTest { client, cookieJar ->
-        client.authenticateWith(UserRole.MANAGE_ROOMS)
-        val rooms = client.createRooms()
+    fun `should return rooms with availability data for unauthenticated user`() =
+        testContext.app.restTest { client, cookieJar ->
+            client.authenticateWith(UserRole.MANAGE_ROOMS)
+            val rooms = client.createRooms()
 
-        cookieJar.clearAllCookies()
+            cookieJar.clearAllCookies()
 
-        val response = CustomerUnstableApi(client).fetchRoomsAvailability(
-            searchRangeStart,
-            searchRangeEnd,
-        )
+            val response = CustomerUnstableApi(client).fetchRoomsAvailability(
+                searchRangeStart,
+                searchRangeEnd,
+            )
 
-        assertThat(response.roomTypes).containsExactlyInAnyOrder(
-            *rooms.map { it.toRoomTypeWithAvailability() }.toTypedArray(),
-        )
-    }
+            assertThat(response.roomTypes).containsExactlyInAnyOrder(
+                *rooms.map { it.toRoomTypeWithAvailability() }.toTypedArray(),
+            )
+        }
 
     @Disabled
     @Test
@@ -72,21 +68,22 @@ class FetchRoomAvailabilityTest {
     }
 
     @Test
-    fun `should return 403 if authenticated session does not have CUSTOMER permission`() = app.restTest { client, _ ->
-        client.authenticateWith(UserRole.MANAGE_ROOMS)
-        client.createRooms()
+    fun `should return 403 if authenticated session does not have CUSTOMER permission`() =
+        testContext.app.restTest { client, _ ->
+            client.authenticateWith(UserRole.MANAGE_ROOMS)
+            client.createRooms()
 
-        val response = assertThrows<ApiException> {
-            CustomerUnstableApi(client).fetchRoomsAvailability(
-                searchRangeStart,
-                searchRangeEnd,
-            )
-        }
+            val response = assertThrows<ApiException> {
+                CustomerUnstableApi(client).fetchRoomsAvailability(
+                    searchRangeStart,
+                    searchRangeEnd,
+                )
+            }
 
-        SoftAssertions.assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(403)
-            s.assertThatJson(response.responseBody).isEqualTo(
-                """
+            SoftAssertions.assertSoftly { s ->
+                s.assertThat(response.code).isEqualTo(403)
+                s.assertThatJson(response.responseBody).isEqualTo(
+                    """
                     {
                         "title": "Forbidden",
                         "code": "FORBIDDEN",
@@ -95,10 +92,10 @@ class FetchRoomAvailabilityTest {
                         "instance": "/api/customer/v0/room-type/availability",
                         "extended_details": []
                     }
-                """.trimIndent(),
-            )
+                    """.trimIndent(),
+                )
+            }
         }
-    }
 
     private fun ApiClient.createRooms(): List<Pair<String, AddRoomTypeRequest>> = (1..3).map { i ->
         val request = AddRoomTypeRequest().apply {

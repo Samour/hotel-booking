@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.auth
 
+import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
 import me.aburke.hotelbooking.data.sessionDuration
@@ -12,31 +13,25 @@ import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.koin.core.KoinApplication
 import java.sql.Connection
-import java.time.Instant
 import java.time.ZoneOffset
 
 class AnonymousUserTest {
 
-    private lateinit var app: KoinApplication
-    private lateinit var instant: Instant
+    private lateinit var testContext: TestContext
     private lateinit var connection: Connection
 
     @BeforeEach
     fun init() {
-        createApp(populateTestData = false).let {
-            app = it.first
-            instant = it.second
-        }
-        connection = app.koin.get()
+        testContext = createApp(populateTestData = false)
+        connection = testContext.app.koin.get()
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = testContext.app.close()
 
     @Test
-    fun `should create session for anonymous user`() = app.restTest { client, _ ->
+    fun `should create session for anonymous user`() = testContext.app.restTest { client, _ ->
         val createSessionResponse = AuthUnstableApi(client).createAnonymousSession()
 
         assertSoftly { s ->
@@ -48,7 +43,7 @@ class AnonymousUserTest {
                         loginId = null
                         userRoles = listOf("CUSTOMER")
                         anonymousUser = true
-                        sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
+                        sessionExpiryTime = testContext.time.plus(sessionDuration).atOffset(ZoneOffset.UTC)
                     },
                 )
         }

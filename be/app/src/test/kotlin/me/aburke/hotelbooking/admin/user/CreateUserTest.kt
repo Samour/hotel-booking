@@ -41,7 +41,7 @@ class CreateUserTest {
 
     @BeforeEach
     fun init() {
-        app = createApp().first
+        app = createApp().app
         passwordHasher = app.koin.get()
         userRepository = app.koin.get()
         connection = app.koin.get()

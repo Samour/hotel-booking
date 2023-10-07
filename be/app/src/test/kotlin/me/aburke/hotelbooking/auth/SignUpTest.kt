@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.auth
 
+import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.client.readAllUsers
 import me.aburke.hotelbooking.createApp
@@ -26,7 +27,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
-import org.koin.core.KoinApplication
 import java.sql.Connection
 import java.time.Instant
 import java.time.ZoneOffset
@@ -37,26 +37,22 @@ private const val NAME = "name"
 
 class SignUpTest {
 
-    private lateinit var app: KoinApplication
-    private lateinit var instant: Instant
+    private lateinit var testContext: TestContext
     private lateinit var userRepository: UserRepository
     private lateinit var connection: Connection
 
     @BeforeEach
     fun init() {
-        createApp(populateTestData = false).let {
-            app = it.first
-            instant = it.second
-        }
-        connection = app.koin.get()
-        userRepository = app.koin.get()
+        testContext = createApp(populateTestData = false)
+        connection = testContext.app.koin.get()
+        userRepository = testContext.app.koin.get()
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = testContext.app.close()
 
     @Test
-    fun `should create user and set session cookie`() = app.restTest { client, cookieJar ->
+    fun `should create user and set session cookie`() = testContext.app.restTest { client, cookieJar ->
         val signUpResponse = signUp(client)
         client.verifySession(signUpResponse.userId, signUpResponse.sessionExpiryTime.toInstant())
 
@@ -67,39 +63,40 @@ class SignUpTest {
 
     @ParameterizedTest
     @ValueSource(booleans = [false, true])
-    fun `should return 409 when username is not available`(asAnonymousUser: Boolean) = app.restTest { client, _ ->
-        val (existingUserId) = userRepository.insertUser(
-            InsertUserRecord(
-                loginId = LOGIN_ID,
-                passwordHash = "password-hash",
-                name = NAME,
-                roles = setOf(UserRole.MANAGE_USERS.name),
-            ),
-        ) as InsertUserResult.UserInserted
+    fun `should return 409 when username is not available`(asAnonymousUser: Boolean) =
+        testContext.app.restTest { client, _ ->
+            val (existingUserId) = userRepository.insertUser(
+                InsertUserRecord(
+                    loginId = LOGIN_ID,
+                    passwordHash = "password-hash",
+                    name = NAME,
+                    roles = setOf(UserRole.MANAGE_USERS.name),
+                ),
+            ) as InsertUserResult.UserInserted
 
-        val anonymousUserId = client.takeIf { asAnonymousUser }
-            ?.let {
-                AuthUnstableApi(it).createAnonymousSession()
-                    .userId
+            val anonymousUserId = client.takeIf { asAnonymousUser }
+                ?.let {
+                    AuthUnstableApi(it).createAnonymousSession()
+                        .userId
+                }
+
+            val response = assertThrows<ApiException> {
+                AuthUnstableApi(client).signUp(
+                    SignUpRequest().apply {
+                        loginId = LOGIN_ID
+                        password = PASSWORD
+                        name = NAME
+                    },
+                )
             }
 
-        val response = assertThrows<ApiException> {
-            AuthUnstableApi(client).signUp(
-                SignUpRequest().apply {
-                    loginId = LOGIN_ID
-                    password = PASSWORD
-                    name = NAME
-                },
-            )
-        }
+            val allUsers = connection.readAllUsers()
 
-        val allUsers = connection.readAllUsers()
-
-        assertSoftly { s ->
-            s.assertThat(response.code).isEqualTo(409)
-            s.assertThat(response.responseHeaders["Set-Cookie"]).isNull()
-            s.assertThatJson(response.responseBody).isEqualTo(
-                """
+            assertSoftly { s ->
+                s.assertThat(response.code).isEqualTo(409)
+                s.assertThat(response.responseHeaders["Set-Cookie"]).isNull()
+                s.assertThatJson(response.responseBody).isEqualTo(
+                    """
                     {
                         "title": "Username Conflict",
                         "code": "CONFLICT",
@@ -108,19 +105,19 @@ class SignUpTest {
                         "instance": "/api/auth/v0/user",
                         "extended_details": []
                     }
-                """.trimIndent(),
-            )
-            s.assertThat(allUsers.map { it.userId }).isEqualTo(
-                listOfNotNull(
-                    existingUserId,
-                    anonymousUserId,
-                ),
-            )
+                    """.trimIndent(),
+                )
+                s.assertThat(allUsers.map { it.userId }).isEqualTo(
+                    listOfNotNull(
+                        existingUserId,
+                        anonymousUserId,
+                    ),
+                )
+            }
         }
-    }
 
     @Test
-    fun `should create credentials for anonymous user`() = app.restTest { client, cookieJar ->
+    fun `should create credentials for anonymous user`() = testContext.app.restTest { client, cookieJar ->
         val anonymousUserId = AuthUnstableApi(client).createAnonymousSession()
             .userId
 
@@ -133,7 +130,7 @@ class SignUpTest {
     }
 
     @Test
-    fun `should return 409 when current user is not anonymous`() = app.restTest { client, _ ->
+    fun `should return 409 when current user is not anonymous`() = testContext.app.restTest { client, _ ->
         val firstSignUpResponse = AuthUnstableApi(client).signUp(
             SignUpRequest().apply {
                 loginId = LOGIN_ID
@@ -174,7 +171,7 @@ class SignUpTest {
     }
 
     @Test
-    fun `should return 400 when current user does not exist`() = app.restTest { client, _ ->
+    fun `should return 400 when current user does not exist`() = testContext.app.restTest { client, _ ->
         AuthUnstableApi(client).createAnonymousSession()
         connection.executeScript("clear_db.sql")
 
@@ -229,7 +226,7 @@ class SignUpTest {
                         loginId = LOGIN_ID
                         userRoles = listOf("CUSTOMER")
                         anonymousUser = false
-                        sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
+                        sessionExpiryTime = testContext.time.plus(sessionDuration).atOffset(ZoneOffset.UTC)
                     },
                 )
             s.assertThat(allUsers).hasSize(1)
@@ -269,7 +266,7 @@ class SignUpTest {
                     loginId = LOGIN_ID
                     userRoles = listOf("CUSTOMER")
                     anonymousUser = false
-                    sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
+                    sessionExpiryTime = testContext.time.plus(sessionDuration).atOffset(ZoneOffset.UTC)
                 },
             )
             s.assertThat(allUsers).hasSize(1)
@@ -306,7 +303,7 @@ class SignUpTest {
                     it.loginId = LOGIN_ID
                     it.userRoles = listOf("CUSTOMER")
                     it.anonymousUser = false
-                    it.sessionExpiryTime = instant.plus(sessionDuration).atOffset(ZoneOffset.UTC)
+                    it.sessionExpiryTime = testContext.time.plus(sessionDuration).atOffset(ZoneOffset.UTC)
                 },
             )
         }
