@@ -5,8 +5,8 @@ values ('test-hold-user-1', '{}', 'Test hold user 1'),
 
 insert into room_hold(room_hold_id, user_id, hold_expiry)
 values ('test-hold-id-1', 'test-hold-user-1', '2023-08-09T15:00:00Z'),
-       ('test-hold-id-2', 'test-hold-user-2', '2023-08-09T15:00:00Z'),
-       ('test-hold-id-3', 'test-hold-user-3', '2023-08-09T15:00:00Z'),
+       ('test-hold-id-2', 'test-hold-user-2', '2023-08-09T15:01:00Z'),
+       ('test-hold-id-3', 'test-hold-user-3', '2023-08-09T15:02:00Z'),
        -- Expired hold
        ('test-hold-id-4', 'test-hold-user-3', '2023-08-09T03:00:00Z');
 

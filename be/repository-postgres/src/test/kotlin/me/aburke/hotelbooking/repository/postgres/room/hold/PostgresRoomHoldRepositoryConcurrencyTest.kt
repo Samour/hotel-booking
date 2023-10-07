@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 
 @Disabled
-class RoomHoldRepositoryConcurrencyTest {
+class PostgresRoomHoldRepositoryConcurrencyTest {
 
     @Test
     @Suppress("ktlint:max-line-length")

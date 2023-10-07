@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking.repository.postgres
 
+import me.aburke.hotelbooking.ports.repository.RoomHold
 import me.aburke.hotelbooking.ports.repository.RoomStockRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeDescriptionRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
@@ -63,6 +64,18 @@ object TestRooms {
             LocalDate.parse("2023-08-21") to 1,
             LocalDate.parse("2023-08-22") to 1,
         ),
+    )
+    val userRoomHold = RoomHold(
+        roomHoldId = "test-hold-id-1",
+        userId = userWithHoldsId,
+        roomTypeId = "room-type-id-1",
+        holdExpiry = Instant.parse("2023-08-09T15:00:00Z"),
+    )
+    val additionalUserRoomHold = RoomHold(
+        roomHoldId = "test-hold-id-5",
+        userId = userWithHoldsId,
+        roomTypeId = "room-type-id-5",
+        holdExpiry = Instant.parse("2023-08-09T15:03:00Z"),
     )
 }
 
