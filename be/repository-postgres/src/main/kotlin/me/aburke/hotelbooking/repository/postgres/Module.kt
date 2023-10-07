@@ -29,5 +29,5 @@ val postgresModule = module {
     single<UserRepository> { PostgresUserRepository(get()) }
     single<HotelRepository> { PostgresHotelRepository(get()) }
     single<RoomRepository> { PostgresRoomRepository(get(), get()) }
-    single<RoomHoldRepository> { PostgresRoomHoldRepository(get()) }
+    single<RoomHoldRepository> { PostgresRoomHoldRepository(get(), get()) }
 }

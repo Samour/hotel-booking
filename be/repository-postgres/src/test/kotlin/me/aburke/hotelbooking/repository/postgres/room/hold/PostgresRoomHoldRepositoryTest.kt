@@ -46,16 +46,25 @@ class PostgresRoomHoldRepositoryTest {
         )
     }
 
-    @Disabled
     @Test
     fun `should return empty list when user does not have any holds`() {
-        fail("TODO")
+        connection.executeScript("test/room/insert_room_holds.sql")
+        connection.executeScript("test/room/insert_additional_room_holds.sql")
+
+        val result = underTest.findHoldsForUser("other-user-id")
+
+        assertThat(result).isEmpty()
     }
 
-    @Disabled
     @Test
     fun `should not return expired holds`() {
-        fail("TODO")
+        connection.executeScript("test/room/insert_room_holds.sql")
+
+        val result = underTest.findHoldsForUser(TestRooms.UserWithExpiredHold.userId)
+
+        assertThat(result).containsExactlyInAnyOrder(
+            TestRooms.UserWithExpiredHold.visibleRoomHold,
+        )
     }
 
     @Disabled
