@@ -4,10 +4,12 @@ import me.aburke.hotelbooking.ports.repository.CreateRoomHoldResult
 import me.aburke.hotelbooking.ports.repository.RoomHold
 import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
+import org.postgresql.util.PSQLException
 import java.sql.Connection
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
+import java.util.UUID.randomUUID
 
 class PostgresRoomHoldRepository(
     private val clock: Clock,
@@ -27,6 +29,29 @@ class PostgresRoomHoldRepository(
         holdEndDate: LocalDate,
         holdIdToRemove: String?,
     ): CreateRoomHoldResult {
-        TODO("Not yet implemented")
+        val roomHoldId = randomUUID().toString()
+
+        val roomHoldQuery = connection.insertRoomHold(
+            roomHoldId = roomHoldId,
+            userId = userId,
+            roomHoldExpiry = roomHoldExpiry,
+        )
+        val roomStockHoldQuery = connection.createRoomStockHolds(
+            roomHoldId = roomHoldId,
+            roomTypeId = roomTypeId,
+            holdStartDate = holdStartDate,
+            holdEndDate = holdEndDate,
+        )
+
+        try {
+            roomHoldQuery.executeUpdate()
+            roomStockHoldQuery.executeUpdate()
+            connection.commit()
+        } catch (e: PSQLException) {
+            connection.rollback()
+            throw e
+        }
+
+        return CreateRoomHoldResult.RoomHoldCreated(roomHoldId)
     }
 }

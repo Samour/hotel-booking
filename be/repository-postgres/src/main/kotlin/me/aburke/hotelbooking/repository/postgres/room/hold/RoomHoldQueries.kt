@@ -2,6 +2,7 @@ package me.aburke.hotelbooking.repository.postgres.room.hold
 
 import java.sql.Connection
 import java.time.Instant
+import java.time.LocalDate
 
 // Read queries
 
@@ -19,4 +20,41 @@ fun Connection.loadHoldsForUser(
 ).apply {
     setString(1, userId)
     setString(2, "$currentTime")
+}
+
+// Write queries
+
+fun Connection.insertRoomHold(
+    roomHoldId: String,
+    userId: String,
+    roomHoldExpiry: Instant,
+) = prepareStatement(
+    """
+    insert into room_hold(room_hold_id, user_id, hold_expiry)
+    values (?, ?, ?)
+    """.trimIndent(),
+).apply {
+    setString(1, roomHoldId)
+    setString(2, userId)
+    setString(3, "$roomHoldExpiry")
+}
+
+fun Connection.createRoomStockHolds(
+    roomHoldId: String,
+    roomTypeId: String,
+    holdStartDate: LocalDate,
+    holdEndDate: LocalDate,
+) = prepareStatement(
+    // TODO index on room_stock to assist this query
+    """
+        insert into room_stock_hold(room_stock_hold_id, room_hold_id, room_stock_id)
+        select gen_random_uuid(), ?, rs.room_stock_id
+            from room_stock rs
+            where rs.room_type_id = ? and rs.date <= ? and rs.date >= ?
+    """.trimIndent(),
+).apply {
+    setString(1, roomHoldId)
+    setString(2, roomTypeId)
+    setString(3, "$holdEndDate")
+    setString(4, "$holdStartDate")
 }

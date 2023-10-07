@@ -74,6 +74,8 @@ object TestRooms {
             roomTypeId = "room-type-id-1",
             holdExpiry = Instant.parse("2023-08-09T15:00:00Z"),
         )
+        val roomHoldDates = (7L..9L).map { stockBaseDate.plusDays(it) }
+
         val additionalRoomHold = RoomHold(
             roomHoldId = "test-hold-id-5",
             userId = userId,
