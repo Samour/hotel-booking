@@ -10,13 +10,14 @@ import me.aburke.hotelbooking.stubs.Stubs
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
 import org.koin.core.KoinApplication
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 private const val USER_ID = "user-id"
 private const val ALT_USER_ID = "alt-user-id"
@@ -238,16 +239,129 @@ class HoldRoomTest {
         }
     }
 
-    @Disabled
     @Test
     fun `should return ConcurrentHoldRequest when there is a concurrent hold request for the user`() {
-        fail("TODO")
+        val roomTypeId = (1..2).map { createRoom() }
+
+        val blockFirstRequestLatch = CountDownLatch(1)
+        val firstRequestReceivedLatch = CountDownLatch(1)
+        stubs.lockRepository.postAcquireHook = { _ ->
+            if (firstRequestReceivedLatch.count == 1L) {
+                firstRequestReceivedLatch.countDown()
+                blockFirstRequestLatch.await(30, TimeUnit.SECONDS)
+            }
+        }
+
+        var roomHold1: HoldRoomResult? = null
+        var expectedExpiry: Instant? = null
+        val firstRequestThread = Thread {
+            holdRoom(roomTypeId[0]).let {
+                roomHold1 = it.first
+                expectedExpiry = it.second
+            }
+        }.apply { start() }
+
+        firstRequestReceivedLatch.await(30, TimeUnit.SECONDS)
+
+        val (roomHold2) = holdRoom(roomTypeId[1])
+
+        blockFirstRequestLatch.countDown()
+        firstRequestThread.join(30_000)
+        val roomHoldId = (roomHold1 as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+
+        assertSoftly { s ->
+            s.assertThat(roomHold1).isEqualTo(
+                HoldRoomResult.RoomHoldCreated(
+                    roomHoldId = roomHoldId ?: "",
+                    holdExpiry = expectedExpiry ?: Instant.EPOCH,
+                    removedRoomHoldId = null,
+                ),
+            )
+            s.assertThat(roomHold2).isEqualTo(
+                HoldRoomResult.ConcurrentHoldRequest,
+            )
+            s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
+                mapOf(
+                    USER_ID to listOf(
+                        RoomHold(
+                            roomHoldId = roomHoldId ?: "",
+                            userId = USER_ID,
+                            roomTypeId = roomTypeId[0],
+                            holdExpiry = expectedExpiry ?: Instant.EPOCH,
+                        ),
+                    ),
+                ),
+            )
+        }
     }
 
-    @Disabled
     @Test
     fun `should create the hold when there is a concurrent hold request for a different user`() {
-        fail("TODO")
+        val roomTypeId = (1..2).map { createRoom() }
+
+        val blockFirstRequestLatch = CountDownLatch(1)
+        val firstRequestReceivedLatch = CountDownLatch(1)
+        stubs.lockRepository.postAcquireHook = { _ ->
+            if (firstRequestReceivedLatch.count == 1L) {
+                firstRequestReceivedLatch.countDown()
+                blockFirstRequestLatch.await(30, TimeUnit.SECONDS)
+            }
+        }
+
+        var roomHold1: HoldRoomResult? = null
+        var expectedExpiry1: Instant? = null
+        val firstRequestThread = Thread {
+            holdRoom(roomTypeId[0]).let {
+                roomHold1 = it.first
+                expectedExpiry1 = it.second
+            }
+        }.apply { start() }
+
+        firstRequestReceivedLatch.await(30, TimeUnit.SECONDS)
+
+        val (roomHold2, expectedExpiry2) = holdRoom(roomTypeId[1], ALT_USER_ID)
+
+        blockFirstRequestLatch.countDown()
+        firstRequestThread.join(30_000)
+        val roomHoldId1 = (roomHold1 as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        val roomHoldId2 = (roomHold2 as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+
+        assertSoftly { s ->
+            s.assertThat(roomHold1).isEqualTo(
+                HoldRoomResult.RoomHoldCreated(
+                    roomHoldId = roomHoldId1 ?: "",
+                    holdExpiry = expectedExpiry1 ?: Instant.EPOCH,
+                    removedRoomHoldId = null,
+                ),
+            )
+            s.assertThat(roomHold2).isEqualTo(
+                HoldRoomResult.RoomHoldCreated(
+                    roomHoldId = roomHoldId2 ?: "",
+                    holdExpiry = expectedExpiry2 ?: Instant.EPOCH,
+                    removedRoomHoldId = null,
+                ),
+            )
+            s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
+                mapOf(
+                    USER_ID to listOf(
+                        RoomHold(
+                            roomHoldId = roomHoldId1 ?: "",
+                            userId = USER_ID,
+                            roomTypeId = roomTypeId[0],
+                            holdExpiry = expectedExpiry1 ?: Instant.EPOCH,
+                        ),
+                    ),
+                    ALT_USER_ID to listOf(
+                        RoomHold(
+                            roomHoldId = roomHoldId2 ?: "",
+                            userId = ALT_USER_ID,
+                            roomTypeId = roomTypeId[1],
+                            holdExpiry = expectedExpiry2 ?: Instant.EPOCH,
+                        ),
+                    ),
+                ),
+            )
+        }
     }
 
     private fun createRoom(): String = addRoomTypePort.run(
