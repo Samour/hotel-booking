@@ -18,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.KoinApplication
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 private const val LOGIN_ID = "login-id"
 private const val RAW_PASSWORD = "raw-password"
@@ -45,7 +44,6 @@ class SignUpTest {
 
     @Test
     fun `should insert new user`() {
-        val now = Instant.now()
         val result = underTest.run(
             SignUpDetails(
                 loginId = LOGIN_ID,
@@ -54,6 +52,7 @@ class SignUpTest {
                 anonymousUser = null,
             ),
         )
+        val now = stubs.time
 
         val session = (result as? SignUpResult.Success)?.session
         val userRecord = session?.userId?.let { stubs.userRepository.getUsers()[it] }
@@ -76,10 +75,7 @@ class SignUpTest {
                         ),
                     ),
                 )
-            s.assertThat(session?.sessionExpiryTime).isCloseTo(
-                now.plus(sessionDuration),
-                Assertions.within(1, ChronoUnit.SECONDS),
-            )
+            s.assertThat(session?.sessionExpiryTime).isEqualTo(now.plus(sessionDuration))
             s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(session?.userId)
             s.assertThat(stubs.userRepository.getAnonymousUserIds()).isEmpty()
             s.assertThat(userRecord).usingRecursiveComparison()
@@ -137,7 +133,6 @@ class SignUpTest {
     fun `should create credentials for anonymous user`() {
         val anonymousUserId = stubs.userRepository.createAnonymousUser()
 
-        val now = Instant.now()
         val result = underTest.run(
             SignUpDetails(
                 loginId = LOGIN_ID,
@@ -149,6 +144,7 @@ class SignUpTest {
                 ),
             ),
         )
+        val now = stubs.time
 
         val session = (result as? SignUpResult.Success)?.session
         val userRecord = session?.userId?.let { stubs.userRepository.getUsers()[it] }
@@ -171,10 +167,7 @@ class SignUpTest {
                         ),
                     ),
                 )
-            s.assertThat(session?.sessionExpiryTime).isCloseTo(
-                now.plus(sessionDuration),
-                Assertions.within(100, ChronoUnit.MILLIS),
-            )
+            s.assertThat(session?.sessionExpiryTime).isEqualTo(now.plus(sessionDuration))
             s.assertThat(stubs.userRepository.getUsers().keys).containsExactly(session?.userId)
             s.assertThat(stubs.userRepository.getAnonymousUserIds()).containsExactly(session?.userId)
             s.assertThat(userRecord).usingRecursiveComparison()

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
 import org.koin.core.KoinApplication
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
@@ -27,7 +26,6 @@ class HoldRoomTest {
 
     private lateinit var holdStartDate: LocalDate
     private lateinit var holdEndDate: LocalDate
-    private lateinit var expectedHoldExpiry: Instant
 
     private lateinit var app: KoinApplication
     private lateinit var addRoomTypePort: AddRoomTypePort
@@ -42,7 +40,6 @@ class HoldRoomTest {
 
         holdStartDate = stubs.time.atZone(ZoneOffset.UTC).toLocalDate()
         holdEndDate = holdStartDate.plusDays(5)
-        expectedHoldExpiry = stubs.time.plus(30, ChronoUnit.MINUTES)
     }
 
     @AfterEach
@@ -72,7 +69,7 @@ class HoldRoomTest {
                             roomHoldId = roomHoldId ?: "",
                             userId = USER_ID,
                             roomTypeId = roomTypeId,
-                            holdExpiry = expectedHoldExpiry,
+                            holdExpiry = expectedHoldExpiry(),
                         ),
                     ),
                 ),
@@ -104,7 +101,7 @@ class HoldRoomTest {
                             roomHoldId = firstRoomHoldId ?: "",
                             userId = USER_ID,
                             roomTypeId = roomTypeId,
-                            holdExpiry = expectedHoldExpiry,
+                            holdExpiry = expectedHoldExpiry(),
                         ),
                     ),
                 ),
@@ -131,7 +128,7 @@ class HoldRoomTest {
                             roomHoldId = secondRoomHoldId ?: "",
                             userId = USER_ID,
                             roomTypeId = roomTypeId,
-                            holdExpiry = expectedHoldExpiry,
+                            holdExpiry = expectedHoldExpiry(),
                         ),
                     ),
                 ),
@@ -152,6 +149,8 @@ class HoldRoomTest {
                 holdEndDate = holdEndDate,
             ),
         )
+        val expectedHoldExpiry1 = expectedHoldExpiry()
+
         val secondHoldResult = underTest.run(
             HoldRoomDetail(
                 userId = USER_ID,
@@ -160,6 +159,7 @@ class HoldRoomTest {
                 holdEndDate = holdEndDate,
             ),
         )
+        val expectedHoldExpiry2 = expectedHoldExpiry()
 
         val firstRoomHoldId = (firstHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
         val secondRoomHoldId = (secondHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
@@ -174,13 +174,13 @@ class HoldRoomTest {
                             roomHoldId = firstRoomHoldId ?: "",
                             userId = USER_ID,
                             roomTypeId = roomTypeId1,
-                            holdExpiry = expectedHoldExpiry,
+                            holdExpiry = expectedHoldExpiry1,
                         ),
                         RoomHold(
                             roomHoldId = secondRoomHoldId ?: "",
                             userId = USER_ID,
                             roomTypeId = roomTypeId2,
-                            holdExpiry = expectedHoldExpiry,
+                            holdExpiry = expectedHoldExpiry2,
                         ),
                     ),
                 ),
@@ -221,4 +221,6 @@ class HoldRoomTest {
             stockLevel = 1,
         ),
     ).roomTypeId
+
+    private fun expectedHoldExpiry() = stubs.time.plus(30, ChronoUnit.MINUTES)
 }

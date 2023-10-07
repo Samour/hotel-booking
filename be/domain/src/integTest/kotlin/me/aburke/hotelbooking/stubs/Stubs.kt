@@ -34,10 +34,13 @@ class Stubs {
     )
     val lockRepository = LockRepositoryStub()
 
-    val time = Instant.now()
+    var time = Instant.now().minusSeconds(10_000)
 
     fun make(): KoinApplication {
-        every { clock.instant() } returns time
+        every { clock.instant() } answers {
+            time = time.plusMillis((10L..350L).random())
+            time
+        }
 
         val stubsModule = module {
             single { clock }

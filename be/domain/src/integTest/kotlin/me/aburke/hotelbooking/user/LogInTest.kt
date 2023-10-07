@@ -11,14 +11,11 @@ import me.aburke.hotelbooking.ports.scenario.user.LogInPort
 import me.aburke.hotelbooking.ports.scenario.user.LogInResult
 import me.aburke.hotelbooking.sessionDuration
 import me.aburke.hotelbooking.stubs.Stubs
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.KoinApplication
-import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 private const val LOGIN_ID = "login-id"
 private const val PASSWORD = "password"
@@ -50,13 +47,13 @@ class LogInTest {
     fun `should create and return session when credentials valid`() {
         val userId = (insertUser() as InsertUserResult.UserInserted).userId
 
-        val now = Instant.now()
         val result = underTest.run(
             LogInCredentials(
                 loginId = LOGIN_ID,
                 password = PASSWORD,
             ),
         )
+        val now = stubs.time
         val session = (result as? LogInResult.UserSessionCreated)?.session
         val allSessions = stubs.sessionRepository.getSessions().values
 
@@ -76,10 +73,7 @@ class LogInTest {
                     ),
                 )
             s.assertThat(session?.sessionId).matches("[a-zA-Z0-9]{36}")
-            s.assertThat(session?.sessionExpiryTime).isCloseTo(
-                now.plus(sessionDuration),
-                Assertions.within(100, ChronoUnit.MILLIS),
-            )
+            s.assertThat(session?.sessionExpiryTime).isEqualTo(now.plus(sessionDuration))
             s.assertThat(allSessions).containsExactly(session?.toDbModel())
         }
     }
