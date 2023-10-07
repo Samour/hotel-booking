@@ -12,7 +12,7 @@ class RoomHoldRepositoryStub(
 ) : RoomHoldRepository {
 
     private val holds = mutableMapOf<String, MutableList<RoomHold>>()
-    private val currentHoldsCount = mutableMapOf<Pair<String, LocalDate>, Int>()
+    private val currentHoldsCount = mutableMapOf<Pair<String, LocalDate>, MutableSet<String>>()
 
     override fun findHoldsForUser(userId: String): List<RoomHold> =
         holds[userId] ?: emptyList()
@@ -31,7 +31,9 @@ class RoomHoldRepositoryStub(
         var d = holdStartDate
         while (!d.isAfter(holdEndDate)) {
             val availableStock = roomStock.getOrDefault(d, 0) -
-                currentHoldsCount.getOrDefault(roomTypeId to d, 0)
+                currentHoldsCount.getOrDefault(roomTypeId to d, emptySet())
+                    .filter { it !== userId }
+                    .size
             if (availableStock < 1) {
                 return CreateRoomHoldResult.StockNotAvailable
             }
@@ -39,8 +41,18 @@ class RoomHoldRepositoryStub(
             d = d.plusDays(1)
         }
 
+        if (holdIdToRemove != null) {
+            val roomIdToRemoveHold = holds[userId]
+                ?.firstOrNull { it.roomHoldId == holdIdToRemove }
+                ?.roomTypeId
+            currentHoldsCount.entries.asSequence()
+                .filter { (key) -> key.first == roomIdToRemoveHold }
+                .forEach { (_, userIds) -> userIds.remove(userId) }
+            holds[userId]?.removeIf { it.roomHoldId == holdIdToRemove }
+        }
+
         holdDates.forEach {
-            currentHoldsCount[roomTypeId to it] = currentHoldsCount.getOrDefault(roomTypeId to it, 0) + 1
+            currentHoldsCount.getOrPut(roomTypeId to it, ::mutableSetOf).add(userId)
         }
         return CreateRoomHoldResult.RoomHoldCreated(randomUUID().toString()).also {
             holds.getOrPut(userId, ::mutableListOf).add(
