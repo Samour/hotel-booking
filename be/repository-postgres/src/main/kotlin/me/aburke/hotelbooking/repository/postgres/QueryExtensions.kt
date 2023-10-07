@@ -12,6 +12,7 @@ fun PreparedStatement.executeQueryWithRollback() = try {
 
 fun PreparedStatement.executeUpdateWithRollback() = try {
     executeUpdate()
+    connection.commit()
 } catch (e: PSQLException) {
     connection.rollback()
     throw e

@@ -226,10 +226,45 @@ class PostgresRoomHoldRepositoryTest {
     }
 
     @Suppress("ktlint:max-line-length")
-    @Disabled
     @Test
     fun `should create hold when no stock is available due to the hold that is being deleted as part of this transaction`() {
-        fail("TODO")
+        connection.executeScript("test/room/insert_room_holds.sql")
+        connection.setRoomStockLevel(TestRooms.UserWithHolds.roomHold.roomTypeId, 1)
+        connection.deleteConflictingHolds(TestRooms.UserWithHolds.roomHold.roomTypeId, TestRooms.UserWithHolds.userId)
+
+        val holdDates = TestRooms.UserWithHolds.roomHoldDates.plus(
+            listOf(
+                TestRooms.UserWithHolds.roomHoldDates.last().plusDays(1),
+                TestRooms.UserWithHolds.roomHoldDates.last().plusDays(2),
+            ),
+        )
+
+        val result = underTest.createRoomHold(
+            userId = TestRooms.UserWithHolds.userId,
+            roomTypeId = TestRooms.UserWithHolds.roomHold.roomTypeId,
+            roomHoldExpiry = TestRooms.UserWithHolds.roomHold.holdExpiry,
+            holdStartDate = holdDates.first(),
+            holdEndDate = holdDates.last(),
+            holdIdToRemove = TestRooms.UserWithHolds.roomHold.roomHoldId,
+        )
+
+        val createdRoomHoldId = (result as? CreateRoomHoldResult.RoomHoldCreated)?.roomHoldId ?: ""
+        val holdRows = connection.readAllHoldsForUser(TestRooms.UserWithHolds.userId)
+
+        assertSoftly { s ->
+            s.assertThat(result).isInstanceOf(CreateRoomHoldResult.RoomHoldCreated::class.java)
+            s.assertThat(holdRows).containsExactlyInAnyOrder(
+                *holdDates.map {
+                    RoomHoldRow(
+                        roomHoldId = createdRoomHoldId,
+                        userId = TestRooms.UserWithHolds.userId,
+                        holdExpiry = TestRooms.UserWithHolds.roomHold.holdExpiry,
+                        roomTypeId = TestRooms.UserWithHolds.roomHold.roomTypeId,
+                        date = it,
+                    )
+                }.toTypedArray(),
+            )
+        }
     }
 
     @Disabled
@@ -290,5 +325,20 @@ private fun Connection.setRoomStockLevel(roomTypeId: String, stockLevel: Int) = 
     """.trimIndent(),
 ).apply {
     setInt(1, stockLevel)
+    setString(2, roomTypeId)
+}.executeUpdateWithRollback()
+
+private fun Connection.deleteConflictingHolds(roomTypeId: String, userId: String) = prepareStatement(
+    """
+        delete from room_hold
+        where user_id != ? and room_hold_id in (
+            select distinct rsh.room_hold_id
+            from room_stock_hold rsh
+            join room_stock rs on rs.room_stock_id = rsh.room_stock_id
+            where rs.room_type_id = ?
+        )
+    """.trimIndent(),
+).apply {
+    setString(1, userId)
     setString(2, roomTypeId)
 }.executeUpdateWithRollback()
