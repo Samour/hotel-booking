@@ -1,4 +1,4 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.user
 
 import java.sql.Connection
 import java.sql.PreparedStatement

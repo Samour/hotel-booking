@@ -1,4 +1,4 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.room.hold
 
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test

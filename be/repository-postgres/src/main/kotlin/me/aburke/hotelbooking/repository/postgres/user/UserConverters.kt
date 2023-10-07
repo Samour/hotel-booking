@@ -1,4 +1,4 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.user
 
 import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
 import me.aburke.hotelbooking.ports.repository.UserCredentialRecord

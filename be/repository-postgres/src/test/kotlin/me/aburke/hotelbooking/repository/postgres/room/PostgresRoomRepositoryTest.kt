@@ -1,11 +1,15 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.room
 
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
-import me.aburke.hotelbooking.repository.postgres.queries.insertTestRooms
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.SoftAssertions.assertSoftly
+import me.aburke.hotelbooking.repository.postgres.TestRooms
+import me.aburke.hotelbooking.repository.postgres.createApp
+import me.aburke.hotelbooking.repository.postgres.getHoldCount
+import me.aburke.hotelbooking.repository.postgres.hotelId
+import me.aburke.hotelbooking.repository.postgres.insertTestRooms
+import org.assertj.core.api.Assertions
+import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -95,7 +99,7 @@ class PostgresRoomRepositoryTest {
         val allRooms = loadAllRooms()
         val allStock = loadAllRoomStocks()
 
-        assertSoftly { s ->
+        SoftAssertions.assertSoftly { s ->
             s.assertThat(allRooms).containsExactly(
                 RoomRecord(
                     roomTypeId = result,
@@ -135,7 +139,7 @@ class PostgresRoomRepositoryTest {
         val allRooms = loadAllRooms()
         val allStock = loadAllRoomStocks()
 
-        assertSoftly { s ->
+        SoftAssertions.assertSoftly { s ->
             s.assertThat(allRooms).containsExactly(
                 RoomRecord(
                     roomTypeId = result,
@@ -175,7 +179,7 @@ class PostgresRoomRepositoryTest {
         val allRooms = loadAllRooms()
         val allStock = loadAllRoomStocks()
 
-        assertSoftly { s ->
+        SoftAssertions.assertSoftly { s ->
             s.assertThat(allRooms).containsExactly(
                 RoomRecord(
                     roomTypeId = result,
@@ -204,7 +208,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        assertThat(result).containsExactlyInAnyOrder(
+        Assertions.assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
@@ -226,7 +230,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        assertThat(result).isEmpty()
+        Assertions.assertThat(result).isEmpty()
     }
 
     @Test
@@ -243,7 +247,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        assertThat(result).containsExactlyInAnyOrder(
+        Assertions.assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
@@ -269,7 +273,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        assertThat(result).containsExactlyInAnyOrder(
+        Assertions.assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms
                 .filter { !roomsWithNoStock.contains(it.roomTypeId) }
                 .map { room ->
@@ -298,7 +302,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        assertThat(result).containsExactlyInAnyOrder(
+        Assertions.assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
@@ -327,7 +331,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        assertThat(result).containsExactlyInAnyOrder(
+        Assertions.assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {

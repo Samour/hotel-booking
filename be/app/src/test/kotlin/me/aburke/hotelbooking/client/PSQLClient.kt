@@ -3,7 +3,7 @@ package me.aburke.hotelbooking.client
 import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
 import me.aburke.hotelbooking.ports.repository.UserRecord
 import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
-import me.aburke.hotelbooking.repository.postgres.toUserRoles
+import me.aburke.hotelbooking.repository.postgres.user.toUserRoles
 import java.sql.Connection
 import java.time.LocalDate
 

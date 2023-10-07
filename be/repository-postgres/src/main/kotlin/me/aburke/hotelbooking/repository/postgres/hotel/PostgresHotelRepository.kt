@@ -1,6 +1,7 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.hotel
 
 import me.aburke.hotelbooking.ports.repository.HotelRepository
+import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
 import java.sql.Connection
 import java.util.*
 

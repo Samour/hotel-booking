@@ -1,10 +1,11 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.user
 
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
 import me.aburke.hotelbooking.ports.repository.NonAnonymousUserRecord
 import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
 import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
 import org.postgresql.util.PSQLException
 import java.sql.Connection
 import java.util.UUID.randomUUID

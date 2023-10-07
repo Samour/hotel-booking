@@ -1,4 +1,4 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.user
 
 import me.aburke.hotelbooking.ports.repository.InsertUserRecord
 import me.aburke.hotelbooking.ports.repository.InsertUserResult
@@ -7,6 +7,8 @@ import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
 import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
 import me.aburke.hotelbooking.ports.repository.UserRecord
 import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.repository.postgres.RandomString
+import me.aburke.hotelbooking.repository.postgres.createApp
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach

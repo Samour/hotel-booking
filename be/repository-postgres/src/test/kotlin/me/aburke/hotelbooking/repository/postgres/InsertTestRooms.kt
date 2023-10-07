@@ -1,7 +1,6 @@
-package me.aburke.hotelbooking.repository.postgres.queries
+package me.aburke.hotelbooking.repository.postgres
 
 import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
-import me.aburke.hotelbooking.repository.postgres.hotelId
 import org.postgresql.util.PSQLException
 import java.sql.Connection
 

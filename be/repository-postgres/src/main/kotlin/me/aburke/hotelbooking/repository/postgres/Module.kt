@@ -3,6 +3,9 @@ package me.aburke.hotelbooking.repository.postgres
 import me.aburke.hotelbooking.ports.repository.HotelRepository
 import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
+import me.aburke.hotelbooking.repository.postgres.hotel.PostgresHotelRepository
+import me.aburke.hotelbooking.repository.postgres.room.PostgresRoomRepository
+import me.aburke.hotelbooking.repository.postgres.user.PostgresUserRepository
 import org.koin.dsl.module
 import org.koin.dsl.onClose
 import java.sql.Connection

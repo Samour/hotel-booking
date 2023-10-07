@@ -1,4 +1,4 @@
-package me.aburke.hotelbooking.repository.postgres
+package me.aburke.hotelbooking.repository.postgres.room
 
 import me.aburke.hotelbooking.ports.repository.RoomStockRecord
 import me.aburke.hotelbooking.ports.repository.RoomTypeDescriptionRecord
