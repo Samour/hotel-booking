@@ -47,9 +47,6 @@ private val existingHoldExpiry3 = instant.plus(4, ChronoUnit.MINUTES)
 @ExtendWith(MockKExtension::class)
 class HoldRoomScenarioTest {
 
-    // TODO acquire distributed lock on user ID to ensure that they can't exceed their hold quota by creating race
-    // conditions via concurrently calling hold endpoint
-
     @MockK
     lateinit var clock: Clock
 
