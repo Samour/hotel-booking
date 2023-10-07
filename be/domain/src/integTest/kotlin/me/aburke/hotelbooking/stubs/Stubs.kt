@@ -35,6 +35,7 @@ class Stubs {
     val lockRepository = LockRepositoryStub()
 
     var time = Instant.now().minusSeconds(10_000)
+        private set
 
     fun make(): KoinApplication {
         every { clock.instant() } answers {
