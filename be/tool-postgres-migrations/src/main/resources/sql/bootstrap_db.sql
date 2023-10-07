@@ -85,7 +85,7 @@ create table room_stock_hold
     room_stock_id      varchar not null,
 
     constraint fk__room_stock_hold__room_hold_id__room_hold
-        foreign key (room_hold_id) references room_hold,
+        foreign key (room_hold_id) references room_hold on delete cascade,
 
     constraint fk__room_stock_hold__room_stock_id__room_type
         foreign key (room_stock_id) references room_stock

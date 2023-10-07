@@ -42,10 +42,12 @@ class PostgresRoomHoldRepository(
             holdStartDate = holdStartDate,
             holdEndDate = holdEndDate,
         )
+        val deleteHoldQuery = holdIdToRemove?.let { connection.deleteRoomHold(it) }
 
         try {
             roomHoldQuery.executeUpdate()
             roomStockHoldQuery.executeUpdate()
+            deleteHoldQuery?.executeUpdate()
             connection.commit()
         } catch (e: PSQLException) {
             connection.rollback()

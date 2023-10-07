@@ -57,3 +57,13 @@ fun Connection.createRoomStockHolds(
     setString(3, "$holdEndDate")
     setString(4, "$holdStartDate")
 }
+
+fun Connection.deleteRoomHold(
+    roomHoldId: String,
+) = prepareStatement(
+    """
+        delete from room_hold where room_hold_id = ?
+    """.trimIndent(),
+).apply {
+    setString(1, roomHoldId)
+}

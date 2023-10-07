@@ -118,10 +118,40 @@ class PostgresRoomHoldRepositoryTest {
         }
     }
 
-    @Disabled
     @Test
     fun `should delete existing hold`() {
-        fail("TODO")
+        connection.executeScript("test/room/insert_room_holds.sql")
+
+        val holdDates = (5L..9L).map {
+            TestRooms.stockBaseDate.plusDays(it)
+        }
+
+        val result = underTest.createRoomHold(
+            userId = TestRooms.UserWithHolds.userId,
+            roomTypeId = TestRooms.UserWithHolds.additionalRoomHold.roomTypeId,
+            roomHoldExpiry = TestRooms.UserWithHolds.additionalRoomHold.holdExpiry,
+            holdStartDate = holdDates.first(),
+            holdEndDate = holdDates.last(),
+            holdIdToRemove = TestRooms.UserWithHolds.roomHold.roomHoldId,
+        )
+
+        val createdRoomHoldId = (result as? CreateRoomHoldResult.RoomHoldCreated)?.roomHoldId ?: ""
+        val holdRows = connection.readAllHoldsForUser(TestRooms.UserWithHolds.userId)
+
+        assertSoftly { s ->
+            s.assertThat(result).isInstanceOf(CreateRoomHoldResult.RoomHoldCreated::class.java)
+            s.assertThat(holdRows).containsExactlyInAnyOrder(
+                *holdDates.map {
+                    RoomHoldRow(
+                        roomHoldId = createdRoomHoldId,
+                        userId = TestRooms.UserWithHolds.userId,
+                        holdExpiry = TestRooms.UserWithHolds.additionalRoomHold.holdExpiry,
+                        roomTypeId = TestRooms.UserWithHolds.additionalRoomHold.roomTypeId,
+                        date = it,
+                    )
+                }.toTypedArray(),
+            )
+        }
     }
 
     @Disabled
