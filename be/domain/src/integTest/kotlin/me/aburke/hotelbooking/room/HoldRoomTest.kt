@@ -188,10 +188,86 @@ class HoldRoomTest {
         }
     }
 
-    @Disabled
     @Test
     fun `should limit the total number of holds for a user`() {
-        fail("TODO")
+        val roomTypeId1 = createRoom()
+        val roomTypeId2 = createRoom()
+        val roomTypeId3 = createRoom()
+        val roomTypeId4 = createRoom()
+
+        val firstHoldResult = underTest.run(
+            HoldRoomDetail(
+                userId = USER_ID,
+                roomTypeId = roomTypeId1,
+                holdStartDate = holdStartDate,
+                holdEndDate = holdEndDate,
+            ),
+        )
+
+        val secondHoldResult = underTest.run(
+            HoldRoomDetail(
+                userId = USER_ID,
+                roomTypeId = roomTypeId2,
+                holdStartDate = holdStartDate,
+                holdEndDate = holdEndDate,
+            ),
+        )
+        val expectedHoldExpiry2 = expectedHoldExpiry()
+
+        val thirdHoldResult = underTest.run(
+            HoldRoomDetail(
+                userId = USER_ID,
+                roomTypeId = roomTypeId3,
+                holdStartDate = holdStartDate,
+                holdEndDate = holdEndDate,
+            ),
+        )
+        val expectedHoldExpiry3 = expectedHoldExpiry()
+
+        val fourthHoldResult = underTest.run(
+            HoldRoomDetail(
+                userId = USER_ID,
+                roomTypeId = roomTypeId4,
+                holdStartDate = holdStartDate,
+                holdEndDate = holdEndDate,
+            ),
+        )
+        val expectedHoldExpiry4 = expectedHoldExpiry()
+
+        val secondRoomHoldId = (secondHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        val thirdRoomHoldId = (thirdHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        val fourthRoomHoldId = (fourthHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+
+        assertSoftly { s ->
+            s.assertThat(firstHoldResult).isInstanceOf(HoldRoomResult.RoomHoldCreated::class.java)
+            s.assertThat(secondHoldResult).isInstanceOf(HoldRoomResult.RoomHoldCreated::class.java)
+            s.assertThat(thirdHoldResult).isInstanceOf(HoldRoomResult.RoomHoldCreated::class.java)
+            s.assertThat(fourthHoldResult).isInstanceOf(HoldRoomResult.RoomHoldCreated::class.java)
+            s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
+                mapOf(
+                    USER_ID to listOf(
+                        RoomHold(
+                            roomHoldId = secondRoomHoldId ?: "",
+                            userId = USER_ID,
+                            roomTypeId = roomTypeId2,
+                            holdExpiry = expectedHoldExpiry2,
+                        ),
+                        RoomHold(
+                            roomHoldId = thirdRoomHoldId ?: "",
+                            userId = USER_ID,
+                            roomTypeId = roomTypeId3,
+                            holdExpiry = expectedHoldExpiry3,
+                        ),
+                        RoomHold(
+                            roomHoldId = fourthRoomHoldId ?: "",
+                            userId = USER_ID,
+                            roomTypeId = roomTypeId4,
+                            holdExpiry = expectedHoldExpiry4,
+                        ),
+                    ),
+                ),
+            )
+        }
     }
 
     @Disabled
