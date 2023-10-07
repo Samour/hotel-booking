@@ -32,8 +32,7 @@ class RoomHoldRepositoryStub(
         while (!d.isAfter(holdEndDate)) {
             val availableStock = roomStock.getOrDefault(d, 0) -
                 currentHoldsCount.getOrDefault(roomTypeId to d, emptySet())
-                    .filter { it !== userId }
-                    .size
+                    .count { it !== userId }
             if (availableStock < 1) {
                 return CreateRoomHoldResult.StockNotAvailable
             }

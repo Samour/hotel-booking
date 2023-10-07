@@ -19,6 +19,7 @@ import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 
 private const val USER_ID = "user-id"
+private const val ALT_USER_ID = "alt-user-id"
 
 class HoldRoomTest {
 
@@ -198,10 +199,43 @@ class HoldRoomTest {
         }
     }
 
-    @Disabled
     @Test
     fun `should return StockNotAvailable when there is not enough available stock to create the hold`() {
-        fail("TODO")
+        val roomTypeId = createRoom()
+
+        val (holdResults, expectedExpiryTimes) = listOf(ALT_USER_ID, USER_ID)
+            .map { holdRoom(roomTypeId, it) }
+            .let { pairs ->
+                pairs.map { it.first } to pairs.map { it.second }
+            }
+        val roomHoldIds = holdResults.map {
+            (it as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        }
+
+        assertSoftly { s ->
+            s.assertThat(holdResults[0]).isEqualTo(
+                HoldRoomResult.RoomHoldCreated(
+                    roomHoldId = roomHoldIds[0] ?: "",
+                    holdExpiry = expectedExpiryTimes[0],
+                    removedRoomHoldId = null,
+                ),
+            )
+            s.assertThat(holdResults[1]).isEqualTo(
+                HoldRoomResult.StockNotAvailable,
+            )
+            s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
+                mapOf(
+                    ALT_USER_ID to listOf(
+                        RoomHold(
+                            roomHoldId = roomHoldIds[0] ?: "",
+                            userId = ALT_USER_ID,
+                            roomTypeId = roomTypeId,
+                            holdExpiry = expectedExpiryTimes[0],
+                        ),
+                    ),
+                ),
+            )
+        }
     }
 
     @Disabled
@@ -228,9 +262,9 @@ class HoldRoomTest {
 
     private fun expectedHoldExpiry() = stubs.time.plus(30, ChronoUnit.MINUTES)
 
-    private fun holdRoom(roomTypeId: String) = underTest.run(
+    private fun holdRoom(roomTypeId: String, userId: String = USER_ID) = underTest.run(
         HoldRoomDetail(
-            userId = USER_ID,
+            userId = userId,
             roomTypeId = roomTypeId,
             holdStartDate = holdStartDate,
             holdEndDate = holdEndDate,
