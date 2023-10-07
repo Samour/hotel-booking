@@ -49,17 +49,8 @@ class HoldRoomTest {
     fun `should create hold on room for user`() {
         val roomTypeId = createRoom()
 
-        val result = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId,
-                holdStartDate = holdStartDate,
-                holdEndDate = holdEndDate,
-            ),
-        )
-
+        val (result, expectedHoldExpiry) = holdRoom(roomTypeId)
         val roomHoldId = (result as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
-        val expectedHoldExpiry = expectedHoldExpiry()
 
         assertSoftly { s ->
             s.assertThat(result).isEqualTo(
@@ -88,68 +79,37 @@ class HoldRoomTest {
     fun `should replace an existing hold on the same room`() {
         val roomTypeId = createRoom()
 
-        val firstHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId,
-                holdStartDate = holdStartDate,
-                holdEndDate = holdEndDate,
-            ),
-        )
-
-        val firstRoomHoldId = (firstHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
-        val firstRoomExpectedExpiry = expectedHoldExpiry()
+        val (holdResults, expectedExpiryTimes) = (1..2).map { holdRoom(roomTypeId) }
+            .let { pairs ->
+                pairs.map { it.first } to pairs.map { it.second }
+            }
+        val roomHoldIds = holdResults.map {
+            (it as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        }
 
         assertSoftly { s ->
-            s.assertThat(firstHoldResult).isEqualTo(
+            s.assertThat(holdResults[0]).isEqualTo(
                 HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = firstRoomHoldId ?: "",
-                    holdExpiry = firstRoomExpectedExpiry,
+                    roomHoldId = roomHoldIds[0] ?: "",
+                    holdExpiry = expectedExpiryTimes[0],
                     removedRoomHoldId = null,
                 ),
             )
-            s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
-                mapOf(
-                    USER_ID to listOf(
-                        RoomHold(
-                            roomHoldId = firstRoomHoldId ?: "",
-                            userId = USER_ID,
-                            roomTypeId = roomTypeId,
-                            holdExpiry = firstRoomExpectedExpiry,
-                        ),
-                    ),
-                ),
-            )
-        }
-
-        val secondHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId,
-                holdStartDate = holdStartDate.plusDays(2),
-                holdEndDate = holdEndDate,
-            ),
-        )
-
-        val secondRoomHoldId = (secondHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
-        val secondRoomExpectedExpiry = expectedHoldExpiry()
-
-        assertSoftly { s ->
-            s.assertThat(secondHoldResult).isEqualTo(
+            s.assertThat(holdResults[1]).isEqualTo(
                 HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = secondRoomHoldId ?: "",
-                    holdExpiry = secondRoomExpectedExpiry,
-                    removedRoomHoldId = firstRoomHoldId,
+                    roomHoldId = roomHoldIds[1] ?: "",
+                    holdExpiry = expectedExpiryTimes[1],
+                    removedRoomHoldId = roomHoldIds[0],
                 ),
             )
             s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
                 mapOf(
                     USER_ID to listOf(
                         RoomHold(
-                            roomHoldId = secondRoomHoldId ?: "",
+                            roomHoldId = roomHoldIds[1] ?: "",
                             userId = USER_ID,
                             roomTypeId = roomTypeId,
-                            holdExpiry = secondRoomExpectedExpiry,
+                            holdExpiry = expectedExpiryTimes[1],
                         ),
                     ),
                 ),
@@ -159,63 +119,36 @@ class HoldRoomTest {
 
     @Test
     fun `should allow multiple holds to be created provided they are on different rooms`() {
-        val roomTypeId1 = createRoom()
-        val roomTypeId2 = createRoom()
+        val roomTypeIds = (1..2).map { createRoom() }
 
-        val firstHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId1,
-                holdStartDate = holdStartDate,
-                holdEndDate = holdEndDate,
-            ),
-        )
-        val expectedHoldExpiry1 = expectedHoldExpiry()
-
-        val secondHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId2,
-                holdStartDate = holdStartDate.plusDays(2),
-                holdEndDate = holdEndDate,
-            ),
-        )
-        val expectedHoldExpiry2 = expectedHoldExpiry()
-
-        val firstRoomHoldId = (firstHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
-        val secondRoomHoldId = (secondHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        val (holdResults, expectedExpiryTimes) = roomTypeIds.map { holdRoom(it) }
+            .let { pairs ->
+                pairs.map { it.first } to pairs.map { it.second }
+            }
+        val roomHoldIds = holdResults.map {
+            (it as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        }
 
         assertSoftly { s ->
-            s.assertThat(firstHoldResult).isEqualTo(
-                HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = firstRoomHoldId ?: "",
-                    holdExpiry = expectedHoldExpiry1,
-                    removedRoomHoldId = null,
-                ),
-            )
-            s.assertThat(secondHoldResult).isEqualTo(
-                HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = secondRoomHoldId ?: "",
-                    holdExpiry = expectedHoldExpiry2,
-                    removedRoomHoldId = null,
-                ),
-            )
+            (0..1).forEach {
+                s.assertThat(holdResults[it]).isEqualTo(
+                    HoldRoomResult.RoomHoldCreated(
+                        roomHoldId = roomHoldIds[it] ?: "",
+                        holdExpiry = expectedExpiryTimes[it],
+                        removedRoomHoldId = null,
+                    ),
+                )
+            }
             s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
                 mapOf(
-                    USER_ID to listOf(
+                    USER_ID to (0..1).map {
                         RoomHold(
-                            roomHoldId = firstRoomHoldId ?: "",
+                            roomHoldId = roomHoldIds[it] ?: "",
                             userId = USER_ID,
-                            roomTypeId = roomTypeId1,
-                            holdExpiry = expectedHoldExpiry1,
-                        ),
-                        RoomHold(
-                            roomHoldId = secondRoomHoldId ?: "",
-                            userId = USER_ID,
-                            roomTypeId = roomTypeId2,
-                            holdExpiry = expectedHoldExpiry2,
-                        ),
-                    ),
+                            roomTypeId = roomTypeIds[it],
+                            holdExpiry = expectedExpiryTimes[it],
+                        )
+                    },
                 ),
             )
         }
@@ -223,107 +156,43 @@ class HoldRoomTest {
 
     @Test
     fun `should limit the total number of holds for a user`() {
-        val roomTypeId1 = createRoom()
-        val roomTypeId2 = createRoom()
-        val roomTypeId3 = createRoom()
-        val roomTypeId4 = createRoom()
+        val roomTypeIds = (1..4).map { createRoom() }
 
-        val firstHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId1,
-                holdStartDate = holdStartDate,
-                holdEndDate = holdEndDate,
-            ),
-        )
-        val expectedHoldExpiry1 = expectedHoldExpiry()
-
-        val secondHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId2,
-                holdStartDate = holdStartDate,
-                holdEndDate = holdEndDate,
-            ),
-        )
-        val expectedHoldExpiry2 = expectedHoldExpiry()
-
-        val thirdHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId3,
-                holdStartDate = holdStartDate,
-                holdEndDate = holdEndDate,
-            ),
-        )
-        val expectedHoldExpiry3 = expectedHoldExpiry()
-
-        val fourthHoldResult = underTest.run(
-            HoldRoomDetail(
-                userId = USER_ID,
-                roomTypeId = roomTypeId4,
-                holdStartDate = holdStartDate,
-                holdEndDate = holdEndDate,
-            ),
-        )
-        val expectedHoldExpiry4 = expectedHoldExpiry()
-
-        val firstRoomHoldId = (firstHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
-        val secondRoomHoldId = (secondHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
-        val thirdRoomHoldId = (thirdHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
-        val fourthRoomHoldId = (fourthHoldResult as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        val (holdResults, expectedExpiryTimes) = roomTypeIds.map { holdRoom(it) }
+            .let { pairs ->
+                pairs.map { it.first } to pairs.map { it.second }
+            }
+        val roomHoldIds = holdResults.map {
+            (it as? HoldRoomResult.RoomHoldCreated)?.roomHoldId
+        }
 
         assertSoftly { s ->
-            s.assertThat(firstHoldResult).isEqualTo(
+            (0..2).forEach {
+                s.assertThat(holdResults[it]).isEqualTo(
+                    HoldRoomResult.RoomHoldCreated(
+                        roomHoldId = roomHoldIds[it] ?: "",
+                        holdExpiry = expectedExpiryTimes[it],
+                        removedRoomHoldId = null,
+                    ),
+                )
+            }
+            s.assertThat(holdResults[3]).isEqualTo(
                 HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = firstRoomHoldId ?: "",
-                    holdExpiry = expectedHoldExpiry1,
-                    removedRoomHoldId = null,
-                ),
-            )
-            s.assertThat(secondHoldResult).isEqualTo(
-                HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = secondRoomHoldId ?: "",
-                    holdExpiry = expectedHoldExpiry2,
-                    removedRoomHoldId = null,
-                ),
-            )
-            s.assertThat(thirdHoldResult).isEqualTo(
-                HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = thirdRoomHoldId ?: "",
-                    holdExpiry = expectedHoldExpiry3,
-                    removedRoomHoldId = null,
-                ),
-            )
-            s.assertThat(fourthHoldResult).isEqualTo(
-                HoldRoomResult.RoomHoldCreated(
-                    roomHoldId = fourthRoomHoldId ?: "",
-                    holdExpiry = expectedHoldExpiry4,
-                    removedRoomHoldId = firstRoomHoldId,
+                    roomHoldId = roomHoldIds[3] ?: "",
+                    holdExpiry = expectedExpiryTimes[3],
+                    removedRoomHoldId = roomHoldIds[0],
                 ),
             )
             s.assertThat(stubs.roomHoldRepository.holds).isEqualTo(
                 mapOf(
-                    USER_ID to listOf(
+                    USER_ID to (1..3).map {
                         RoomHold(
-                            roomHoldId = secondRoomHoldId ?: "",
+                            roomHoldId = roomHoldIds[it] ?: "",
                             userId = USER_ID,
-                            roomTypeId = roomTypeId2,
-                            holdExpiry = expectedHoldExpiry2,
-                        ),
-                        RoomHold(
-                            roomHoldId = thirdRoomHoldId ?: "",
-                            userId = USER_ID,
-                            roomTypeId = roomTypeId3,
-                            holdExpiry = expectedHoldExpiry3,
-                        ),
-                        RoomHold(
-                            roomHoldId = fourthRoomHoldId ?: "",
-                            userId = USER_ID,
-                            roomTypeId = roomTypeId4,
-                            holdExpiry = expectedHoldExpiry4,
-                        ),
-                    ),
+                            roomTypeId = roomTypeIds[it],
+                            holdExpiry = expectedExpiryTimes[it],
+                        )
+                    },
                 ),
             )
         }
@@ -358,4 +227,15 @@ class HoldRoomTest {
     ).roomTypeId
 
     private fun expectedHoldExpiry() = stubs.time.plus(30, ChronoUnit.MINUTES)
+
+    private fun holdRoom(roomTypeId: String) = underTest.run(
+        HoldRoomDetail(
+            userId = USER_ID,
+            roomTypeId = roomTypeId,
+            holdStartDate = holdStartDate,
+            holdEndDate = holdEndDate,
+        ),
+    ).let {
+        it to expectedHoldExpiry()
+    }
 }
