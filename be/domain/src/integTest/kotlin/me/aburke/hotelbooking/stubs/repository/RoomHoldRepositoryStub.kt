@@ -11,7 +11,7 @@ class RoomHoldRepositoryStub(
     private val roomRepository: RoomRepositoryStub,
 ) : RoomHoldRepository {
 
-    private val holds = mutableMapOf<String, MutableList<RoomHold>>()
+    val holds = mutableMapOf<String, MutableList<RoomHold>>()
     private val currentHoldsCount = mutableMapOf<Pair<String, LocalDate>, MutableSet<String>>()
 
     override fun findHoldsForUser(userId: String): List<RoomHold> =
