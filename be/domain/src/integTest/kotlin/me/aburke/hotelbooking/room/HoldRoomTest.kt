@@ -245,7 +245,7 @@ class HoldRoomTest {
 
         val blockFirstRequestLatch = CountDownLatch(1)
         val firstRequestReceivedLatch = CountDownLatch(1)
-        stubs.lockRepository.postAcquireHook = { _ ->
+        stubs.lockRepository.postAcquireHook = { _, _ ->
             if (firstRequestReceivedLatch.count == 1L) {
                 firstRequestReceivedLatch.countDown()
                 blockFirstRequestLatch.await(30, TimeUnit.SECONDS)
@@ -301,7 +301,7 @@ class HoldRoomTest {
 
         val blockFirstRequestLatch = CountDownLatch(1)
         val firstRequestReceivedLatch = CountDownLatch(1)
-        stubs.lockRepository.postAcquireHook = { _ ->
+        stubs.lockRepository.postAcquireHook = { _, _ ->
             if (firstRequestReceivedLatch.count == 1L) {
                 firstRequestReceivedLatch.countDown()
                 blockFirstRequestLatch.await(30, TimeUnit.SECONDS)

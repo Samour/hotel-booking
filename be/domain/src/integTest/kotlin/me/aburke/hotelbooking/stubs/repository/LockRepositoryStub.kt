@@ -10,7 +10,7 @@ class LockRepositoryStub : LockRepository {
     private val managementLock = ReentrantLock()
     private val locks = mutableMapOf<String, String>()
 
-    var postAcquireHook: ((key: String) -> Unit)? = null
+    var postAcquireHook: ((key: String, lockAcquired: Boolean) -> Unit)? = null
 
     override fun acquireLock(key: String, nonce: String, expireAfterSeconds: Int): Boolean {
         return inManagementLock {
@@ -20,8 +20,8 @@ class LockRepositoryStub : LockRepository {
                 locks[key] = nonce
                 true
             }
-        }.also { _ ->
-            postAcquireHook?.let { it(key) }
+        }.also {
+            postAcquireHook?.let { hook -> hook(key, it) }
         }
     }
 
