@@ -1,7 +1,9 @@
 package me.aburke.hotelbooking
 
+import me.aburke.hotelbooking.lock.FastFailLock
 import me.aburke.hotelbooking.password.PasswordHasher
 import me.aburke.hotelbooking.ports.scenario.room.AddRoomTypePort
+import me.aburke.hotelbooking.ports.scenario.room.HoldRoomPort
 import me.aburke.hotelbooking.ports.scenario.room.ListRoomsPort
 import me.aburke.hotelbooking.ports.scenario.user.CreateAnonymousUserPort
 import me.aburke.hotelbooking.ports.scenario.user.CreateUserPort
@@ -9,6 +11,7 @@ import me.aburke.hotelbooking.ports.scenario.user.GetAuthStatePort
 import me.aburke.hotelbooking.ports.scenario.user.LogInPort
 import me.aburke.hotelbooking.ports.scenario.user.SignUpPort
 import me.aburke.hotelbooking.scenario.room.AddRoomTypeScenario
+import me.aburke.hotelbooking.scenario.room.HoldRoomScenario
 import me.aburke.hotelbooking.scenario.room.ListRoomsScenario
 import me.aburke.hotelbooking.scenario.user.CreateAnonymousUserScenario
 import me.aburke.hotelbooking.scenario.user.CreateUserScenario
@@ -57,4 +60,18 @@ val domainModule = module {
     }
 
     single<ListRoomsPort> { ListRoomsScenario(get(), get()) }
+
+    single<HoldRoomPort> {
+        HoldRoomScenario(
+            maxConcurrentHolds = getProperty<String>("scenario.hold-room.max-concurrent-holds").toInt(),
+            roomHoldDuration = Duration.parse(getProperty<String>("scenario.hold-room.hold-duration")),
+            clock = get(),
+            fastFailLock = FastFailLock(
+                lockNamespace = "hold-room",
+                lockExpirySeconds = 300, // 5 minutes
+                lockRepository = get(),
+            ),
+            roomHoldRepository = get(),
+        )
+    }
 }

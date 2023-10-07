@@ -4,10 +4,14 @@ import io.mockk.every
 import io.mockk.mockk
 import me.aburke.hotelbooking.domainModule
 import me.aburke.hotelbooking.ports.repository.HotelRepository
+import me.aburke.hotelbooking.ports.repository.LockRepository
+import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.ports.repository.SessionRepository
 import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.stubs.repository.HotelRepositoryStub
+import me.aburke.hotelbooking.stubs.repository.LockRepositoryStub
+import me.aburke.hotelbooking.stubs.repository.RoomHoldRepositoryStub
 import me.aburke.hotelbooking.stubs.repository.RoomRepositoryStub
 import me.aburke.hotelbooking.stubs.repository.SessionRepositoryStub
 import me.aburke.hotelbooking.stubs.repository.UserRepositoryStub
@@ -25,6 +29,10 @@ class Stubs {
     val sessionRepository = SessionRepositoryStub()
     val hotelRepository = HotelRepositoryStub()
     val roomRepository = RoomRepositoryStub()
+    val roomHoldRepository = RoomHoldRepositoryStub(
+        roomRepository = roomRepository,
+    )
+    val lockRepository = LockRepositoryStub()
 
     val time = Instant.now()
 
@@ -37,6 +45,8 @@ class Stubs {
             single<SessionRepository> { sessionRepository }
             single<HotelRepository> { hotelRepository }
             single<RoomRepository> { roomRepository }
+            single<RoomHoldRepository> { roomHoldRepository }
+            single<LockRepository> { lockRepository }
         }
 
         return koinApplication {
