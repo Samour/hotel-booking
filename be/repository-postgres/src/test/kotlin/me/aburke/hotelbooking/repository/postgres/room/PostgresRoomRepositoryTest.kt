@@ -326,7 +326,7 @@ class PostgresRoomRepositoryTest {
         val queryEndDate = LocalDate.parse("2023-09-01")
 
         val result = underTest.queryRoomsAndAvailability(
-            TestRooms.userWithHoldsId,
+            TestRooms.UserWithHolds.userId,
             queryStartDate,
             queryEndDate,
         )
@@ -338,7 +338,7 @@ class PostgresRoomRepositoryTest {
                         it.date >= queryStartDate && it.date <= queryEndDate
                     }.map {
                         it.copy(
-                            stockLevel = it.stockLevel - TestRooms.holdsForUserWithHold
+                            stockLevel = it.stockLevel - TestRooms.UserWithHolds.visibleHolds
                                 .getHoldCount(room.roomTypeId, it.date),
                         )
                     },

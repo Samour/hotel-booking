@@ -38,11 +38,11 @@ class PostgresRoomHoldRepositoryTest {
         connection.executeScript("test/room/insert_room_holds.sql")
         connection.executeScript("test/room/insert_additional_room_holds.sql")
 
-        val result = underTest.findHoldsForUser(TestRooms.userWithHoldsId)
+        val result = underTest.findHoldsForUser(TestRooms.UserWithHolds.userId)
 
         assertThat(result).containsExactlyInAnyOrder(
-            TestRooms.userRoomHold,
-            TestRooms.additionalUserRoomHold,
+            TestRooms.UserWithHolds.roomHold,
+            TestRooms.UserWithHolds.additionalRoomHold,
         )
     }
 

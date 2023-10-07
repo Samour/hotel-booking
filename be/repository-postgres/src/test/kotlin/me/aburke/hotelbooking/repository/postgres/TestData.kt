@@ -52,31 +52,35 @@ object TestRooms {
         ),
     )
 
-    val userWithHoldsId = "test-hold-user-1"
-    val holdsForUserWithHold = mapOf<String, Map<LocalDate, Int>>(
-        "room-type-id-1" to mapOf(
-            LocalDate.parse("2023-08-17") to 1,
-            LocalDate.parse("2023-08-19") to 1,
-            LocalDate.parse("2023-08-20") to 1,
-        ),
-        "room-type-id-2" to mapOf(
-            LocalDate.parse("2023-08-20") to 1,
-            LocalDate.parse("2023-08-21") to 1,
-            LocalDate.parse("2023-08-22") to 1,
-        ),
-    )
-    val userRoomHold = RoomHold(
-        roomHoldId = "test-hold-id-1",
-        userId = userWithHoldsId,
-        roomTypeId = "room-type-id-1",
-        holdExpiry = Instant.parse("2023-08-09T15:00:00Z"),
-    )
-    val additionalUserRoomHold = RoomHold(
-        roomHoldId = "test-hold-id-5",
-        userId = userWithHoldsId,
-        roomTypeId = "room-type-id-5",
-        holdExpiry = Instant.parse("2023-08-09T15:03:00Z"),
-    )
+    object UserWithHolds {
+        val userId = "test-hold-user-1"
+
+        val visibleHolds = mapOf<String, Map<LocalDate, Int>>(
+            "room-type-id-1" to mapOf(
+                LocalDate.parse("2023-08-17") to 1,
+                LocalDate.parse("2023-08-19") to 1,
+                LocalDate.parse("2023-08-20") to 1,
+            ),
+            "room-type-id-2" to mapOf(
+                LocalDate.parse("2023-08-20") to 1,
+                LocalDate.parse("2023-08-21") to 1,
+                LocalDate.parse("2023-08-22") to 1,
+            ),
+        )
+
+        val roomHold = RoomHold(
+            roomHoldId = "test-hold-id-1",
+            userId = userId,
+            roomTypeId = "room-type-id-1",
+            holdExpiry = Instant.parse("2023-08-09T15:00:00Z"),
+        )
+        val additionalRoomHold = RoomHold(
+            roomHoldId = "test-hold-id-5",
+            userId = userId,
+            roomTypeId = "room-type-id-5",
+            holdExpiry = Instant.parse("2023-08-09T15:03:00Z"),
+        )
+    }
 }
 
 fun Map<String, Map<LocalDate, Int>>.getHoldCount(roomTypeId: String, date: LocalDate): Int =
