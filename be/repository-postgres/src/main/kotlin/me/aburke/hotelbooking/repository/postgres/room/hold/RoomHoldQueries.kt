@@ -45,7 +45,6 @@ fun Connection.createRoomStockHolds(
     holdStartDate: LocalDate,
     holdEndDate: LocalDate,
 ) = prepareStatement(
-    // TODO index on room_stock to assist this query
     """
         insert into room_stock_hold(room_stock_hold_id, room_hold_id, room_stock_id)
         select gen_random_uuid(), ?, rs.room_stock_id
