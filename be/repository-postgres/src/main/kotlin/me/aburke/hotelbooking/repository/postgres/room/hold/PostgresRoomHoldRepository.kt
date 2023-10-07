@@ -14,6 +14,7 @@ import java.util.UUID.randomUUID
 class PostgresRoomHoldRepository(
     private val clock: Clock,
     private val connection: Connection,
+    private val preCommitHook: (() -> Unit)? = null,
 ) : RoomHoldRepository {
 
     override fun findHoldsForUser(userId: String): List<RoomHold> =
@@ -53,6 +54,7 @@ class PostgresRoomHoldRepository(
                 connection.rollback()
                 return CreateRoomHoldResult.StockNotAvailable
             }
+            preCommitHook?.let { it() }
             connection.commit()
         } catch (e: PSQLException) {
             connection.rollback()

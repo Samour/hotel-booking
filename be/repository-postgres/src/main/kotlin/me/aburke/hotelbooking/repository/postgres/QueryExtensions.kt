@@ -17,3 +17,11 @@ fun PreparedStatement.executeUpdateWithRollback() = try {
     connection.rollback()
     throw e
 }
+
+fun PreparedStatement.executeBatchWithRollback() = try {
+    executeBatch()
+    connection.commit()
+} catch (e: PSQLException) {
+    connection.rollback()
+    throw e
+}

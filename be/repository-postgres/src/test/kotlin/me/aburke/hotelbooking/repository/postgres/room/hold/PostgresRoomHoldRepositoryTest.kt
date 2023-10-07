@@ -5,9 +5,9 @@ import me.aburke.hotelbooking.ports.repository.CreateRoomHoldResult
 import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.repository.postgres.TestRooms
 import me.aburke.hotelbooking.repository.postgres.createApp
-import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
 import me.aburke.hotelbooking.repository.postgres.executeUpdateWithRollback
 import me.aburke.hotelbooking.repository.postgres.insertTestRooms
+import me.aburke.hotelbooking.repository.postgres.setRoomStockLevel
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
@@ -15,8 +15,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.KoinApplication
 import java.sql.Connection
-import java.time.Instant
-import java.time.LocalDate
 
 class PostgresRoomHoldRepositoryTest {
 
@@ -349,54 +347,6 @@ class PostgresRoomHoldRepositoryTest {
         }
     }
 }
-
-private data class RoomHoldRow(
-    val roomHoldId: String,
-    val userId: String,
-    val holdExpiry: Instant,
-    val roomTypeId: String,
-    val date: LocalDate,
-)
-
-private fun Connection.readAllHoldsForUser(userId: String): List<RoomHoldRow> = prepareStatement(
-    """
-        select h.room_hold_id, h.user_id, h.hold_expiry, rs.room_type_id, rs.date
-        from room_hold h
-        join room_stock_hold rsh on rsh.room_hold_id = h.room_hold_id
-        join room_stock rs on rs.room_stock_id = rsh.room_stock_id
-        where h.user_id = ?
-        
-    """.trimIndent(),
-).apply {
-    setString(1, userId)
-}.executeQueryWithRollback()
-    .run {
-        val rows = mutableListOf<RoomHoldRow>()
-        while (next()) {
-            rows.add(
-                RoomHoldRow(
-                    roomHoldId = getString("room_hold_id"),
-                    userId = getString("user_id"),
-                    holdExpiry = Instant.parse(getString("hold_expiry")),
-                    roomTypeId = getString("room_type_id"),
-                    date = LocalDate.parse(getString("date")),
-                ),
-            )
-        }
-
-        rows
-    }
-
-private fun Connection.setRoomStockLevel(roomTypeId: String, stockLevel: Int) = prepareStatement(
-    """
-        update room_stock
-        set stock_level = ?
-        where room_type_id = ?
-    """.trimIndent(),
-).apply {
-    setInt(1, stockLevel)
-    setString(2, roomTypeId)
-}.executeUpdateWithRollback()
 
 private fun Connection.deleteConflictingHolds(roomTypeId: String, userId: String) = prepareStatement(
     """

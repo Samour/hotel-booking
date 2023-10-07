@@ -73,3 +73,14 @@ fun Connection.insertTestRooms(rooms: List<RoomTypeRecord>) {
         throw e
     }
 }
+
+fun Connection.setRoomStockLevel(roomTypeId: String, stockLevel: Int) = prepareStatement(
+    """
+        update room_stock
+        set stock_level = ?
+        where room_type_id = ?
+    """.trimIndent(),
+).apply {
+    setInt(1, stockLevel)
+    setString(2, roomTypeId)
+}.executeUpdateWithRollback()
