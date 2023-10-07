@@ -49,7 +49,7 @@ fun Connection.createRoomStockHolds(
         insert into room_stock_hold(room_stock_hold_id, room_hold_id, room_stock_id)
         select gen_random_uuid(), ?, rs.room_stock_id
             from room_stock rs
-            where rs.room_type_id = ? and rs.date <= ? and rs.date >= ?
+            where rs.room_type_id = ? and rs.date <= ? and rs.date >= ? and rs.stock_level > 0
     """.trimIndent(),
 ).apply {
     setString(1, roomHoldId)

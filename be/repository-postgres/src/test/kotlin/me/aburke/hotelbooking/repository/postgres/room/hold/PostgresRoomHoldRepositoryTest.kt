@@ -6,6 +6,7 @@ import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.repository.postgres.TestRooms
 import me.aburke.hotelbooking.repository.postgres.createApp
 import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
+import me.aburke.hotelbooking.repository.postgres.executeUpdateWithRollback
 import me.aburke.hotelbooking.repository.postgres.insertTestRooms
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
@@ -75,6 +76,7 @@ class PostgresRoomHoldRepositoryTest {
     @Test
     fun `should create room_hold and room_stock_hold rows for room hold`() {
         connection.executeScript("test/room/insert_room_holds.sql")
+        connection.setRoomStockLevel(TestRooms.UserWithHolds.additionalRoomHold.roomTypeId, 1)
 
         val holdDates = (5L..9L).map {
             TestRooms.stockBaseDate.plusDays(it)
@@ -121,6 +123,7 @@ class PostgresRoomHoldRepositoryTest {
     @Test
     fun `should delete existing hold`() {
         connection.executeScript("test/room/insert_room_holds.sql")
+        connection.setRoomStockLevel(TestRooms.UserWithHolds.additionalRoomHold.roomTypeId, 1)
 
         val holdDates = (5L..9L).map {
             TestRooms.stockBaseDate.plusDays(it)
@@ -154,21 +157,51 @@ class PostgresRoomHoldRepositoryTest {
         }
     }
 
-    @Disabled
     @Test
     fun `should roll back transaction if the room stock is 0`() {
+        connection.executeScript("test/room/insert_room_holds.sql")
+        connection.setRoomStockLevel(TestRooms.UserWithHolds.additionalRoomHold.roomTypeId, 0)
+
+        val holdDates = (5L..9L).map {
+            TestRooms.stockBaseDate.plusDays(it)
+        }
+
+        val result = underTest.createRoomHold(
+            userId = TestRooms.UserWithHolds.userId,
+            roomTypeId = TestRooms.UserWithHolds.additionalRoomHold.roomTypeId,
+            roomHoldExpiry = TestRooms.UserWithHolds.additionalRoomHold.holdExpiry,
+            holdStartDate = holdDates.first(),
+            holdEndDate = holdDates.last(),
+            holdIdToRemove = TestRooms.UserWithHolds.roomHold.roomHoldId,
+        )
+
+        val holdRows = connection.readAllHoldsForUser(TestRooms.UserWithHolds.userId)
+
+        assertSoftly { s ->
+            s.assertThat(result).isEqualTo(CreateRoomHoldResult.StockNotAvailable)
+            s.assertThat(holdRows).containsExactlyInAnyOrder(
+                *TestRooms.UserWithHolds.roomHoldDates.map {
+                    RoomHoldRow(
+                        roomHoldId = TestRooms.UserWithHolds.roomHold.roomHoldId,
+                        userId = TestRooms.UserWithHolds.userId,
+                        holdExpiry = TestRooms.UserWithHolds.roomHold.holdExpiry,
+                        roomTypeId = TestRooms.UserWithHolds.roomHold.roomTypeId,
+                        date = it,
+                    )
+                }.toTypedArray(),
+            )
+        }
+    }
+
+    @Disabled
+    @Test
+    fun `should roll back transaction if the number of pre-existing holds is equal to the room stock`() {
         fail("TODO")
     }
 
     @Disabled
     @Test
     fun `should roll back transaction if the room type ID does not exist`() {
-        fail("TODO")
-    }
-
-    @Disabled
-    @Test
-    fun `should roll back transaction if the number of pre-existing holds is equal to the room stock`() {
         fail("TODO")
     }
 }
@@ -209,3 +242,14 @@ private fun Connection.readAllHoldsForUser(userId: String): List<RoomHoldRow> = 
 
         rows
     }
+
+private fun Connection.setRoomStockLevel(roomTypeId: String, stockLevel: Int) = prepareStatement(
+    """
+        update room_stock
+        set stock_level = ?
+        where room_type_id = ?
+    """.trimIndent(),
+).apply {
+    setInt(1, stockLevel)
+    setString(2, roomTypeId)
+}.executeUpdateWithRollback()

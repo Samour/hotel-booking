@@ -30,6 +30,7 @@ class PostgresRoomHoldRepository(
         holdIdToRemove: String?,
     ): CreateRoomHoldResult {
         val roomHoldId = randomUUID().toString()
+        val expectedStockHoldRows = holdStartDate.until(holdEndDate).days + 1
 
         val roomHoldQuery = connection.insertRoomHold(
             roomHoldId = roomHoldId,
@@ -46,7 +47,10 @@ class PostgresRoomHoldRepository(
 
         try {
             roomHoldQuery.executeUpdate()
-            roomStockHoldQuery.executeUpdate()
+            if (roomStockHoldQuery.executeUpdate() < expectedStockHoldRows) {
+                connection.rollback()
+                return CreateRoomHoldResult.StockNotAvailable
+            }
             deleteHoldQuery?.executeUpdate()
             connection.commit()
         } catch (e: PSQLException) {
