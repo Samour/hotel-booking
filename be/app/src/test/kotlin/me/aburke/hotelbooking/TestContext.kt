@@ -29,9 +29,7 @@ class TestContext(
     fun stubClock() {
         app.koin.get<Clock>().also {
             clearMocks(it)
-            // TODO This should be answers instead of returns
-            // "returns" locks it in to the first value, rather than return the current value of time
-            every { it.instant() } returns time
+            every { it.instant() } answers { time }
         }
     }
 }
