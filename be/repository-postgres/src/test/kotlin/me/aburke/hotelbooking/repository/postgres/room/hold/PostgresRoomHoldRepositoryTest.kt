@@ -4,7 +4,7 @@ import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.ports.repository.CreateRoomHoldResult
 import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.repository.postgres.TestRooms
-import me.aburke.hotelbooking.repository.postgres.createApp
+import me.aburke.hotelbooking.repository.postgres.appForTest
 import me.aburke.hotelbooking.repository.postgres.executeUpdateWithRollback
 import me.aburke.hotelbooking.repository.postgres.insertTestRooms
 import me.aburke.hotelbooking.repository.postgres.setRoomStockLevel
@@ -26,7 +26,7 @@ class PostgresRoomHoldRepositoryTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = appForTest()
         connection = app.koin.get<DataSource>().connection
         underTest = app.koin.get()
 
@@ -34,7 +34,7 @@ class PostgresRoomHoldRepositoryTest {
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should return holds for user`() {

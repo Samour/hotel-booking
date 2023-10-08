@@ -2,7 +2,7 @@ package me.aburke.hotelbooking.repository.postgres.room.hold
 
 import me.aburke.hotelbooking.ports.repository.CreateRoomHoldResult
 import me.aburke.hotelbooking.repository.postgres.TestRooms
-import me.aburke.hotelbooking.repository.postgres.createApp
+import me.aburke.hotelbooking.repository.postgres.appForTest
 import me.aburke.hotelbooking.repository.postgres.executeBatchWithRollback
 import me.aburke.hotelbooking.repository.postgres.insertTestRooms
 import me.aburke.hotelbooking.repository.postgres.setRoomStockLevel
@@ -26,7 +26,7 @@ class PostgresRoomHoldRepositoryConcurrencyTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = appForTest()
         connection = app.koin.get()
 
         connection.insertTestRooms(TestRooms.rooms)
@@ -38,7 +38,7 @@ class PostgresRoomHoldRepositoryConcurrencyTest {
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     @Suppress("ktlint:max-line-length")

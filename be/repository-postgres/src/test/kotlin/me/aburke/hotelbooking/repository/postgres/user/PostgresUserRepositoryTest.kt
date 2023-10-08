@@ -8,7 +8,7 @@ import me.aburke.hotelbooking.ports.repository.UserCredentialRecord
 import me.aburke.hotelbooking.ports.repository.UserRecord
 import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.repository.postgres.RandomString
-import me.aburke.hotelbooking.repository.postgres.createApp
+import me.aburke.hotelbooking.repository.postgres.appForTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions.assertSoftly
 import org.junit.jupiter.api.AfterEach
@@ -31,13 +31,13 @@ class PostgresUserRepositoryTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = appForTest()
         connection = app.koin.get<DataSource>().connection
         underTest = app.koin.get()
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should create user record for anonymous user`() {

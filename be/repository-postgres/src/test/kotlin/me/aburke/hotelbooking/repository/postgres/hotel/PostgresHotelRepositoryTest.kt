@@ -1,7 +1,7 @@
 package me.aburke.hotelbooking.repository.postgres.hotel
 
 import me.aburke.hotelbooking.ports.repository.HotelRepository
-import me.aburke.hotelbooking.repository.postgres.createApp
+import me.aburke.hotelbooking.repository.postgres.appForTest
 import me.aburke.hotelbooking.repository.postgres.hotelTimeZone
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -20,13 +20,13 @@ class PostgresHotelRepositoryTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = appForTest()
         connection = app.koin.get<DataSource>().connection
         underTest = app.koin.get()
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should return hotel timezone`() {

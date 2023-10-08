@@ -4,7 +4,7 @@ import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.repository.postgres.TestRooms
-import me.aburke.hotelbooking.repository.postgres.createApp
+import me.aburke.hotelbooking.repository.postgres.appForTest
 import me.aburke.hotelbooking.repository.postgres.executeUpdateWithRollback
 import me.aburke.hotelbooking.repository.postgres.getHoldCount
 import me.aburke.hotelbooking.repository.postgres.hotelId
@@ -77,13 +77,13 @@ class PostgresRoomRepositoryTest {
 
     @BeforeEach
     fun init() {
-        app = createApp()
+        app = appForTest()
         connection = app.koin.get<DataSource>().connection
         underTest = app.koin.get()
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should insert room type and stock records`() {

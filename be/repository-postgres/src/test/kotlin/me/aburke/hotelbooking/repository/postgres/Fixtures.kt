@@ -10,9 +10,7 @@ import org.koin.fileProperties
 import java.time.Clock
 import javax.sql.DataSource
 
-// TODO It looks like test startup is starting to slow quite a bit
-// Look in to using a single app context across all tests
-fun createApp(): KoinApplication {
+private val app: KoinApplication by lazy {
     val clockMock = mockk<Clock> {
         every { instant() } returns clockTime
     }
@@ -21,13 +19,25 @@ fun createApp(): KoinApplication {
         single { clockMock }
     }
 
-    return koinApplication {
+    koinApplication {
         fileProperties()
         modules(testModule, postgresModule)
-    }.apply {
-        koin.get<DataSource>().connection.use {
-            it.executeScript("drop_db.sql")
-            it.executeScript("bootstrap_db.sql")
-        }
+    }.also { registerAppCleanUp(it) }
+}
+
+private fun registerAppCleanUp(app: KoinApplication) {
+    Runtime.getRuntime().addShutdownHook(
+        Thread {
+            runCatching {
+                app.close()
+            }
+        },
+    )
+}
+
+fun appForTest(): KoinApplication = app.apply {
+    koin.get<DataSource>().connection.use {
+        it.executeScript("drop_db.sql")
+        it.executeScript("bootstrap_db.sql")
     }
 }
