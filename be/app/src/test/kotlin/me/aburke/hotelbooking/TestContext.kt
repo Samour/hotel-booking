@@ -52,9 +52,14 @@ private fun memoizedApp(params: AppParameters) = appCache.getOrPut(params) {
             fileProperties("/endpoints.properties")
         }
         modules(testModule, *appModules.toTypedArray())
-    }.also {
-        registerAppCleanUp(it)
-        it.koin.get<Javalin>().start(0)
+    }.apply {
+        registerAppCleanUp(this)
+        // Some minimum data needs to exist for beans to query it during instantiation
+        koin.get<DataSource>().connection.use {
+            it.executeScript("drop_db.sql")
+            it.executeScript("bootstrap_db.sql")
+        }
+        koin.get<Javalin>().start(0)
     }
 }
 
