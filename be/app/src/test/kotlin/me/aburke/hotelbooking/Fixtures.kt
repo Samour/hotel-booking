@@ -1,6 +1,6 @@
 package me.aburke.hotelbooking
 
-import io.javalin.testtools.JavalinTest.test
+import io.javalin.Javalin
 import me.aburke.hotelbooking.client.SimpleCookieJar
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.model.user.UserRole
@@ -18,7 +18,8 @@ import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 // Make sure this is false in mainline code so that CI does not use this slow client during test steps
 private const val USE_SLOW_CLIENT = false
 
-fun KoinApplication.restTest(case: (ApiClient, SimpleCookieJar) -> Unit) = test(koin.get()) { javalin, _ ->
+fun KoinApplication.restTest(case: (ApiClient, SimpleCookieJar) -> Unit) {
+    val javalin = koin.get<Javalin>()
     val cookieJar = SimpleCookieJar()
     case(
         ApiClient(

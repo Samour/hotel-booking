@@ -6,19 +6,8 @@ import me.aburke.hotelbooking.repository.postgres.postgresModule
 import me.aburke.hotelbooking.repository.redis.redisModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.module
-import org.koin.dsl.onClose
 import org.koin.fileProperties
 import java.time.Clock
-
-class Application(
-    private val javalin: Javalin,
-    private val port: Int,
-) {
-
-    fun start() = javalin.start(port)
-
-    fun stop() = javalin.stop()
-}
 
 val appModules = listOf(
     domainModule,
@@ -30,12 +19,6 @@ val appModules = listOf(
 fun main() {
     val appModule = module {
         single<Clock> { Clock.systemUTC() }
-        single {
-            Application(
-                get(),
-                getProperty<String>("server.http.port").toInt(),
-            )
-        } onClose { it?.stop() }
     }
 
     startKoin {
@@ -47,6 +30,10 @@ fun main() {
             *appModules.toTypedArray(),
         )
     }.apply {
-        koin.get<Application>().start()
+        koin.get<Javalin>().start(
+            koin.getProperty<String>(
+                "server.http.port",
+            )!!.toInt(),
+        )
     }
 }

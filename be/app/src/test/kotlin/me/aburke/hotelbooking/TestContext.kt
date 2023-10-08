@@ -1,5 +1,6 @@
 package me.aburke.hotelbooking
 
+import io.javalin.Javalin
 import io.mockk.every
 import io.mockk.mockk
 import me.aburke.hotelbooking.migrations.postgres.executeScript
@@ -55,6 +56,7 @@ fun createApp(
         }
     }
     app.koin.get<JedisPooled>().sendCommand(Protocol.Command.FLUSHDB)
+    app.koin.get<Javalin>().start(0)
 
     return TestContext(app).apply { stubClock() }
 }

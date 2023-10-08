@@ -18,6 +18,7 @@ import me.aburke.hotelbooking.facade.rest.api.customer.roomtype.FetchRoomsAvaila
 import me.aburke.hotelbooking.facade.rest.interceptors.AuthenticationInterceptor
 import me.aburke.hotelbooking.facade.rest.interceptors.ExceptionHandler.registerExceptionHandlers
 import org.koin.dsl.module
+import org.koin.dsl.onClose
 import me.aburke.hotelbooking.facade.rest.api.admin.roomtype.RoomRoutes as AdminRoomRoutes
 import me.aburke.hotelbooking.facade.rest.api.admin.user.UserRoutes as AdminUserRoutes
 import me.aburke.hotelbooking.facade.rest.api.auth.user.UserRoutes as AuthUserRoutes
@@ -53,7 +54,9 @@ val restModule = module {
             ),
         )
     }
-    single { buildJavalin(get(), get(), ::getProperty) }
+    single {
+        buildJavalin(get(), get(), ::getProperty)
+    } onClose { it?.stop() }
 }
 
 fun restObjectMapper() = jacksonObjectMapper().apply {

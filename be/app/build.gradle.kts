@@ -34,5 +34,4 @@ dependencies {
     testImplementation("org.assertj:assertj-core:${properties["assertjVersion"]}")
     testImplementation("io.mockk:mockk:${properties["mockkVersion"]}")
     testImplementation("org.skyscreamer:jsonassert:${properties["jsonAssertVersion"]}")
-    testImplementation("io.javalin:javalin-testtools:${properties["javalinVersion"]}")
 }

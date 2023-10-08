@@ -9,7 +9,7 @@ docker compose up
 If the database schema has not been defined, it can be created with the command
 
 ```bash
-./gradlew postgres-migrations:bootstrapDb
+./gradlew tool-postgres-migrations:bootstrapDb
 ```
 
 Then start app

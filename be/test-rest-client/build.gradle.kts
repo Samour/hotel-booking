@@ -25,9 +25,9 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
     // Copied from open API generated sources
+    api("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("io.swagger:swagger-annotations:1.6.8")
     implementation("com.google.code.findbugs:jsr305:3.0.2")
-    implementation("com.squareup.okhttp3:okhttp:4.10.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.10.0")
     implementation("com.google.code.gson:gson:2.9.1")
     implementation("io.gsonfire:gson-fire:1.8.5")
