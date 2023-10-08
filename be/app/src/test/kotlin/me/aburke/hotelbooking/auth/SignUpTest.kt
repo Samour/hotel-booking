@@ -3,7 +3,7 @@ package me.aburke.hotelbooking.auth
 import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.client.readAllUsers
-import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createTestContext
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.migrations.postgres.executeScript
 import me.aburke.hotelbooking.model.user.UserRole
@@ -44,13 +44,13 @@ class SignUpTest {
 
     @BeforeEach
     fun init() {
-        testContext = createApp(populateTestData = false)
+        testContext = createTestContext(populateTestData = false)
         connection = testContext.app.koin.get<DataSource>().connection
         userRepository = testContext.app.koin.get()
     }
 
     @AfterEach
-    fun cleanUp() = testContext.app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should create user and set session cookie`() = testContext.app.restTest { client, cookieJar ->

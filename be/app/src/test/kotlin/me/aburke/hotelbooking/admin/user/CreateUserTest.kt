@@ -4,7 +4,7 @@ import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.authenticateAs
 import me.aburke.hotelbooking.authenticateAsAdmin
 import me.aburke.hotelbooking.client.readAllUsers
-import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createTestContext
 import me.aburke.hotelbooking.createUserWithRoles
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.model.user.UserRole
@@ -42,14 +42,14 @@ class CreateUserTest {
 
     @BeforeEach
     fun init() {
-        app = createApp().app
+        app = createTestContext().app
         passwordHasher = app.koin.get()
         userRepository = app.koin.get()
         connection = app.koin.get<DataSource>().connection
     }
 
     @AfterEach
-    fun cleanUp() = app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should create user`() = app.restTest { client, _ ->

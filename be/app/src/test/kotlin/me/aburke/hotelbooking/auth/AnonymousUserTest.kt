@@ -2,7 +2,7 @@ package me.aburke.hotelbooking.auth
 
 import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.client.readAllUsers
-import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createTestContext
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.ports.repository.UserRecord
@@ -24,12 +24,12 @@ class AnonymousUserTest {
 
     @BeforeEach
     fun init() {
-        testContext = createApp(populateTestData = false)
+        testContext = createTestContext(populateTestData = false)
         connection = testContext.app.koin.get<DataSource>().connection
     }
 
     @AfterEach
-    fun cleanUp() = testContext.app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should create session for anonymous user`() = testContext.app.restTest { client, _ ->

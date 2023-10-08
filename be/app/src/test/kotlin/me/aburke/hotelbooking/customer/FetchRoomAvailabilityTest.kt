@@ -3,7 +3,7 @@ package me.aburke.hotelbooking.customer
 import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.assertThatJson
 import me.aburke.hotelbooking.authenticateWith
-import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createTestContext
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.rest.client.api.AdminUnstableApi
 import me.aburke.hotelbooking.rest.client.api.CustomerUnstableApi
@@ -16,7 +16,6 @@ import me.aburke.hotelbooking.rest.client.model.RoomTypeWithAvailability
 import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -34,14 +33,11 @@ class FetchRoomAvailabilityTest {
 
     @BeforeEach
     fun init() {
-        testContext = createApp()
+        testContext = createTestContext()
 
         searchRangeStart = LocalDate.ofInstant(testContext.time, ZoneOffset.UTC)
         searchRangeEnd = searchRangeStart.plusDays(9)
     }
-
-    @AfterEach
-    fun cleanUp() = testContext.app.close()
 
     @Test
     fun `should return rooms with availability data for unauthenticated user`() =

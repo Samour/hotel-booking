@@ -1,12 +1,11 @@
 package me.aburke.hotelbooking.customer
 
-import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createTestContext
 import me.aburke.hotelbooking.rest.client.api.CustomerUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.model.HoldRoomRequest
 import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -18,11 +17,8 @@ class HoldRoomTest {
 
     @BeforeEach
     fun init() {
-        app = createApp().app
+        app = createTestContext().app
     }
-
-    @AfterEach
-    fun cleanUp() = app.close()
 
     @Test
     fun `endpoint should not be available`() = app.restTest { client, _ ->

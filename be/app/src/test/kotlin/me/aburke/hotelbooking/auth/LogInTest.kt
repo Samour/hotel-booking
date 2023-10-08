@@ -2,7 +2,7 @@ package me.aburke.hotelbooking.auth
 
 import me.aburke.hotelbooking.TestContext
 import me.aburke.hotelbooking.assertThatJson
-import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createTestContext
 import me.aburke.hotelbooking.data.TestUser
 import me.aburke.hotelbooking.data.sessionDuration
 import me.aburke.hotelbooking.rest.client.api.AuthUnstableApi
@@ -11,7 +11,6 @@ import me.aburke.hotelbooking.rest.client.model.LogInRequest
 import me.aburke.hotelbooking.rest.client.model.SessionResponse
 import me.aburke.hotelbooking.restTest
 import org.assertj.core.api.SoftAssertions.assertSoftly
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -23,11 +22,8 @@ class LogInTest {
 
     @BeforeEach
     fun init() {
-        testContext = createApp()
+        testContext = createTestContext()
     }
-
-    @AfterEach
-    fun cleanUp() = testContext.app.close()
 
     @Test
     fun `should log in user & set session cookie on successful authentication`() =

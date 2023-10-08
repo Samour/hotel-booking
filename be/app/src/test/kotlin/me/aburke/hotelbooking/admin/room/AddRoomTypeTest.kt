@@ -8,7 +8,7 @@ import me.aburke.hotelbooking.client.RoomRecord
 import me.aburke.hotelbooking.client.RoomStockRecord
 import me.aburke.hotelbooking.client.loadAllRoomStocks
 import me.aburke.hotelbooking.client.loadAllRooms
-import me.aburke.hotelbooking.createApp
+import me.aburke.hotelbooking.createTestContext
 import me.aburke.hotelbooking.data.StockPopulation
 import me.aburke.hotelbooking.data.hotelId
 import me.aburke.hotelbooking.data.hotelTimeZone
@@ -44,12 +44,12 @@ class AddRoomTypeTest {
 
     @BeforeEach
     fun init() {
-        testContext = createApp()
+        testContext = createTestContext()
         connection = testContext.app.koin.get<DataSource>().connection
     }
 
     @AfterEach
-    fun cleanUp() = testContext.app.close()
+    fun cleanUp() = connection.close()
 
     @Test
     fun `should add room type`() = testContext.app.restTest { client, _ ->

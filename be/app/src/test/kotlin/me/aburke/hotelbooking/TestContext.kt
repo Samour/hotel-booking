@@ -1,6 +1,7 @@
 package me.aburke.hotelbooking
 
 import io.javalin.Javalin
+import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.mockk
 import me.aburke.hotelbooking.migrations.postgres.executeScript
@@ -26,28 +27,58 @@ class TestContext(
     }
 
     fun stubClock() {
-        val clock = app.koin.get<Clock>()
-        every { clock.instant() } returns time
+        app.koin.get<Clock>().also {
+            clearMocks(it)
+            // TODO This should be answers instead of returns
+            // "returns" locks it in to the first value, rather than return the current value of time
+            every { it.instant() } returns time
+        }
     }
 }
 
-// TODO See what we can do here about re-using app context too
-fun createApp(
-    populateTestData: Boolean = true,
-    useEndpointsProperties: Boolean = true,
-): TestContext {
+private data class AppParameters(
+    val useEndpointsProperties: Boolean,
+)
+
+private val appCache = mutableMapOf<AppParameters, KoinApplication>()
+
+private fun memoizedApp(params: AppParameters) = appCache.getOrPut(params) {
     val testModule = module {
         single<Clock> { mockk() }
     }
 
-    val app = koinApplication {
+    koinApplication {
         fileProperties()
         fileProperties("/features.properties")
-        if (useEndpointsProperties) {
+        if (params.useEndpointsProperties) {
             fileProperties("/endpoints.properties")
         }
         modules(testModule, *appModules.toTypedArray())
+    }.also {
+        registerAppCleanUp(it)
+        it.koin.get<Javalin>().start(0)
     }
+}
+
+private fun registerAppCleanUp(app: KoinApplication) {
+    Runtime.getRuntime().addShutdownHook(
+        Thread {
+            runCatching {
+                app.close()
+            }
+        },
+    )
+}
+
+fun createTestContext(
+    populateTestData: Boolean = true,
+    useEndpointsProperties: Boolean = true,
+): TestContext {
+    val app = memoizedApp(
+        AppParameters(
+            useEndpointsProperties = useEndpointsProperties,
+        ),
+    )
     app.koin.get<DataSource>().connection.use {
         it.executeScript("drop_db.sql")
         it.executeScript("bootstrap_db.sql")
@@ -56,7 +87,6 @@ fun createApp(
         }
     }
     app.koin.get<JedisPooled>().sendCommand(Protocol.Command.FLUSHDB)
-    app.koin.get<Javalin>().start(0)
 
     return TestContext(app).apply { stubClock() }
 }
