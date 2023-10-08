@@ -22,6 +22,23 @@ fun Connection.loadHoldsForUser(
     setString(2, "$currentTime")
 }
 
+fun Connection.lockRoomStockForHolds(
+    roomTypeId: String,
+    holdStartDate: LocalDate,
+    holdEndDate: LocalDate,
+) = prepareStatement(
+    """
+        select room_stock_id
+        from room_stock
+        where room_type_id = ? and date <= ? and date >= ?
+        for update
+    """.trimIndent(),
+).apply {
+    setString(1, roomTypeId)
+    setString(2, "$holdEndDate")
+    setString(3, "$holdStartDate")
+}
+
 // Write queries
 
 fun Connection.insertRoomHold(

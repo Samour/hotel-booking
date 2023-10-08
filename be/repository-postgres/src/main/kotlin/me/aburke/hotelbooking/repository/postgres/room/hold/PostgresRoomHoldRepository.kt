@@ -34,6 +34,11 @@ class PostgresRoomHoldRepository(
         val roomHoldId = randomUUID().toString()
         val expectedStockHoldRows = holdStartDate.until(holdEndDate).days + 1
 
+        val roomStockLockQuery = connection.lockRoomStockForHolds(
+            roomTypeId = roomTypeId,
+            holdStartDate = holdStartDate,
+            holdEndDate = holdEndDate,
+        )
         val roomHoldQuery = connection.insertRoomHold(
             roomHoldId = roomHoldId,
             userId = userId,
@@ -49,6 +54,7 @@ class PostgresRoomHoldRepository(
         val deleteHoldQuery = holdIdToRemove?.let { connection.deleteRoomHold(it) }
 
         try {
+            roomStockLockQuery.executeQuery()
             deleteHoldQuery?.executeUpdate()
             roomHoldQuery.executeUpdate()
             if (roomStockHoldQuery.executeUpdate() < expectedStockHoldRows) {
