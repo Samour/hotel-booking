@@ -1,5 +1,7 @@
 package me.aburke.hotelbooking.repository.postgres
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import me.aburke.hotelbooking.ports.repository.HotelRepository
 import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.ports.repository.RoomRepository
@@ -10,21 +12,19 @@ import me.aburke.hotelbooking.repository.postgres.room.hold.PostgresRoomHoldRepo
 import me.aburke.hotelbooking.repository.postgres.user.PostgresUserRepository
 import org.koin.dsl.module
 import org.koin.dsl.onClose
-import java.sql.Connection
-import java.sql.DriverManager
+import javax.sql.DataSource
 
 val postgresModule = module {
-    single<Connection> {
-        DriverManager.getConnection(
-            getProperty("postgresql.uri"),
-            getProperty("postgresql.user"),
-            getProperty("postgresql.password"),
-        ).apply {
-            autoCommit = false
-        }
-    } onClose {
-        it?.close()
-    }
+    single<DataSource> {
+        HikariDataSource(
+            HikariConfig().apply {
+                jdbcUrl = getProperty("postgresql.uri")
+                username = getProperty("postgresql.user")
+                password = getProperty("postgresql.password")
+                isAutoCommit = false
+            },
+        )
+    } onClose { (it as? HikariDataSource)?.close() }
 
     single<UserRepository> { PostgresUserRepository(get()) }
     single<HotelRepository> { PostgresHotelRepository(get()) }
@@ -32,7 +32,7 @@ val postgresModule = module {
     single<RoomHoldRepository> {
         PostgresRoomHoldRepository(
             clock = get(),
-            connection = get(),
+            dataSource = get(),
         )
     }
 }

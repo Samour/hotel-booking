@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.koin.core.KoinApplication
 import java.sql.Connection
+import javax.sql.DataSource
 
 private const val LOGIN_ID = "login-id"
 private const val PASSWORD_HASH = "password-hash"
@@ -31,7 +32,7 @@ class PostgresUserRepositoryTest {
     @BeforeEach
     fun init() {
         app = createApp()
-        connection = app.koin.get()
+        connection = app.koin.get<DataSource>().connection
         underTest = app.koin.get()
     }
 

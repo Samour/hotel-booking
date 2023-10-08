@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.koin.core.KoinApplication
 import java.sql.Connection
+import javax.sql.DataSource
 import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 
 private const val LOGIN_ID = "login-id"
@@ -44,7 +45,7 @@ class CreateUserTest {
         app = createApp().app
         passwordHasher = app.koin.get()
         userRepository = app.koin.get()
-        connection = app.koin.get()
+        connection = app.koin.get<DataSource>().connection
     }
 
     @AfterEach

@@ -5,22 +5,23 @@ import me.aburke.hotelbooking.ports.repository.RoomHold
 import me.aburke.hotelbooking.ports.repository.RoomHoldRepository
 import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
 import org.postgresql.util.PSQLException
-import java.sql.Connection
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
 import java.util.UUID.randomUUID
+import javax.sql.DataSource
 
 class PostgresRoomHoldRepository(
     private val clock: Clock,
-    private val connection: Connection,
+    private val dataSource: DataSource,
     private val preCommitHook: (() -> Unit)? = null,
 ) : RoomHoldRepository {
 
-    override fun findHoldsForUser(userId: String): List<RoomHold> =
-        connection.loadHoldsForUser(userId, clock.instant())
+    override fun findHoldsForUser(userId: String): List<RoomHold> = dataSource.connection.use {
+        it.loadHoldsForUser(userId, clock.instant())
             .executeQueryWithRollback()
             .toRoomHolds()
+    }
 
     override fun createRoomHold(
         userId: String,
@@ -29,7 +30,7 @@ class PostgresRoomHoldRepository(
         holdStartDate: LocalDate,
         holdEndDate: LocalDate,
         holdIdToRemove: String?,
-    ): CreateRoomHoldResult {
+    ): CreateRoomHoldResult = dataSource.connection.use { connection ->
         val roomHoldId = randomUUID().toString()
         val expectedStockHoldRows = holdStartDate.until(holdEndDate).days + 1
 

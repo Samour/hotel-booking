@@ -2,20 +2,21 @@ package me.aburke.hotelbooking.repository.postgres.hotel
 
 import me.aburke.hotelbooking.ports.repository.HotelRepository
 import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
-import java.sql.Connection
 import java.util.*
+import javax.sql.DataSource
 
 class PostgresHotelRepository(
-    connection: Connection,
+    dataSource: DataSource,
 ) : HotelRepository {
 
-    private val timeZone: TimeZone =
+    private val timeZone: TimeZone = dataSource.connection.use { connection ->
         TimeZone.getTimeZone(
             connection.readHotelQuery()
                 .executeQueryWithRollback()
                 .apply { next() }
                 .getString("time_zone"),
         )
+    }
 
     override fun loadTimeZone(): TimeZone = timeZone
 }

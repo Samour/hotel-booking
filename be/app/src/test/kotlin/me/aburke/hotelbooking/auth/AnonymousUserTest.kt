@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.sql.Connection
 import java.time.ZoneOffset
+import javax.sql.DataSource
 
 class AnonymousUserTest {
 
@@ -24,7 +25,7 @@ class AnonymousUserTest {
     @BeforeEach
     fun init() {
         testContext = createApp(populateTestData = false)
-        connection = testContext.app.koin.get()
+        connection = testContext.app.koin.get<DataSource>().connection
     }
 
     @AfterEach

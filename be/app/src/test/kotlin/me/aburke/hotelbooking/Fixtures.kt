@@ -19,10 +19,10 @@ import org.koin.dsl.module
 import org.koin.fileProperties
 import redis.clients.jedis.JedisPooled
 import redis.clients.jedis.Protocol
-import java.sql.Connection
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
+import javax.sql.DataSource
 import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 
 class TestContext(
@@ -58,11 +58,11 @@ fun createApp(
         }
         modules(testModule, *appModules.toTypedArray())
     }
-    app.koin.get<Connection>().apply {
-        executeScript("drop_db.sql")
-        executeScript("bootstrap_db.sql")
+    app.koin.get<DataSource>().connection.use {
+        it.executeScript("drop_db.sql")
+        it.executeScript("bootstrap_db.sql")
         if (populateTestData) {
-            executeScript("test_data.sql")
+            it.executeScript("test_data.sql")
         }
     }
     app.koin.get<JedisPooled>().sendCommand(Protocol.Command.FLUSHDB)

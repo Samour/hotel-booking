@@ -10,6 +10,7 @@ dependencies {
 
     implementation("io.insert-koin:koin-core:${properties["koinVersion"]}")
     implementation("org.postgresql:postgresql:${properties["postgresqlVersion"]}")
+    implementation("com.zaxxer:HikariCP:${properties["hikariCPVersion"]}")
 
     testImplementation(project(":tool-postgres-migrations"))
 

@@ -7,17 +7,17 @@ import me.aburke.hotelbooking.ports.repository.PromoteAnonymousUserResult
 import me.aburke.hotelbooking.ports.repository.UserRepository
 import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
 import org.postgresql.util.PSQLException
-import java.sql.Connection
 import java.util.UUID.randomUUID
+import javax.sql.DataSource
 
 private const val CONSTRAINT_UNIQUE_LOGIN_ID = "idx__user_credential__login_id"
 private const val CONSTRAINT_DUPLICATE_USER_CREDENTIAL = "user_credential_pkey"
 
 class PostgresUserRepository(
-    private val connection: Connection,
+    private val dataSource: DataSource,
 ) : UserRepository {
 
-    override fun createAnonymousUser(): String {
+    override fun createAnonymousUser(): String = dataSource.connection.use { connection ->
         val userId = randomUUID().toString()
 
         val query = connection.insertUserQuery(
@@ -37,7 +37,9 @@ class PostgresUserRepository(
         return userId
     }
 
-    override fun insertUser(userRecord: InsertUserRecord): InsertUserResult {
+    override fun insertUser(
+        userRecord: InsertUserRecord,
+    ): InsertUserResult = dataSource.connection.use { connection ->
         val userId = randomUUID().toString()
 
         val userQuery = connection.insertUserQuery(
@@ -69,7 +71,7 @@ class PostgresUserRepository(
     override fun createCredentialsForAnonymousUser(
         userId: String,
         credentials: InsertUserRecord,
-    ): PromoteAnonymousUserResult {
+    ): PromoteAnonymousUserResult = dataSource.connection.use { connection ->
         val userQuery = connection.updateUserQuery(
             userId = userId,
             roles = credentials.roles,
@@ -100,9 +102,12 @@ class PostgresUserRepository(
         return PromoteAnonymousUserResult.UserCredentialsInserted(userId)
     }
 
-    override fun findUserByLoginId(loginId: String): NonAnonymousUserRecord? =
+    override fun findUserByLoginId(
+        loginId: String,
+    ): NonAnonymousUserRecord? = dataSource.connection.use { connection ->
         connection.findUserByLoginIdQuery(loginId)
             .executeQueryWithRollback()
             .takeIf { it.next() }
             ?.toNonAnonymousUserRecord()
+    }
 }

@@ -6,23 +6,27 @@ import me.aburke.hotelbooking.ports.repository.RoomTypeRecord
 import me.aburke.hotelbooking.repository.postgres.executeQueryWithRollback
 import me.aburke.hotelbooking.repository.postgres.hotel.readHotelQuery
 import org.postgresql.util.PSQLException
-import java.sql.Connection
 import java.time.Clock
 import java.time.LocalDate
 import java.util.UUID.randomUUID
+import javax.sql.DataSource
 
 class PostgresRoomRepository(
     private val clock: Clock,
-    private val connection: Connection,
+    private val dataSource: DataSource,
 ) : RoomRepository {
 
-    private val hotelId: String =
+    private val hotelId: String = dataSource.connection.use { connection ->
         connection.readHotelQuery()
             .executeQueryWithRollback()
             .apply { next() }
             .getString("hotel_id")
+    }
 
-    override fun insertRoomType(roomType: InsertRoomType, populateDates: List<LocalDate>): String {
+    override fun insertRoomType(
+        roomType: InsertRoomType,
+        populateDates: List<LocalDate>,
+    ): String = dataSource.connection.use { connection ->
         val roomTypeId = randomUUID().toString()
         val roomTypeDescriptionId = randomUUID().toString()
 
@@ -63,11 +67,13 @@ class PostgresRoomRepository(
         currentUserId: String?,
         availabilityRangeStart: LocalDate,
         availabilityRangeEnd: LocalDate,
-    ): List<RoomTypeRecord> = connection.findRoomsDescriptionStockQuery(
-        currentUserId,
-        availabilityRangeStart,
-        availabilityRangeEnd,
-        clock.instant(),
-    ).executeQueryWithRollback()
-        .toRoomTypeRecords()
+    ): List<RoomTypeRecord> = dataSource.connection.use { connection ->
+        connection.findRoomsDescriptionStockQuery(
+            currentUserId,
+            availabilityRangeStart,
+            availabilityRangeEnd,
+            clock.instant(),
+        ).executeQueryWithRollback()
+            .toRoomTypeRecords()
+    }
 }

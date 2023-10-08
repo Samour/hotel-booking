@@ -7,9 +7,11 @@ import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import org.koin.fileProperties
-import java.sql.Connection
 import java.time.Clock
+import javax.sql.DataSource
 
+// TODO It looks like test startup is starting to slow quite a bit
+// Look in to using a single app context across all tests
 fun createApp(): KoinApplication {
     val clockMock = mockk<Clock> {
         every { instant() } returns clockTime
@@ -22,10 +24,10 @@ fun createApp(): KoinApplication {
     return koinApplication {
         fileProperties()
         modules(testModule, postgresModule)
-    }.also {
-        with(it.koin.get<Connection>()) {
-            executeScript("drop_db.sql")
-            executeScript("bootstrap_db.sql")
+    }.apply {
+        koin.get<DataSource>().connection.use {
+            it.executeScript("drop_db.sql")
+            it.executeScript("bootstrap_db.sql")
         }
     }
 }

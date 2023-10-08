@@ -23,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import java.sql.Connection
+import javax.sql.DataSource
 
 private const val TITLE = "title"
 private const val DESCRIPTION = "description"
@@ -44,7 +45,7 @@ class AddRoomTypeTest {
     @BeforeEach
     fun init() {
         testContext = createApp()
-        connection = testContext.app.koin.get()
+        connection = testContext.app.koin.get<DataSource>().connection
     }
 
     @AfterEach

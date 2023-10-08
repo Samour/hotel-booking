@@ -5,10 +5,11 @@ import me.aburke.hotelbooking.ports.repository.InsertRoomType
 import me.aburke.hotelbooking.ports.repository.RoomRepository
 import me.aburke.hotelbooking.repository.postgres.TestRooms
 import me.aburke.hotelbooking.repository.postgres.createApp
+import me.aburke.hotelbooking.repository.postgres.executeUpdateWithRollback
 import me.aburke.hotelbooking.repository.postgres.getHoldCount
 import me.aburke.hotelbooking.repository.postgres.hotelId
 import me.aburke.hotelbooking.repository.postgres.insertTestRooms
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.SoftAssertions
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -19,6 +20,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.koin.core.KoinApplication
 import java.sql.Connection
 import java.time.LocalDate
+import javax.sql.DataSource
 
 private const val TITLE = "title"
 private const val DESCRIPTION = "description"
@@ -76,7 +78,7 @@ class PostgresRoomRepositoryTest {
     @BeforeEach
     fun init() {
         app = createApp()
-        connection = app.koin.get()
+        connection = app.koin.get<DataSource>().connection
         underTest = app.koin.get()
     }
 
@@ -208,7 +210,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        Assertions.assertThat(result).containsExactlyInAnyOrder(
+        assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
@@ -230,7 +232,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        Assertions.assertThat(result).isEmpty()
+        assertThat(result).isEmpty()
     }
 
     @Test
@@ -247,7 +249,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        Assertions.assertThat(result).containsExactlyInAnyOrder(
+        assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
@@ -273,7 +275,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        Assertions.assertThat(result).containsExactlyInAnyOrder(
+        assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms
                 .filter { !roomsWithNoStock.contains(it.roomTypeId) }
                 .map { room ->
@@ -302,7 +304,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        Assertions.assertThat(result).containsExactlyInAnyOrder(
+        assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
@@ -331,7 +333,7 @@ class PostgresRoomRepositoryTest {
             queryEndDate,
         )
 
-        Assertions.assertThat(result).containsExactlyInAnyOrder(
+        assertThat(result).containsExactlyInAnyOrder(
             *TestRooms.rooms.map { room ->
                 room.copy(
                     stockLevels = room.stockLevels.filter {
@@ -407,7 +409,7 @@ class PostgresRoomRepositoryTest {
         query.setString(1, dates[0])
         query.setString(2, dates[1])
         query.setString(3, dates[2])
-        query.executeUpdate()
+        query.executeUpdateWithRollback()
     }
 
     private fun deleteStockForRooms() {
@@ -419,6 +421,6 @@ class PostgresRoomRepositoryTest {
         val roomIds = roomsWithNoStock.toList()
         query.setString(1, roomIds[0])
         query.setString(2, roomIds[1])
-        query.executeUpdate()
+        query.executeUpdateWithRollback()
     }
 }

@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import java.sql.Connection
 import java.time.Instant
 import java.time.ZoneOffset
+import javax.sql.DataSource
 
 private const val LOGIN_ID = "login-id"
 private const val PASSWORD = "password"
@@ -44,7 +45,7 @@ class SignUpTest {
     @BeforeEach
     fun init() {
         testContext = createApp(populateTestData = false)
-        connection = testContext.app.koin.get()
+        connection = testContext.app.koin.get<DataSource>().connection
         userRepository = testContext.app.koin.get()
     }
 
