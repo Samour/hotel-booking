@@ -6,6 +6,7 @@
     </appender>
 
     <logger name="org.eclipse.jetty" level="INFO" />
+    <logger name="com.zaxxer.hikari" level="INFO" />
     <root level="debug">
         <appender-ref ref="STDOUT" />
     </root>
