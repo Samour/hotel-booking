@@ -24,6 +24,7 @@ class HoldRoomTest {
     fun `endpoint should not be available`() = app.restTest { client, _ ->
         assertThrows<ApiException> {
             CustomerUnstableApi(client).holdRoom(
+                "room-type-id",
                 HoldRoomRequest(),
             )
         }.also {

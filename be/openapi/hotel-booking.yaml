@@ -269,7 +269,7 @@ paths:
                     items:
                       $ref: '#/components/schemas/RoomTypeWithAvailability'
 
-  /api/customer/v0/room-type/hold:
+  /api/customer/v0/room-type/{room-type-id}/hold:
     post:
       operationId: holdRoom
       summary: Temporarily hold a room for certain dates
@@ -277,18 +277,22 @@ paths:
         - session: [ CUSTOMER ]
       tags:
         - customerUnstable
+      parameters:
+        - in: path
+          name: room-type-id
+          schema:
+            type: string
+          required: true
+          description: Room type to create hold for
       requestBody:
         content:
           application/json:
             schema:
               type: object
               required:
-                - room_type_id
                 - hold_start_date
                 - hold_end_date
               properties:
-                room_type_id:
-                  type: string
                 hold_start_date:
                   type: string
                   format: date
