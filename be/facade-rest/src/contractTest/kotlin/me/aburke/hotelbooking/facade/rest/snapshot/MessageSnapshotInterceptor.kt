@@ -5,6 +5,8 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.http.RequestLine
 import okio.Buffer
+import org.json.JSONException
+import org.json.JSONObject
 import java.nio.charset.StandardCharsets
 import java.util.*
 
@@ -32,7 +34,7 @@ class MessageSnapshotInterceptor(private val snapshots: SnapshotTest) : Intercep
             val buffer = Buffer()
             body.writeTo(buffer)
             val charset = body.contentType()?.charset() ?: StandardCharsets.UTF_8
-            snapshot.add(buffer.readString(charset))
+            snapshot.add(prettyPrintJson(buffer.readString(charset)))
         }
 
         snapshots.request.newSnapshot = snapshot.toString()
@@ -51,9 +53,15 @@ class MessageSnapshotInterceptor(private val snapshots: SnapshotTest) : Intercep
         if (response.body != null) {
             snapshot.add("")
             val bodyValue = response.peekBody(SIZE_4_MB)
-            snapshot.add(bodyValue.string())
+            snapshot.add(prettyPrintJson(bodyValue.string()))
         }
 
         snapshots.response.newSnapshot = snapshot.toString()
     }
+}
+
+private fun prettyPrintJson(json: String) = try {
+    JSONObject(json).toString(2)
+} catch (_: JSONException) {
+    json
 }
