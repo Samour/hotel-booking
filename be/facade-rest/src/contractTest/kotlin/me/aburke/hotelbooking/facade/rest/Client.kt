@@ -5,6 +5,10 @@ import me.aburke.hotelbooking.rest.client.invoker.ApiClient
 import me.aburke.hotelbooking.rest.client.invoker.auth.ApiKeyAuth
 
 fun Javalin.client(sessionId: String? = null) = ApiClient().also {
-    (it.authentications["session"] as? ApiKeyAuth)?.apiKey = sessionId
+    it.withSessionId(sessionId)
     it.basePath = "http://localhost:${port()}"
+}
+
+fun ApiClient.withSessionId(sessionId: String?) = apply {
+    (authentications["session"] as? ApiKeyAuth)?.apiKey = sessionId
 }

@@ -4,6 +4,8 @@ import io.javalin.testtools.JavalinTest.test
 import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.facade.rest.parseResponse
+import me.aburke.hotelbooking.facade.rest.snapshotTest
+import me.aburke.hotelbooking.facade.rest.withSessionId
 import me.aburke.hotelbooking.rest.client.api.AdminUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException
 import me.aburke.hotelbooking.rest.client.invoker.ApiResponse
@@ -18,11 +20,11 @@ import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 class CreateUserTest : AbstractCreateUserTest() {
 
     @Test
-    fun `should create user`() = test(javalin) { _, _ ->
+    fun `should create user`() = snapshotTest(javalin) { client ->
         `RUN should create user`(
             object : TestRequest<ApiResponse<CreateUser201Response>>() {
                 override fun makeRequest(): ApiResponse<CreateUser201Response> =
-                    AdminUnstableApi(javalin.client(sessionId)).createUserWithHttpInfo(
+                    AdminUnstableApi(client.withSessionId(sessionId)).createUserWithHttpInfo(
                         CreateUserRequest().also {
                             it.loginId = loginId
                             it.password = password
