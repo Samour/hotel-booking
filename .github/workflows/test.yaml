@@ -23,6 +23,8 @@ jobs:
       - uses: actions/checkout@v3
       - run: ./gradlew facade-rest:test facade-rest:contractTest
         working-directory: be
+        env:
+          STRICT_SNAPSHOT_TESTING: 'true'
 
   test-repository-postgres:
     runs-on: ubuntu-latest

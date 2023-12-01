@@ -1,8 +1,6 @@
 package me.aburke.hotelbooking.facade.rest.api.admin.user
 
-import io.javalin.testtools.JavalinTest.test
 import me.aburke.hotelbooking.facade.rest.TestRequest
-import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.facade.rest.parseResponse
 import me.aburke.hotelbooking.facade.rest.snapshot.snapshotTest
 import me.aburke.hotelbooking.facade.rest.withSessionId
@@ -48,11 +46,11 @@ class CreateUserTest : AbstractCreateUserTest() {
     }
 
     @Test
-    fun `should return 409 when username not available`() = test(javalin) { _, _ ->
+    fun `should return 409 when username not available`() = snapshotTest(javalin) { client ->
         `RUN should return 409 when username not available`(
             object : TestRequest<ApiException>() {
                 override fun makeRequest(): ApiException = assertThrows<ApiException> {
-                    AdminUnstableApi(javalin.client(sessionId)).createUser(
+                    AdminUnstableApi(client.withSessionId(sessionId)).createUser(
                         CreateUserRequest().also {
                             it.loginId = loginId
                             it.password = password
@@ -85,11 +83,11 @@ class CreateUserTest : AbstractCreateUserTest() {
     }
 
     @Test
-    fun `should return 403 when user does not have MANAGE_USERS role`() = test(javalin) { _, _ ->
+    fun `should return 403 when user does not have MANAGE_USERS role`() = snapshotTest(javalin) { client ->
         `RUN should return 403 when user does not have MANAGE_USERS role`(
             object : TestRequest<ApiException>() {
                 override fun makeRequest(): ApiException = assertThrows<ApiException> {
-                    AdminUnstableApi(javalin.client(sessionId)).createUser(
+                    AdminUnstableApi(client.withSessionId(sessionId)).createUser(
                         CreateUserRequest().also {
                             it.loginId = loginId
                             it.password = password
