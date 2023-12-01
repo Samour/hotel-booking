@@ -61,7 +61,7 @@ class Stubs {
     fun cleanUp() = app.close()
 
     fun prepareSession(vararg roles: UserRole): UserSession {
-        val session = createRandomSession(*roles)
+        val session = createSession(*roles)
 
         sessions.add(session)
         every {
@@ -96,9 +96,9 @@ class Stubs {
     }
 }
 
-fun createRandomSession(vararg roles: UserRole) = UserSession(
-    sessionId = UUID.randomUUID().toString(),
-    userId = UUID.randomUUID().toString(),
+fun createSession(vararg roles: UserRole) = UserSession(
+    sessionId = "b6f7cdfe-7168-4882-94e0-8da9bca47200",
+    userId = "b3df1a2c-7a00-4dfc-babe-8aeaa217bdb5",
     loginId = "stubbed-login-id",
     userRoles = setOf(*roles),
     anonymousUser = false,
