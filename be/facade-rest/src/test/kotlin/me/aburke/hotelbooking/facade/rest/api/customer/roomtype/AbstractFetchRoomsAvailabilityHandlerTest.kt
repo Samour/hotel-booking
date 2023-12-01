@@ -5,7 +5,7 @@ import io.mockk.every
 import io.mockk.verify
 import me.aburke.hotelbooking.facade.rest.Stubs
 import me.aburke.hotelbooking.facade.rest.TestRequest
-import me.aburke.hotelbooking.facade.rest.createRandomSession
+import me.aburke.hotelbooking.facade.rest.createSession
 import me.aburke.hotelbooking.model.date.DateRange
 import me.aburke.hotelbooking.model.user.UserRole
 import me.aburke.hotelbooking.model.user.UserSession
@@ -148,7 +148,7 @@ abstract class AbstractFetchRoomsAvailabilityHandlerTest {
     }
 
     protected fun <T : Any> `RUN should return 401 if invalid session ID provided`(testRequest: TestRequest<T>) {
-        session = createRandomSession(UserRole.CUSTOMER)
+        session = createSession(UserRole.CUSTOMER)
         every {
             stubs.getAuthStatePort.run(
                 GetAuthStateDetails(session.sessionId),

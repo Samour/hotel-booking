@@ -18,6 +18,7 @@ task<Test>("contractTest") {
     testClassesDirs = sourceSets["contractTest"].output.classesDirs
     classpath = sourceSets["contractTest"].runtimeClasspath
     group = "verification"
+    environment("TEST_SNAPSHOT_DIR", sourceSets["contractTest"].resources.srcDirs.first())
 }
 
 dependencies {
