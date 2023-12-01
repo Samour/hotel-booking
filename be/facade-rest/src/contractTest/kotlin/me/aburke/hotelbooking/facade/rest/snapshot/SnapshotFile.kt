@@ -1,10 +1,13 @@
 package me.aburke.hotelbooking.facade.rest.snapshot
 
+import org.slf4j.LoggerFactory
 import java.io.File
 
 private val snapshotsRoot = System.getenv("TEST_SNAPSHOT_DIR")
 
 class SnapshotFile(fnamePrefix: String, private val specType: String) {
+
+    private val logger = LoggerFactory.getLogger(SnapshotFile::class.java)
 
     private val specFname = "$fnamePrefix.$specType.spec"
     private val file = File("$snapshotsRoot/$specFname")
@@ -18,14 +21,14 @@ class SnapshotFile(fnamePrefix: String, private val specType: String) {
         newSnapshot?.let { newSnapshot ->
             file.parentFile.mkdirs()
             if (!file.exists()) {
-                println("No snapshot exists for $specFname; writing result to new spec file")
+                logger.info("No snapshot exists for $specFname; writing result to new spec file")
                 newSpecFile.writeText(newSnapshot)
                 return
             }
 
             val oldSnapshot = file.readText()
             if (!valuesEquivalent(oldSnapshot, newSnapshot)) {
-                println("Writing mismatch spec to $specFname.new")
+                logger.info("Writing mismatched spec to $specFname.new")
                 newSpecFile.writeText(newSnapshot)
                 throw AssertionError(
                     "${specType.replaceFirstChar { it.titlecase() }} spec does not match the new data",
@@ -33,7 +36,7 @@ class SnapshotFile(fnamePrefix: String, private val specType: String) {
             }
 
             if (newSpecFile.exists()) {
-                println("Deleting new spec file for $specFname")
+                logger.info("Deleting new spec file for $specFname")
                 newSpecFile.delete()
             }
         }
