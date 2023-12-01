@@ -4,7 +4,7 @@ import io.javalin.testtools.JavalinTest.test
 import me.aburke.hotelbooking.facade.rest.TestRequest
 import me.aburke.hotelbooking.facade.rest.client
 import me.aburke.hotelbooking.facade.rest.parseResponse
-import me.aburke.hotelbooking.facade.rest.snapshotTest
+import me.aburke.hotelbooking.facade.rest.snapshot.snapshotTest
 import me.aburke.hotelbooking.facade.rest.withSessionId
 import me.aburke.hotelbooking.rest.client.api.AdminUnstableApi
 import me.aburke.hotelbooking.rest.client.invoker.ApiException

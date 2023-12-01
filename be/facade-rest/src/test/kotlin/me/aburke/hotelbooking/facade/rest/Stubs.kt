@@ -22,7 +22,6 @@ import org.koin.core.KoinApplication
 import org.koin.dsl.koinApplication
 import org.koin.dsl.module
 import java.time.Instant
-import java.util.UUID
 
 class Stubs {
 
