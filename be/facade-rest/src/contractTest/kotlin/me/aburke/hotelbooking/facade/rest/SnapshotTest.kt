@@ -9,8 +9,11 @@ import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.http.RequestLine
 import okio.Buffer
+import org.junit.jupiter.api.Test
+import java.lang.reflect.Method
 import java.nio.charset.StandardCharsets
 import java.util.*
+import kotlin.streams.asSequence
 
 private const val HTTP_VERSION = "HTTP/snapshot"
 
@@ -59,6 +62,15 @@ private class MessageSnapshotInterceptor : Interceptor {
 }
 
 fun snapshotTest(javalin: Javalin, case: (ApiClient) -> Unit) = test(javalin) { _, _ ->
+    val testMethod = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE).walk { frames ->
+        frames.asSequence()
+            .filter { frame ->
+                val method = frame.declaringClass.getMethodOrNull(frame.methodName, *frame.methodType.parameterArray())
+                method?.annotations?.any {
+                    it is Test
+                } ?: false
+            }.firstOrNull()
+    } ?: throw IllegalStateException("Could not determine test method")
     case(
         ApiClient(
             OkHttpClient.Builder()
@@ -68,4 +80,10 @@ fun snapshotTest(javalin: Javalin, case: (ApiClient) -> Unit) = test(javalin) { 
             basePath = "http://localhost:${javalin.port()}"
         },
     )
+}
+
+private fun Class<*>.getMethodOrNull(name: String, vararg parameterTypes: Class<*>): Method? = try {
+    getMethod(name, *parameterTypes)
+} catch (_: NoSuchMethodException) {
+    null
 }
