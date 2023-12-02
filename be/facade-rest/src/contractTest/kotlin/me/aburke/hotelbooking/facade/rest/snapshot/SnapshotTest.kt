@@ -5,7 +5,7 @@ import io.javalin.testtools.JavalinTest.test
 import me.aburke.hotelbooking.rest.client.invoker.ApiClient
 import okhttp3.OkHttpClient
 import org.junit.jupiter.api.Test
-import java.lang.StackWalker.StackFrame
+import org.junit.jupiter.api.TestInfo
 import java.lang.reflect.Method
 import kotlin.streams.asSequence
 
@@ -21,9 +21,8 @@ data class SnapshotTest(val request: SnapshotFile, val response: SnapshotFile) {
     }
 }
 
-fun snapshotTest(javalin: Javalin, case: (ApiClient) -> Unit) = test(javalin) { _, _ ->
-    val testMethod = determineTestMethod()
-    val snapshotTest = SnapshotTest.fromTestMethod(testMethod.className, testMethod.methodName)
+fun snapshotTest(javalin: Javalin, testInfo: TestInfo? = null, case: (ApiClient) -> Unit) = test(javalin) { _, _ ->
+    val snapshotTest = determineTestMethod(testInfo)
     val apiClient = ApiClient(
         OkHttpClient.Builder()
             .addInterceptor(MessageSnapshotInterceptor(snapshotTest))
@@ -37,19 +36,27 @@ fun snapshotTest(javalin: Javalin, case: (ApiClient) -> Unit) = test(javalin) { 
     snapshotTest.response.verify()
 }
 
-@Suppress("NOTHING_TO_INLINE")
-private inline fun determineTestMethod(): StackFrame = StackWalker.getInstance(
-    StackWalker.Option.RETAIN_CLASS_REFERENCE,
-)
-    .walk { frames ->
-        frames.asSequence()
-            .filter { frame ->
-                val method = frame.declaringClass.getMethodOrNull(frame.methodName, *frame.methodType.parameterArray())
-                method?.annotations?.any {
-                    it is Test
-                } ?: false
-            }.firstOrNull()
-    } ?: throw IllegalStateException("Could not determine test method")
+private fun determineTestMethod(testInfo: TestInfo?): SnapshotTest {
+    if (testInfo != null) {
+        return SnapshotTest.fromTestMethod(
+            className = testInfo.testClass.get().name,
+            method = "${testInfo.testMethod.get().name} ${testInfo.displayName}"
+        )
+    }
+
+    return StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE)
+        .walk { frames ->
+            frames.asSequence()
+                .filter { frame ->
+                    val method = frame.declaringClass.getMethodOrNull(frame.methodName, *frame.methodType.parameterArray())
+                    method?.annotations?.any {
+                        it is Test
+                    } ?: false
+                }.firstOrNull()
+        }?.let {
+            SnapshotTest.fromTestMethod(it.className, it.methodName)
+        } ?: throw IllegalStateException("Could not determine test method")
+}
 
 private fun Class<*>.getMethodOrNull(name: String, vararg parameterTypes: Class<*>): Method? = try {
     getMethod(name, *parameterTypes)
