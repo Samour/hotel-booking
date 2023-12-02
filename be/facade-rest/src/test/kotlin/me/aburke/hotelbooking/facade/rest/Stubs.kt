@@ -95,9 +95,12 @@ class Stubs {
     }
 }
 
+const val SESSION_ID = "b6f7cdfe-7168-4882-94e0-8da9bca47200"
+const val USER_ID = "b3df1a2c-7a00-4dfc-babe-8aeaa217bdb5"
+
 fun createSession(vararg roles: UserRole) = UserSession(
-    sessionId = "b6f7cdfe-7168-4882-94e0-8da9bca47200",
-    userId = "b3df1a2c-7a00-4dfc-babe-8aeaa217bdb5",
+    sessionId = SESSION_ID,
+    userId = USER_ID,
     loginId = "stubbed-login-id",
     userRoles = setOf(*roles),
     anonymousUser = false,

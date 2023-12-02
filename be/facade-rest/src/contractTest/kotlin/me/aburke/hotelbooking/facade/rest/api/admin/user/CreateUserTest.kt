@@ -22,13 +22,28 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import me.aburke.hotelbooking.rest.client.model.UserRole as UserRoleDto
 
-class CreateUserTest {
+private const val LOGIN_ID = "login-id"
+private const val PASSWORD = "password"
+private const val NAME = "name"
+private const val CREATED_USER_ID = "user-id"
+private val roles = setOf(UserRole.MANAGE_ROOMS)
 
-    private val loginId = "login-id"
-    private val password = "password"
-    private val name = "name"
-    private val userId = "user-id"
-    private val roles = setOf(UserRole.MANAGE_ROOMS)
+private val createUserDetails = CreateUserDetails(
+    loginId = LOGIN_ID,
+    rawPassword = PASSWORD,
+    name = NAME,
+    userRoles = roles,
+)
+private val createUserRequest = CreateUserRequest().also { req ->
+    req.loginId = LOGIN_ID
+    req.password = PASSWORD
+    req.name = NAME
+    req.roles = roles.map {
+        UserRoleDto.fromValue(it.name)
+    }
+}
+
+class CreateUserTest {
 
     private val stubs = Stubs()
 
@@ -45,47 +60,25 @@ class CreateUserTest {
     @Test
     fun `should create user`() = snapshotTest(javalin) { client ->
         every {
-            stubs.createUserPort.run(
-                CreateUserDetails(
-                    loginId = loginId,
-                    rawPassword = password,
-                    name = name,
-                    userRoles = roles,
-                ),
-            )
+            stubs.createUserPort.run(createUserDetails)
         } returns CreateUserResult.Success(
-            userId = userId,
+            userId = CREATED_USER_ID,
         )
-        val sessionId = stubs.prepareSession(UserRole.MANAGE_USERS).sessionId
+        stubs.prepareSession(UserRole.MANAGE_USERS)
 
-        val response = AdminUnstableApi(client.withSessionId(sessionId)).createUserWithHttpInfo(
-            CreateUserRequest().also {
-                it.loginId = loginId
-                it.password = password
-                it.name = name
-                it.roles = roles.map {
-                    UserRoleDto.fromValue(it.name)
-                }
-            },
-        )
+        val response = AdminUnstableApi(client.withSessionId())
+            .createUserWithHttpInfo(createUserRequest)
 
         assertSoftly { s ->
             s.assertThat(response.statusCode).isEqualTo(201)
             s.assertThat(response.data).isEqualTo(
                 CreateUser201Response().also {
-                    it.userId = userId
+                    it.userId = CREATED_USER_ID
                 },
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.createUserPort.run(
-                        CreateUserDetails(
-                            loginId = loginId,
-                            rawPassword = password,
-                            name = name,
-                            userRoles = roles,
-                        ),
-                    )
+                    stubs.createUserPort.run(createUserDetails)
                 }
             }
             with(stubs) {
@@ -99,26 +92,17 @@ class CreateUserTest {
         every {
             stubs.createUserPort.run(
                 CreateUserDetails(
-                    loginId = loginId,
-                    rawPassword = password,
-                    name = name,
+                    loginId = LOGIN_ID,
+                    rawPassword = PASSWORD,
+                    name = NAME,
                     userRoles = roles,
                 ),
             )
         } returns CreateUserResult.UsernameNotAvailable
 
-        val sessionId = stubs.prepareSession(UserRole.MANAGE_USERS).sessionId
+        stubs.prepareSession(UserRole.MANAGE_USERS)
         val response = assertThrows<ApiException> {
-            AdminUnstableApi(client.withSessionId(sessionId)).createUser(
-                CreateUserRequest().also {
-                    it.loginId = loginId
-                    it.password = password
-                    it.name = name
-                    it.roles = roles.map {
-                        UserRoleDto.fromValue(it.name)
-                    }
-                },
-            )
+            AdminUnstableApi(client.withSessionId()).createUser(createUserRequest)
         }
 
         val responseBody = response.responseBody.parseResponse<ProblemResponse>()
@@ -138,14 +122,7 @@ class CreateUserTest {
             )
             s.check {
                 verify(exactly = 1) {
-                    stubs.createUserPort.run(
-                        CreateUserDetails(
-                            loginId = loginId,
-                            rawPassword = password,
-                            name = name,
-                            userRoles = roles,
-                        ),
-                    )
+                    stubs.createUserPort.run(createUserDetails)
                 }
             }
             with(stubs) {
@@ -156,18 +133,9 @@ class CreateUserTest {
 
     @Test
     fun `should return 403 when user does not have MANAGE_USERS role`() = snapshotTest(javalin) { client ->
-        val sessionId = stubs.prepareSession(UserRole.MANAGE_ROOMS).sessionId
+        stubs.prepareSession(UserRole.MANAGE_ROOMS)
         val response = assertThrows<ApiException> {
-            AdminUnstableApi(client.withSessionId(sessionId)).createUser(
-                CreateUserRequest().also {
-                    it.loginId = loginId
-                    it.password = password
-                    it.name = name
-                    it.roles = roles.map {
-                        UserRoleDto.fromValue(it.name)
-                    }
-                },
-            )
+            AdminUnstableApi(client.withSessionId()).createUser(createUserRequest)
         }
 
         val responseBody = response.responseBody.parseResponse<ProblemResponse>()
